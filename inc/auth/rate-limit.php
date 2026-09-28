@@ -28,35 +28,120 @@ defined( 'ABSPATH' ) || exit;
 // ============================================================
 
 /**
+ * Indique si une adresse fait partie des proxys de confiance.
+ *
+ * Proxys de confiance : adresses privées ou réservées (reverse proxy sur réseau
+ * interne, environnement local) et, en production, la liste optionnelle
+ * `_180C_TRUSTED_PROXIES` (wp-config.php) — IP ou plages CIDR séparées par des
+ * virgules. Sans cette constante, aucun proxy public n'est cru.
+ *
+ * @param string $ip Adresse à tester.
+ * @return bool
+ */
+function _180c_is_trusted_proxy( string $ip ): bool {
+	if ( ! filter_var( $ip, FILTER_VALIDATE_IP ) ) {
+		return false;
+	}
+
+	if ( ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
+		return true;
+	}
+
+	$list = defined( '_180C_TRUSTED_PROXIES' ) ? (string) _180C_TRUSTED_PROXIES : '';
+	foreach ( array_filter( array_map( 'trim', explode( ',', $list ) ) ) as $range ) {
+		if ( _180c_ip_in_range( $ip, $range ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Teste l'appartenance d'une IP à une adresse ou une plage CIDR (IPv4 / IPv6).
+ *
+ * @param string $ip    Adresse testée.
+ * @param string $range Adresse seule ou plage `adresse/préfixe`.
+ * @return bool
+ */
+function _180c_ip_in_range( string $ip, string $range ): bool {
+	if ( ! str_contains( $range, '/' ) ) {
+		return inet_pton( $ip ) !== false && inet_pton( $ip ) === @inet_pton( $range ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- plage mal formée : simple non-correspondance.
+	}
+
+	list( $subnet, $bits ) = explode( '/', $range, 2 );
+
+	$ip_bin  = inet_pton( $ip );
+	$net_bin = @inet_pton( $subnet ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- idem.
+	$bits    = (int) $bits;
+
+	if ( false === $ip_bin || false === $net_bin || strlen( $ip_bin ) !== strlen( $net_bin ) || $bits < 0 || $bits > strlen( $ip_bin ) * 8 ) {
+		return false;
+	}
+
+	$bytes = intdiv( $bits, 8 );
+	$rest  = $bits % 8;
+
+	if ( 0 !== strncmp( $ip_bin, $net_bin, $bytes ) ) {
+		return false;
+	}
+
+	if ( 0 === $rest ) {
+		return true;
+	}
+
+	$mask = ( 0xFF << ( 8 - $rest ) ) & 0xFF;
+
+	return ( ord( $ip_bin[ $bytes ] ) & $mask ) === ( ord( $net_bin[ $bytes ] ) & $mask );
+}
+
+/**
  * Retourne l'IP réelle du visiteur.
  *
- * Priorité : CF-Connecting-IP > premier élément de X-Forwarded-For > REMOTE_ADDR.
+ * `REMOTE_ADDR` fait foi. Les en-têtes `CF-Connecting-IP` et `X-Forwarded-For`
+ * sont fournis par le client et donc falsifiables : ils ne sont lus que si la
+ * connexion vient d'un proxy de confiance (`_180c_is_trusted_proxy()`). Dans ce
+ * cas, `X-Forwarded-For` est parcouru de droite à gauche et la première adresse
+ * qui n'est pas elle-même un proxy de confiance est retenue — l'entrée la plus à
+ * gauche, posée par le client, n'est jamais crue d'office.
+ *
+ * Vérifié sur la production (derrière le CDN de l'hébergeur) : `REMOTE_ADDR`
+ * porte bien l'IP du visiteur, les connexions ne partagent pas une adresse
+ * commune.
  *
  * @return string
  */
 function _180c_get_client_ip(): string {
-	// Cloudflare transmet l'IP originale via CF-Connecting-IP.
-	if ( ! empty( $_SERVER['HTTP_CF_CONNECTING_IP'] ) ) {
-		$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CF_CONNECTING_IP'] ) );
-		if ( filter_var( $ip, FILTER_VALIDATE_IP ) ) {
-			return $ip;
+	$remote = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+	if ( ! filter_var( $remote, FILTER_VALIDATE_IP ) ) {
+		return '0.0.0.0';
+	}
+
+	if ( ! _180c_is_trusted_proxy( $remote ) ) {
+		return $remote;
+	}
+
+	if ( ! empty( $_SERVER['HTTP_CF_CONNECTING_IP'] ) && defined( '_180C_TRUSTED_PROXIES' ) ) {
+		$cf = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CF_CONNECTING_IP'] ) );
+		if ( filter_var( $cf, FILTER_VALIDATE_IP ) ) {
+			return $cf;
 		}
 	}
 
-	// Proxy / load balancer : X-Forwarded-For (liste séparée par virgules — on prend la première valide).
 	if ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
 		$forwarded = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
-		$parts     = array_map( 'trim', explode( ',', $forwarded ) );
-		foreach ( $parts as $candidate ) {
-			if ( filter_var( $candidate, FILTER_VALIDATE_IP ) ) {
-				return $candidate;
+		$hops      = array_reverse( array_map( 'trim', explode( ',', $forwarded ) ) );
+		foreach ( $hops as $hop ) {
+			if ( ! filter_var( $hop, FILTER_VALIDATE_IP ) ) {
+				break;
+			}
+			if ( ! _180c_is_trusted_proxy( $hop ) ) {
+				return $hop;
 			}
 		}
 	}
 
-	// Fallback direct.
-	$remote = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '0.0.0.0';
-	return filter_var( $remote, FILTER_VALIDATE_IP ) ? $remote : '0.0.0.0';
+	return $remote;
 }
 
 // ============================================================
