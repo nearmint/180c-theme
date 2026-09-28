@@ -80,6 +80,7 @@ require_once _180C_THEME_DIR . '/inc/media-alt.php';
 require_once _180C_THEME_DIR . '/inc/security.php';
 require_once _180C_THEME_DIR . '/inc/security-headers.php';
 require_once _180C_THEME_DIR . '/inc/enqueue.php';
+require_once _180C_THEME_DIR . '/inc/email-typo.php';
 require_once _180C_THEME_DIR . '/inc/perf-assets.php';
 require_once _180C_THEME_DIR . '/inc/contact.php';
 require_once _180C_THEME_DIR . '/inc/design-system.php';
@@ -97,6 +98,7 @@ require_once _180C_THEME_DIR . '/inc/mailchimp/source-tags.php';
 require_once _180C_THEME_DIR . '/inc/mailchimp/subscription-sync.php';
 require_once _180C_THEME_DIR . '/inc/mailchimp/unpaid-tag.php';
 require_once _180C_THEME_DIR . '/inc/mailchimp/membership-sync.php';
+require_once _180C_THEME_DIR . '/inc/mailchimp/email-change-sync.php';
 
 require_once _180C_THEME_DIR . '/inc/author.php';
 require_once _180C_THEME_DIR . '/inc/author-schema.php';
@@ -149,6 +151,7 @@ require_once _180C_THEME_DIR . '/inc/woo/account-helpers.php';
 require_once _180C_THEME_DIR . '/inc/woo/subscription-status-labels.php';
 require_once _180C_THEME_DIR . '/inc/woo/apple-google-pay.php';
 require_once _180C_THEME_DIR . '/inc/woo/emails.php';
+require_once _180C_THEME_DIR . '/inc/woo/lookalike-alert.php';
 require_once _180C_THEME_DIR . '/inc/woo/memberships-i18n.php';
 
 // ISBN dans les exports de commandes (plugin SkyVerge Customer/Order/Coupon
