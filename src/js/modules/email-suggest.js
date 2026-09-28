@@ -124,9 +124,28 @@ function showHint(input, suggestion) {
   const strong = document.createElement('strong');
   strong.textContent = suggestion.domain;
   button.append(local, strong);
+  // Écouteur posé sur le bouton lui-même, pas délégué au document : dans le
+  // checkout WooCommerce, un élément intermédiaire stoppe la propagation des
+  // clics (constaté en test : le clic n'atteignait jamais `form.checkout`).
+  button.addEventListener('click', () => applySuggestion(input, suggestion.email));
 
   hint.replaceChildren('Vouliez-vous dire ', button, ' ?');
   hint.classList.add('email-suggest--visible');
+}
+
+/**
+ * Remplace l'adresse saisie par la suggestion.
+ *
+ * @param {HTMLInputElement} input
+ * @param {string} email Adresse suggérée.
+ */
+function applySuggestion(input, email) {
+  input.value = email;
+  // `change` : le checkout WooCommerce et les validations écoutent cet événement.
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  input.dispatchEvent(new Event('change', { bubbles: true }));
+  clearHint(input);
+  input.focus();
 }
 
 /**
@@ -167,20 +186,5 @@ export function init() {
     if (event.target instanceof HTMLInputElement && event.target.matches(SELECTOR)) {
       clearHint(event.target);
     }
-  });
-
-  document.addEventListener('click', (event) => {
-    const button = event.target instanceof Element ? event.target.closest('.email-suggest__button') : null;
-    if (!button) return;
-
-    const input = button.closest('.email-suggest')?.previousElementSibling;
-    if (!(input instanceof HTMLInputElement)) return;
-
-    input.value = button.dataset.emailSuggestion || input.value;
-    // `change` : le checkout WooCommerce et les validations écoutent cet événement.
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-    input.dispatchEvent(new Event('change', { bubbles: true }));
-    clearHint(input);
-    input.focus();
   });
 }
