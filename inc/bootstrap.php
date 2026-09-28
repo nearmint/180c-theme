@@ -151,6 +151,7 @@ require_once _180C_THEME_DIR . '/inc/woo/account-helpers.php';
 require_once _180C_THEME_DIR . '/inc/woo/subscription-status-labels.php';
 require_once _180C_THEME_DIR . '/inc/woo/apple-google-pay.php';
 require_once _180C_THEME_DIR . '/inc/woo/emails.php';
+require_once _180C_THEME_DIR . '/inc/woo/lookalike-alert.php';
 require_once _180C_THEME_DIR . '/inc/woo/memberships-i18n.php';
 
 // ISBN dans les exports de commandes (plugin SkyVerge Customer/Order/Coupon
