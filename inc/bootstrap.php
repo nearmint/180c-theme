@@ -98,6 +98,7 @@ require_once _180C_THEME_DIR . '/inc/mailchimp/source-tags.php';
 require_once _180C_THEME_DIR . '/inc/mailchimp/subscription-sync.php';
 require_once _180C_THEME_DIR . '/inc/mailchimp/unpaid-tag.php';
 require_once _180C_THEME_DIR . '/inc/mailchimp/membership-sync.php';
+require_once _180C_THEME_DIR . '/inc/mailchimp/email-change-sync.php';
 
 require_once _180C_THEME_DIR . '/inc/author.php';
 require_once _180C_THEME_DIR . '/inc/author-schema.php';
