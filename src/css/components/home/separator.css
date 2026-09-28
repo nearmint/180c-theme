@@ -1,0 +1,17 @@
+/*
+ * Home module — separator
+ *
+ * Fine horizontal rule used to break editorial rhythm between modules.
+ * Partial emits a single <div class="module-separator" role="separator">.
+ * Inter-module vertical rhythm is already handled globally by
+ * .site-main > * + * (main.css), so the rule only needs visual styling.
+ */
+
+@layer components {
+  .module-separator {
+    width: clamp(6rem, 30vw, 12rem);
+    height: 1px;
+    margin-inline: auto;
+    background-color: var(--color-border);
+  }
+}

@@ -1,0 +1,49 @@
+/*
+ * Home modules — base layer
+ *
+ * Foundation common to all home page modules rendered via ACF Flexible
+ * Content (parts/modules/<layout>.php).
+ *
+ * Inter-module vertical rhythm is owned by the `.home-modules` wrapper
+ * (front-page.php / template-home.php) via a single flex `gap`. Modules
+ * therefore must NOT add their own `padding-block: var(--section-y)` for
+ * inter-section spacing — that produced a double rhythm (gap + padding).
+ * Only sections carrying a surface/background keep an internal padding-block
+ * (app_promo, newsletter_form) and full-bleed bands keep theirs (carnet--cta,
+ * subscription_banner, heroes).
+ * Module-specific styles live in src/css/components/home/<module>.css
+ * and use the BEM convention emitted by each partial.
+ */
+
+@layer components {
+  /* Wrapper home-only : porte le rythme vertical inter-modules via un seul
+   * gap. Étiré à la largeur de contenu de .site-main → la référence `50%`
+   * des modules full-bleed (margin-inline: calc(50% - 50vw)) est inchangée. */
+  .home-modules {
+    display: flex;
+    flex-direction: column;
+    gap: var(--section-y);
+
+    /* Même respiration en tête et en pied qu'entre deux modules : le premier
+     * et le dernier ne doivent pas se coller au header et au footer alors que
+     * tous leurs voisins ont du champ. Même token que le gap, donc la
+     * cadence reste unique — la changer à un seul endroit la change partout. */
+    margin-block: var(--section-y);
+  }
+
+  .home-module {
+    position: relative;
+  }
+
+  /* Mobile : gouttières latérales réduites (~8px) pour élargir les modules
+   * (newsletter, rails recettes/articles/produits…). On tire `.home-modules`
+   * hors d'une partie du padding de `.site-main.site-container` (var(--container-pad))
+   * pour ne laisser que --space-2xs de chaque côté. Les modules full-bleed
+   * (margin-inline: calc(50% - 50vw)) atteignent toujours le bord du viewport :
+   * leur référence `50%` suit la largeur élargie de `.home-modules`. */
+  @media (max-width: 767px) {
+    .home-modules {
+      margin-inline: calc(-1 * (var(--container-pad) - var(--space-2xs)));
+    }
+  }
+}

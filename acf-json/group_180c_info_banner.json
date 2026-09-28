@@ -1,0 +1,211 @@
+{
+  "key": "group_180c_info_banner",
+  "title": "Bandeau d'information",
+  "fields": [
+    {
+      "key": "field_180c_info_banner_enabled",
+      "label": "Activer le bandeau",
+      "name": "info_banner_enabled",
+      "type": "true_false",
+      "instructions": "Interrupteur maître. Désactivé : aucun rendu, aucun script.",
+      "required": 0,
+      "conditional_logic": 0,
+      "message": "",
+      "default_value": 0,
+      "ui": 1,
+      "ui_on_text": "Activé",
+      "ui_off_text": "Désactivé"
+    },
+    {
+      "key": "field_180c_info_banner_variant",
+      "label": "Variante",
+      "name": "info_banner_variant",
+      "type": "select",
+      "instructions": "Promo (accent jaune), Info (fond sombre), Alerte (signal).",
+      "required": 0,
+      "conditional_logic": 0,
+      "choices": {
+        "info": "Info",
+        "promo": "Promo",
+        "alert": "Alerte"
+      },
+      "default_value": "promo",
+      "allow_null": 0,
+      "multiple": 0,
+      "ui": 0,
+      "return_format": "value",
+      "ajax": 0,
+      "placeholder": ""
+    },
+    {
+      "key": "field_180c_info_banner_content",
+      "label": "Contenu",
+      "name": "info_banner_content",
+      "type": "wysiwyg",
+      "instructions": "Texte court (120 caractères max, balises non comptées). Gras, italique et lien autorisés uniquement.",
+      "required": 0,
+      "conditional_logic": 0,
+      "default_value": "",
+      "tabs": "visual",
+      "toolbar": "basic_180c",
+      "media_upload": 0,
+      "delay": 0
+    },
+    {
+      "key": "field_180c_info_banner_display_scope",
+      "label": "Ciblage d'affichage",
+      "name": "info_banner_display_scope",
+      "type": "select",
+      "instructions": "Accueil : page d'accueil uniquement. Tout le site. Tout le site sauf certaines pages. Pages spécifiques uniquement.",
+      "required": 0,
+      "conditional_logic": 0,
+      "choices": {
+        "home": "Accueil uniquement",
+        "site": "Tout le site",
+        "site_except": "Tout le site sauf…",
+        "specific": "Pages spécifiques"
+      },
+      "default_value": "site",
+      "allow_null": 0,
+      "multiple": 0,
+      "ui": 0,
+      "return_format": "value",
+      "ajax": 0,
+      "placeholder": ""
+    },
+    {
+      "key": "field_180c_info_banner_pages_specific",
+      "label": "Pages ciblées",
+      "name": "info_banner_pages_specific",
+      "type": "relationship",
+      "instructions": "Le bandeau ne s'affiche que sur ces pages.",
+      "required": 0,
+      "conditional_logic": [
+        [
+          {
+            "field": "field_180c_info_banner_display_scope",
+            "operator": "==",
+            "value": "specific"
+          }
+        ]
+      ],
+      "post_type": ["page"],
+      "post_status": "",
+      "taxonomy": "",
+      "filters": ["search"],
+      "return_format": "id",
+      "min": 0,
+      "max": 0,
+      "elements": ""
+    },
+    {
+      "key": "field_180c_info_banner_pages_excluded",
+      "label": "Pages exclues",
+      "name": "info_banner_pages_excluded",
+      "type": "relationship",
+      "instructions": "Le bandeau s'affiche partout sauf sur ces pages.",
+      "required": 0,
+      "conditional_logic": [
+        [
+          {
+            "field": "field_180c_info_banner_display_scope",
+            "operator": "==",
+            "value": "site_except"
+          }
+        ]
+      ],
+      "post_type": ["page"],
+      "post_status": "",
+      "taxonomy": "",
+      "filters": ["search"],
+      "return_format": "id",
+      "min": 0,
+      "max": 0,
+      "elements": ""
+    },
+    {
+      "key": "field_180c_info_banner_date_start",
+      "label": "Date de début",
+      "name": "info_banner_date_start",
+      "type": "date_time_picker",
+      "instructions": "Optionnel (fuseau Europe/Paris). Vide : pas de borne basse.",
+      "required": 0,
+      "conditional_logic": 0,
+      "display_format": "d/m/Y H:i",
+      "return_format": "Y-m-d H:i:s",
+      "first_day": 1
+    },
+    {
+      "key": "field_180c_info_banner_date_end",
+      "label": "Date de fin",
+      "name": "info_banner_date_end",
+      "type": "date_time_picker",
+      "instructions": "Optionnel (fuseau Europe/Paris). Vide : pas de borne haute.",
+      "required": 0,
+      "conditional_logic": 0,
+      "display_format": "d/m/Y H:i",
+      "return_format": "Y-m-d H:i:s",
+      "first_day": 1
+    },
+    {
+      "key": "field_180c_info_banner_show_desktop",
+      "label": "Afficher sur desktop",
+      "name": "info_banner_show_desktop",
+      "type": "true_false",
+      "instructions": "",
+      "required": 0,
+      "conditional_logic": 0,
+      "message": "",
+      "default_value": 1,
+      "ui": 1,
+      "ui_on_text": "Oui",
+      "ui_off_text": "Non"
+    },
+    {
+      "key": "field_180c_info_banner_show_mobile",
+      "label": "Afficher sur mobile",
+      "name": "info_banner_show_mobile",
+      "type": "true_false",
+      "instructions": "",
+      "required": 0,
+      "conditional_logic": 0,
+      "message": "",
+      "default_value": 1,
+      "ui": 1,
+      "ui_on_text": "Oui",
+      "ui_off_text": "Non"
+    },
+    {
+      "key": "field_180c_info_banner_dismissible",
+      "label": "Refermable par le visiteur",
+      "name": "info_banner_dismissible",
+      "type": "true_false",
+      "instructions": "Affiche une croix de fermeture. La fermeture est mémorisée tant que le contenu ne change pas.",
+      "required": 0,
+      "conditional_logic": 0,
+      "message": "",
+      "default_value": 1,
+      "ui": 1,
+      "ui_on_text": "Oui",
+      "ui_off_text": "Non"
+    }
+  ],
+  "location": [
+    [
+      {
+        "param": "options_page",
+        "operator": "==",
+        "value": "180c-info-banner"
+      }
+    ]
+  ],
+  "menu_order": 0,
+  "position": "normal",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "hide_on_screen": "",
+  "active": true,
+  "description": "Bandeau d'information administrable (Marketing > Bandeau Boutique).",
+  "modified": 1780272000
+}

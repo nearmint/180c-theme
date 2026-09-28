@@ -1,0 +1,18 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "180c/paywall",
+  "title": "Paywall recette",
+  "category": "180c",
+  "icon": "lock",
+  "description": "Overlay paywall pour les recettes premium. Rendu automatique via single-recipe.php — ne pas insérer manuellement.",
+  "keywords": ["paywall", "premium", "abonnement", "lock"],
+  "supports": {
+    "html": false,
+    "anchor": false,
+    "inserter": false
+  },
+  "attributes": {},
+  "render": "file:./render.php",
+  "style": "file:./style.css"
+}

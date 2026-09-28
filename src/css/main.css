@@ -1,0 +1,467 @@
+/**
+ * CSS principal du thème 180°C.
+ *
+ * Architecture :
+ *  - tokens.css : variables CSS (couleurs, typo, espacements)
+ *  - main.css : Tailwind + thème + utilitaires globaux + base typographique
+ *  - components/* : styles spécifiques aux composants
+ *
+ * NOTE (Phase 1.3) : le script anti-flash dark mode doit être inliné dans
+ * header.php (avant tout <link> CSS) pour prévenir le FOUC. Il lira le
+ * cookie `theme-mode` et positionnera data-theme sur <html> côté serveur.
+ */
+
+@import "./fonts.css";
+@import "tailwindcss";
+/* Utilitaire employé hors des sources du thème (contenu éditorial) : à
+   générer même si aucun fichier du dépôt ne le mentionne. */
+@source inline("underline");
+@import "./tokens.css";
+@import "./components/buttons.css";
+@import "./components/forms.css";
+@import "./components/cards.css";
+@import "./components/header.css";
+@import "./components/cart.css";
+@import "./components/breadcrumb.css";
+@import "./components/side-menu.css";
+@import "./components/footer.css";
+@import "./components/newsletter-form.css";
+@import "./components/newsletter.css";
+@import "./components/theme-toggle.css";
+@import "./components/single.css";
+@import "./components/smart-banner.css";
+@import "./components/info-banner.css";
+@import "./components/consent.css";
+@import "./components/paywall.css";
+@import "./components/media.css";
+@import "./components/lightbox.css";
+@import "./components/entry-header.css";
+@import "./components/share-actions.css";
+@import "./components/favorite-button.css";
+@import "./components/carnet-hint.css";
+@import "./components/toast.css";
+@import "./components/push-prompt.css";
+@import "./components/modal.css";
+@import "./components/recipe.css";
+@import "./components/recipes-stickynav.css";
+@import "./components/mon-carnet.css";
+@import "./components/article.css";
+@import "./components/content-blocks.css";
+@import "./components/youtube-embed.css";
+@import "./components/blocks-produits.css";
+@import "./components/blocks-recettes.css";
+@import "./components/encart-sponsor.css";
+@import "./components/pagination.css";
+@import "./components/page-shell.css";
+@import "./components/archive-grid.css";
+@import "./components/section-header.css";
+@import "./components/empty-state.css";
+@import "./components/author.css";
+@import "./components/search.css";
+/* Carte produit partagée, extraite de woo.css : elle est rendue hors contexte
+ * commerce (rails « publications » de la home, cross-sells) et doit donc rester
+ * dans le bundle global. Importée juste avant woo.css pour conserver à
+ * l'identique sa position d'origine dans la cascade. */
+@import "./components/card-product.css";
+@import "./components/bottom-sheet.css";
+@import "./components/auth.css";
+@import "./components/error.css";
+@import "./components/help.css";
+@import "./components/subscribe.css";
+@import "./components/gift.css";
+@import "./components/contact.css";
+@import "./components/about.css";
+@import "./components/legal.css";
+@import "./components/sitemap.css";
+@import "./components/cdd-optin.css";
+@import "./components/home/_base.css";
+@import "./components/home/_rails.css";
+@import "./components/home/articles-rail.css";
+@import "./components/home/carnet.css";
+@import "./components/home/category-tiles.css";
+@import "./components/home/collection-mosaic.css";
+@import "./components/home/grid-paginated.css";
+@import "./components/home/hero-editorial.css";
+@import "./components/home/instagram.css";
+@import "./components/home/last-publication.css";
+@import "./components/home/newsletter-form.css";
+@import "./components/home/recipe-search.css";
+@import "./components/home/recipes-rail.css";
+@import "./components/home/recipes-slider.css";
+@import "./components/home/separator.css";
+@import "./components/home/subscription-banner.css";
+
+/* ------------------------------------------------------------------
+ * Feuilles commerce : PAS ici.
+ *
+ * woo, product-tabs, my-account, unsubscribe-flow, checkout, onboarding et
+ * cart-crosssells vivent dans src/css/commerce.css, bundle chargé uniquement
+ * sur les pages WooCommerce (boutique, fiche produit, panier, commande, Mon
+ * Compte). Ils représentaient ~60 % du poids brut de cette feuille, qui est
+ * render-blocking sur 100 % des pages. Voir l'en-tête de commerce.css.
+ * ------------------------------------------------------------------ */
+
+/* Utilitaires de polish (transitions sobres, reveal rails, skeleton). */
+@import "./utilities/polish.css";
+
+/* Feuille d'impression (dernière → peut surcharger). */
+@import "./print/recipe-print.css";
+
+/* ============================================================
+ * @theme — expose les tokens dans le système Tailwind v4
+ * ============================================================ */
+@theme {
+  /* Couleurs sémantiques light (overridées en dark ci-dessous) */
+  --color-accent: #FFAE3A;
+  /* Accent EN TANT QUE TEXTE sur fond clair : l'accent vif #FFAE3A ne passe
+   * que ~1.85:1 sur blanc → on bascule sur un ambre foncé AA (#8A5A00 ≈ 5.9:1).
+   * En dark, l'override ci-dessous le ramène à #FFAE3A (déjà ~9:1 sur fond
+   * sombre). --color-accent reste #FFAE3A pour bordures/fonds/accent vif. */
+  --color-accent-text: #8A5A00;
+  --color-bg: #FFFFFF;
+  --color-bg-elevated: #FAFAFA;
+  --color-fg: #0E0E0E;
+  --color-fg-muted: #6E6E6E;
+  --color-border: #E5E5E5;
+
+  /* Status colors (light) */
+  --color-success: #3FA66B;
+  --color-warning: #E69500;
+  --color-danger: #D14444;
+
+  /* Typographie — fallback chain system fonts en cas de FOUT / échec de chargement. */
+  --font-display: "Oswald", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-body: "Playfair Display", Georgia, "Times New Roman", "Iowan Old Style", serif;
+}
+
+/* ============================================================
+ * Dark mode — auto (prefers-color-scheme)
+ * ============================================================ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg: #0E0E0E;
+    --color-fg: #F5F5F5;
+    --color-bg-elevated: #1A1A1A;
+    --color-fg-muted: #A0A0A0;
+    --color-border: #2A2A2A;
+    --color-accent-text: #FFAE3A;
+
+    --color-success: #5BBF85;
+    --color-warning: #FFB84D;
+    --color-danger: #E66666;
+  }
+}
+
+[data-theme="dark"] {
+  --color-bg: #0E0E0E;
+  --color-fg: #F5F5F5;
+  --color-bg-elevated: #1A1A1A;
+  --color-fg-muted: #A0A0A0;
+  --color-border: #2A2A2A;
+  --color-accent-text: #FFAE3A;
+
+  --color-success: #5BBF85;
+  --color-warning: #FFB84D;
+  --color-danger: #E66666;
+}
+
+[data-theme="light"] {
+  --color-bg: #FFFFFF;
+  --color-fg: #0E0E0E;
+  --color-bg-elevated: #FAFAFA;
+  --color-fg-muted: #6E6E6E;
+  --color-border: #E5E5E5;
+  --color-accent-text: #8A5A00;
+
+  --color-success: #3FA66B;
+  --color-warning: #E69500;
+  --color-danger: #D14444;
+}
+
+/* ============================================================
+ * Base — html root font-size (16px mobile, 17px ≥1024px)
+ * ============================================================ */
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (min-width: 1024px) {
+  html {
+    font-size: 17px;
+  }
+}
+
+/* ============================================================
+ * Smooth scroll global + offset header
+ *
+ * scroll-padding-top compense le header sticky (~80px) + un buffer
+ * de 16px pour que les ancres ne collent pas au header.
+ * Override reduced-motion : auto pour neutraliser le smooth si
+ * l'utilisateur a active la preference systeme.
+ * ============================================================ */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 96px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ============================================================
+ * Base — body
+ * font-body par défaut (texte long en Playfair).
+ * Les composants UI (nav, boutons, labels) redéfinissent font-display localement.
+ * ============================================================ */
+body {
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.65;
+  letter-spacing: 0;
+  font-feature-settings: "kern", "liga", "calt";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ============================================================
+ * Headings — échelle fluid + display font + margin-block:0
+ *
+ * La rythmique entre titres et paragraphes est gérée par les containers
+ * (espacement de section + gap), pas par les marges des titres.
+ *
+ * Dans @layer base pour que toute classe BEM ciblant un heading (ex.
+ * .site-footer__col-title sur un h2) puisse override naturellement
+ * depuis @layer components, sans bataille de spécificité. Les règles
+ * unlayered battent toujours les règles layered (CSS Cascade L5).
+ * ============================================================ */
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-fg);
+    margin-block: 0;
+  }
+
+  h1 {
+    font-size: var(--text-4xl);
+    line-height: 1.1;
+  }
+
+  h2 {
+    font-size: var(--text-3xl);
+    line-height: 1.15;
+  }
+
+  h3 {
+    font-size: var(--text-2xl);
+    line-height: 1.2;
+  }
+
+  h4 {
+    font-size: var(--text-xl);
+    line-height: 1.3;
+  }
+
+  h5 {
+    font-size: var(--text-lg);
+    line-height: 1.4;
+  }
+
+  h6 {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    line-height: 1.4;
+  }
+}
+
+/* ============================================================
+ * Body texte long (articles, recettes) — line-height 1.7, max-width 65ch
+ * ============================================================ */
+.entry-content,
+.prose-180c {
+  font-family: var(--font-body);
+  line-height: 1.7;
+  max-width: 65ch;
+}
+
+.entry-content p,
+.prose-180c p {
+  margin-block: 0 1em;
+}
+
+.entry-content p:last-child,
+.prose-180c p:last-child {
+  margin-block-end: 0;
+}
+
+/* ============================================================
+ * Focus visible global — WCAG 2.1 AA
+ * ============================================================ */
+*:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+ * Layout — container global + sections
+ * ============================================================ */
+
+/**
+ * Container global du site — appliqué dans header.php / footer.php
+ * et sur <main> dans tous les templates. Garantit qu'aucun contenu
+ * ne touche les bords du viewport.
+ *
+ * .container-180c est conservé comme alias (mêmes règles) pour les
+ * sections internes (modules home, sections recipe, etc.).
+ */
+.site-container,
+.container-180c,
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-pad);
+  box-sizing: border-box;
+}
+
+/**
+ * Espacement vertical entre les sections principales de <main>.
+ * Chaque enfant direct (module home, article, header de recette…) reçoit
+ * un margin-block fluide qui fait respirer la page.
+ */
+.site-main > * + *:not(.block-180c-encart-sponsor) {
+  margin-block-start: var(--section-y);
+}
+
+/**
+ * Section générique — peut encadrer des blocs internes.
+ */
+.section {
+  padding-block: var(--section-y);
+}
+
+/* ============================================================
+ * #site-shell — wrapper translaté lors de l'ouverture du side-menu
+ *
+ * Contient header + main + footer. Les overlays (side-menu, smart-banner,
+ * CMP) sont à l'extérieur pour conserver leur
+ * positionnement fixe (rappel : un parent transformé crée un containing
+ * block pour les descendants en position:fixed).
+ * ============================================================ */
+#site-shell {
+  position: relative;
+  transition: transform var(--side-menu-transition);
+  /* Pas de `will-change: transform` au repos : il créerait en permanence un
+   * stacking context (et un containing block pour les position:fixed). Or la
+   * nav sticky Recettes est déplacée en enfant direct de <body> avec un
+   * z-index positif (recipes-stickynav.js) ; si #site-shell restait un
+   * stacking context z-auto, cette barre passerait AU-DESSUS de tout son
+   * contenu — y compris le dropdown « Mon compte » du header. Le hint
+   * `will-change` n'est posé que pendant l'ouverture du side-menu (ci-dessous),
+   * moment où le transform est effectivement appliqué. */
+}
+
+body.has-side-menu-open {
+  overflow: hidden;
+}
+
+body.has-side-menu-open #site-shell {
+  transform: translateX(var(--side-menu-width));
+  will-change: transform;
+}
+
+/* ============================================================
+ * Skip link — accessibilité (WCAG 2.4.1)
+ * ============================================================ */
+.skip-link {
+  position: absolute;
+  top: var(--space-2xs);
+  left: var(--space-2xs);
+  z-index: calc(var(--z-modal) + 100);
+  transform: translateY(-200%);
+  transition: transform var(--transition-fast);
+  background-color: var(--color-fg);
+  color: var(--color-bg);
+  padding: var(--space-2xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+ * Screen reader only — .sr-only + .screen-reader-text (compat WP)
+ * ============================================================ */
+.sr-only,
+.screen-reader-text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.screen-reader-text:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: var(--space-2xs) var(--space-sm);
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  background-color: var(--color-fg);
+  color: var(--color-bg);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  z-index: calc(var(--z-modal) + 100);
+}
+
+/* ============================================================
+ * Overrides unlayered — battent les resets WP core unlayered
+ *
+ * WP `wp-block-library` injecte `:where(figure){margin:0 0 1em}` en
+ * unlayered. Toute règle écrite dans `@layer components` (où vit
+ * `src/css/components/recipe.css`) perd contre lui, peu importe la
+ * spécificité — CSS Cascade L5 : unlayered > layered. On émet donc
+ * l'override de margin hors de tout `@layer{}`, scopé strictement au
+ * hero recette (les autres `<figure>` du site — `.entry-content figure`,
+ * blocs Gutenberg `the_content()`, etc. — restent inchangés).
+ * ============================================================ */
+.recipe-hero__figure {
+  margin: 0;
+}
+
+/* ============================================================
+ * prefers-reduced-motion — désactive toutes les transitions/animations
+ * ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,214 @@
+{
+  "key": "group_180c_coordonnees_lieu",
+  "title": "Bloc — Coordonnées du lieu",
+  "fields": [
+    {
+      "key": "field_180c_cl_nom",
+      "label": "Nom du lieu",
+      "name": "nom",
+      "type": "text",
+      "instructions": "Nom de l'établissement (ex. « L'Oustau de Baumanière »).",
+      "required": 1,
+      "conditional_logic": 0,
+      "placeholder": ""
+    },
+    {
+      "key": "field_180c_cl_complement",
+      "label": "Complément",
+      "name": "complement",
+      "type": "text",
+      "instructions": "Optionnel : lieu hôte ou sous-titre (ex. « – Chez Camillou », « au Fairmont »).",
+      "required": 0,
+      "conditional_logic": 0,
+      "placeholder": ""
+    },
+    {
+      "key": "field_180c_cl_type",
+      "label": "Type de lieu",
+      "name": "type_lieu",
+      "type": "select",
+      "instructions": "Détermine le type Schema.org du lieu.",
+      "required": 1,
+      "conditional_logic": 0,
+      "choices": {
+        "restaurant": "Restaurant",
+        "hotel": "Hôtel / Hôtel-restaurant",
+        "cafe": "Café / Bar / Salon de thé",
+        "boulangerie": "Boulangerie / Pâtisserie",
+        "domaine": "Domaine / Vignoble / Cave",
+        "producteur": "Producteur / Artisan",
+        "commerce": "Commerce / Boutique / Épicerie",
+        "autre": "Autre"
+      },
+      "default_value": "restaurant",
+      "return_format": "value",
+      "multiple": 0,
+      "allow_null": 0,
+      "ui": 0,
+      "ajax": 0,
+      "placeholder": ""
+    },
+    {
+      "key": "field_180c_cl_adresse",
+      "label": "Adresse",
+      "name": "adresse",
+      "type": "textarea",
+      "instructions": "Adresse postale, une information par ligne (rue, code postal + ville…). Le pays se règle ci-dessous.",
+      "required": 1,
+      "conditional_logic": 0,
+      "rows": 3,
+      "new_lines": ""
+    },
+    {
+      "key": "field_180c_cl_pays",
+      "label": "Pays",
+      "name": "pays",
+      "type": "select",
+      "instructions": "Affiché uniquement si différent de France ; toujours injecté dans le JSON-LD.",
+      "required": 0,
+      "conditional_logic": 0,
+      "choices": {
+        "France": "France",
+        "Espagne": "Espagne",
+        "Italie": "Italie",
+        "Suisse": "Suisse",
+        "Belgique": "Belgique",
+        "Royaume-Uni": "Royaume-Uni",
+        "Danemark": "Danemark",
+        "Maroc": "Maroc",
+        "Autre": "Autre"
+      },
+      "default_value": "France",
+      "return_format": "value",
+      "multiple": 0,
+      "allow_null": 0,
+      "ui": 0,
+      "ajax": 0,
+      "placeholder": ""
+    },
+    {
+      "key": "field_180c_cl_tels",
+      "label": "Téléphones",
+      "name": "telephones",
+      "type": "repeater",
+      "instructions": "Un ou plusieurs numéros. Le libellé est optionnel (ex. « Restaurant », « Hôtel », « Réservations »).",
+      "required": 0,
+      "conditional_logic": 0,
+      "layout": "table",
+      "pagination": 0,
+      "min": 0,
+      "max": 0,
+      "collapsed": "",
+      "button_label": "Ajouter un numéro",
+      "rows_per_page": 20,
+      "sub_fields": [
+        {
+          "key": "field_180c_cl_tel_lib",
+          "label": "Libellé",
+          "name": "libelle",
+          "type": "text",
+          "instructions": "",
+          "required": 0,
+          "conditional_logic": 0,
+          "parent_repeater": "field_180c_cl_tels",
+          "placeholder": "Restaurant, Hôtel…"
+        },
+        {
+          "key": "field_180c_cl_tel_num",
+          "label": "Numéro",
+          "name": "numero",
+          "type": "text",
+          "instructions": "",
+          "required": 1,
+          "conditional_logic": 0,
+          "parent_repeater": "field_180c_cl_tels",
+          "placeholder": "04 XX XX XX XX"
+        }
+      ]
+    },
+    {
+      "key": "field_180c_cl_email",
+      "label": "Email",
+      "name": "email",
+      "type": "email",
+      "instructions": "Optionnel.",
+      "required": 0,
+      "conditional_logic": 0,
+      "placeholder": ""
+    },
+    {
+      "key": "field_180c_cl_site_url",
+      "label": "Site — URL",
+      "name": "site_url",
+      "type": "url",
+      "instructions": "URL complète du site (https://…).",
+      "required": 0,
+      "conditional_logic": 0,
+      "placeholder": "https://"
+    },
+    {
+      "key": "field_180c_cl_site_lib",
+      "label": "Site — libellé",
+      "name": "site_libelle",
+      "type": "text",
+      "instructions": "Optionnel : texte d'affichage du lien (ex. « baumaniere.com »). Si vide, dérivé de l'URL.",
+      "required": 0,
+      "conditional_logic": [
+        [
+          {
+            "field": "field_180c_cl_site_url",
+            "operator": "!=empty"
+          }
+        ]
+      ],
+      "placeholder": ""
+    },
+    {
+      "key": "field_180c_cl_reseaux",
+      "label": "Réseaux sociaux",
+      "name": "reseaux",
+      "type": "repeater",
+      "instructions": "Optionnel : URL des profils (Instagram, Facebook…). Le réseau est détecté automatiquement depuis le domaine.",
+      "required": 0,
+      "conditional_logic": 0,
+      "layout": "table",
+      "pagination": 0,
+      "min": 0,
+      "max": 0,
+      "collapsed": "",
+      "button_label": "Ajouter un réseau",
+      "rows_per_page": 20,
+      "sub_fields": [
+        {
+          "key": "field_180c_cl_reseau_url",
+          "label": "URL",
+          "name": "url",
+          "type": "url",
+          "instructions": "",
+          "required": 1,
+          "conditional_logic": 0,
+          "parent_repeater": "field_180c_cl_reseaux",
+          "placeholder": "https://instagram.com/…"
+        }
+      ]
+    }
+  ],
+  "location": [
+    [
+      {
+        "param": "block",
+        "operator": "==",
+        "value": "acf/coordonnees-lieu"
+      }
+    ]
+  ],
+  "menu_order": 0,
+  "position": "normal",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "hide_on_screen": "",
+  "active": true,
+  "description": "Champs du bloc Gutenberg 180c/coordonnees-lieu (coordonnées de lieu en fin d'article).",
+  "modified": 1749200000
+}

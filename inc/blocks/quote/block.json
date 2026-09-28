@@ -1,0 +1,27 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "180c/quote",
+  "title": "Citation",
+  "category": "180c",
+  "icon": "format-quote",
+  "description": "Citation stylée en Playfair italique avec signature optionnelle. Insertable dans les articles.",
+  "keywords": ["citation", "quote", "blockquote", "pull quote"],
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "align": ["wide"]
+  },
+  "attributes": {
+    "text": {
+      "type": "string",
+      "default": ""
+    },
+    "attribution": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "render": "file:./render.php",
+  "style": "file:./style.css"
+}

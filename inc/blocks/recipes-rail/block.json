@@ -1,0 +1,43 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "180c/recipes-rail",
+  "title": "Rail de recettes",
+  "category": "180c",
+  "icon": "food",
+  "description": "Rail horizontal de recettes. Modes : récentes, par saison, par type, ou manuel.",
+  "keywords": ["recettes", "rail", "slider", "recipes"],
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "align": ["wide", "full"]
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "default": ""
+    },
+    "mode": {
+      "type": "string",
+      "default": "recent",
+      "enum": ["recent", "season", "type", "manual"]
+    },
+    "season_term_id": {
+      "type": "number"
+    },
+    "type_term_id": {
+      "type": "number"
+    },
+    "count": {
+      "type": "number",
+      "default": 8
+    },
+    "manual_recipe_ids": {
+      "type": "array",
+      "items": { "type": "number" },
+      "default": []
+    }
+  },
+  "render": "file:./render.php",
+  "style": "file:./style.css"
+}

@@ -1,0 +1,112 @@
+/*
+ * Sitemap — page « Plan du site » (/plan-du-site/).
+ *
+ * Page utilitaire de maillage interne : rendu sobre, server-render pur, zéro JS.
+ * Échelle typographique : le titre de page (h1) reste éditorial (token fluide,
+ * cf. règle DS « titres de page ») ; les titres de section / groupe relèvent de
+ * la chrome de navigation → tokens fixes + conventions UI (uppercase /
+ * letter-spacing pour le sous-titre de groupe). Light & dark portés par les
+ * tokens sémantiques (aucune couleur en dur). Mobile-first.
+ */
+
+@layer components {
+  .sitemap {
+    padding-block: var(--space-xl) var(--space-3xl);
+  }
+
+  .sitemap__header {
+    margin-block-end: var(--space-xl);
+  }
+
+  /* Titre de page — éditorial : token fluide autorisé (règle DS). */
+  .sitemap__title {
+    margin: 0;
+    font-size: var(--text-2xl);
+    color: var(--color-fg);
+  }
+
+  .sitemap__intro {
+    max-width: 60ch;
+    margin-block-start: var(--space-sm);
+    font-size: var(--text-base);
+    color: var(--color-fg-muted);
+  }
+
+  .sitemap__intro > :last-child {
+    margin-block-end: 0;
+  }
+
+  /* Section = un pôle d'IA. Séparateur discret au-dessus. */
+  .sitemap__section {
+    margin-block-start: var(--space-2xl);
+    padding-block-start: var(--space-lg);
+    border-block-start: 1px solid var(--color-border);
+  }
+
+  /* Titre de section — chrome de navigation : token fixe. */
+  .sitemap__section-title {
+    margin: 0 0 var(--space-md);
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-fg);
+  }
+
+  .sitemap__hub {
+    margin: 0 0 var(--space-md);
+  }
+
+  .sitemap__group {
+    margin-block-start: var(--space-lg);
+  }
+
+  /* Sous-titre de groupe — convention chrome : petit + uppercase + tracking. */
+  .sitemap__group-title {
+    margin: 0 0 var(--space-sm);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-fg-muted);
+  }
+
+  /* Liste en colonnes responsive (auto-fill, s'empile proprement en mobile). */
+  .sitemap__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+    gap: var(--space-2xs) var(--space-lg);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sitemap__item {
+    margin: 0;
+  }
+
+  .sitemap__link {
+    display: inline-block;
+    padding-block: var(--space-3xs);
+    font-size: var(--text-base);
+    line-height: 1.4;
+    color: var(--color-fg);
+    text-decoration: none;
+  }
+
+  .sitemap__link:hover,
+  .sitemap__link:focus-visible {
+    color: var(--color-accent);
+    text-decoration: underline;
+  }
+
+  .sitemap__link:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Lien de hub : entrée du pôle, légèrement appuyée. */
+  .sitemap__link--hub {
+    font-size: var(--text-md);
+    font-weight: var(--font-weight-medium);
+  }
+}

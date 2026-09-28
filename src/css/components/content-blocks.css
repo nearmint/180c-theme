@@ -1,0 +1,431 @@
+/**
+ * Stylage DS des blocs Gutenberg de CONTENU (post natif) — blocs-gutenberg-ds v2.
+ *
+ * ============================================================================
+ * POURQUOI CE FICHIER EST « HORS @layer »
+ *
+ * Le corps d'article est rendu dans `<article class="article__body">`
+ * (single.php → post_class('article__body')). L'ancien stylage de contenu
+ * (`src/css/components/single.css`) cible `.entry-content` DANS `@layer
+ * components` : il ne s'applique donc plus au nouveau scope `.article__body`
+ * (régression). Par ailleurs :
+ *  - Tailwind preflight (`@layer base`) pose `ul,ol { list-style: none }`
+ *    → les puces disparaissent ;
+ *  - le `wp-block-library` natif de WordPress est injecté SANS layer (unlayered)
+ *    et regagne contre toute règle layered, quelle que soit la spécificité
+ *    (CSS Cascade L5 : unlayered > layered).
+ *
+ * ⇒ Les correctifs ci-dessous sont écrits HORS de tout `@layer{}` (comme le
+ * précédent `.recipe-hero__figure` dans main.css) et scopés strictement au
+ * conteneur de contenu, pour battre à la fois Tailwind preflight et le CSS
+ * natif de WordPress sans `!important`.
+ *
+ * ============================================================================
+ * DOUBLE SCOPE — front + éditeur
+ *
+ *  - Front   : `.article__body …`        (importé par src/css/main.css)
+ *  - Éditeur : `.editor-styles-wrapper …` (importé par src/js/admin/index.js,
+ *              chargé dans l'iframe de l'éditeur via enqueue_block_editor_assets)
+ *
+ * Les sélecteurs des deux scopes cohabitent dans une même règle : sur le front
+ * les sélecteurs `.editor-styles-wrapper` sont inertes (et inversement).
+ * `src/css/tokens.css` est importé en parallèle dans le bundle éditeur pour que
+ * les tokens numériques (--text-2xl, --radius-*, --space-*) résolvent dans
+ * l'iframe ; les couleurs sémantiques (`@theme` de main.css, non chargé côté
+ * éditeur) sont fournies avec un fallback DS (mêmes valeurs canoniques).
+ * ============================================================================
+ */
+
+/* ============================================================
+ * Listes à puces / numérotées — restaure les marqueurs (régression)
+ * Marqueur en accent DS (#FFAE3A).
+ *
+ * SCOPE RESTREINT : uniquement les listes de CONTENU éditorial —
+ * `.wp-block-list` (core/list) + listes « nues » sans classe (classic non
+ * migré). Les listes de COMPOSANT (classes BEM, ex.
+ * `.block-180c-coordonnees-lieu__reseaux` / `__contacts`) sont exclues via
+ * `:not([class])` : elles conservent le rendu défini par leur propre
+ * composant (Tailwind preflight `list-style:none` → AUCUNE puce). Évite de
+ * reposer une puce sur des listes UI/structurées.
+ * ============================================================ */
+.article__body .wp-block-list,
+.article__body :is(ul, ol):not([class]),
+.editor-styles-wrapper .wp-block-list {
+	padding-inline-start: var(--space-lg, 32px);
+	margin-block: 1em;
+	list-style-position: outside;
+}
+
+.article__body ul.wp-block-list,
+.article__body ul:not([class]),
+.editor-styles-wrapper ul.wp-block-list {
+	list-style-type: disc;
+}
+
+.article__body ol.wp-block-list,
+.article__body ol:not([class]),
+.editor-styles-wrapper ol.wp-block-list {
+	list-style-type: decimal;
+}
+
+/* Listes imbriquées : alternance classique disc → circle → square. */
+.article__body .wp-block-list ul,
+.article__body ul:not([class]) ul,
+.editor-styles-wrapper ul.wp-block-list ul {
+	list-style-type: circle;
+}
+
+.article__body .wp-block-list ul ul,
+.article__body ul:not([class]) ul ul,
+.editor-styles-wrapper ul.wp-block-list ul ul {
+	list-style-type: square;
+}
+
+.article__body .wp-block-list li,
+.article__body :is(ul, ol):not([class]) li,
+.editor-styles-wrapper .wp-block-list li {
+	margin-block-end: var(--space-2xs, 8px);
+}
+
+/* Puce jaune (accent DS). `::marker` couvre disc/decimal/circle/square. */
+.article__body .wp-block-list > li::marker,
+.article__body :is(ul, ol):not([class]) > li::marker,
+.editor-styles-wrapper .wp-block-list > li::marker {
+	color: var(--color-accent, #ffae3a);
+}
+
+/* ============================================================
+ * Citation (core/quote) — restaure le stylage DS (régression).
+ * Cible `blockquote.wp-block-quote` pour ne PAS impacter un éventuel bloc
+ * quote custom (180c/quote → .wp-block-180c-quote, classe distincte).
+ * ============================================================ */
+.article__body blockquote.wp-block-quote,
+.editor-styles-wrapper blockquote.wp-block-quote {
+	margin-block: var(--space-md, 24px);
+	margin-inline: 0;
+	padding-block: var(--space-2xs, 8px);
+	padding-inline: var(--space-md, 24px);
+	border-inline-start: 3px solid var(--color-accent, #ffae3a);
+	font-family: var(--font-body, Georgia, "Times New Roman", serif);
+	font-style: italic;
+	font-size: var(--text-lg, 1.125rem);
+	line-height: var(--line-height-relaxed, 1.7);
+	color: var(--color-fg, #0e0e0e);
+}
+
+.article__body blockquote.wp-block-quote :is(cite, .wp-block-quote__citation),
+.editor-styles-wrapper blockquote.wp-block-quote :is(cite, .wp-block-quote__citation) {
+	display: block;
+	margin-block-start: var(--space-2xs, 8px);
+	font-family: var(--font-display, "Oswald", sans-serif);
+	font-style: normal;
+	font-size: var(--text-sm, 0.875rem);
+	color: var(--color-fg-muted, #6e6e6e);
+}
+
+/* ============================================================
+ * Titre H2 d'article — taille éditoriale --text-2xl (scopé contenu).
+ * Bat la base `@layer base h2 { font-size: var(--text-3xl) }` (unlayered
+ * > layered). Rythme cohérent avec le reste du corps.
+ * ============================================================ */
+.article__body h2.wp-block-heading,
+.editor-styles-wrapper h2.wp-block-heading {
+	font-size: var(--text-2xl, clamp(1.5rem, 1.3rem + 1vw, 2rem));
+	line-height: var(--line-height-snug, 1.25);
+}
+
+/* ============================================================
+ * Léger padding sous les titres Gutenberg (tous niveaux) — détache le
+ * titre du paragraphe qui suit sans casser le rythme vertical du corps.
+ * ============================================================ */
+.article__body :is(h1, h2, h3, h4, h5, h6).wp-block-heading,
+.editor-styles-wrapper :is(h1, h2, h3, h4, h5, h6).wp-block-heading {
+	padding-block-end: var(--space-2xs, 0.5rem);
+}
+
+/* ============================================================
+ * Image (core/image) — border-radius (token). AUCUN recadrage, aucun
+ * overlay (contrainte éditoriale) : on n'ajoute QUE l'arrondi des coins.
+ * ============================================================ */
+.article__body .wp-block-image img,
+.editor-styles-wrapper .wp-block-image img {
+	border-radius: var(--radius-md, 8px);
+}
+
+/* ============================================================
+ * Légendes (figcaption) — NON-italique, typo DS petite/atténuée, sous
+ * l'image, alignée à gauche. Override l'italique posé par article.css
+ * (`.article__body figcaption { font-style: italic }`) — ce fichier est
+ * importé après article.css → l'emporte à spécificité égale.
+ * (La troncature 1 ligne + « Voir plus » est ajoutée au Lot 2.)
+ * ============================================================ */
+/* Légendes UNIFORMES — bloc image, légende de galerie synchronisée, et (via
+   .lightbox__caption, cf. lightbox.css) plein écran : même famille
+   (--font-display) + même taille (--text-sm), non-italique, gris, alignée à
+   gauche. Source unique de la typo de légende. */
+.article__body :is(figcaption, .wp-element-caption),
+.article__body .gallery-slideshow__caption,
+.editor-styles-wrapper figcaption.wp-element-caption {
+	margin-block-start: var(--space-2xs, 8px);
+	font-family: var(--font-display, "Oswald", sans-serif);
+	font-style: normal;
+	font-size: var(--text-sm, 0.875rem);
+	line-height: var(--line-height-snug, 1.25);
+	color: var(--color-fg-muted, #6e6e6e);
+	text-align: left;
+}
+
+/* ============================================================
+ * LOT 2 — Légendes tronquées 1 ligne + « Voir plus » (FRONT uniquement).
+ *
+ * Enhancement progressif : la troncature et le bouton ne sont posés QUE par
+ * le module front (src/js/caption-readmore.js), via les classes
+ * `.caption-readmore*`. Sans JS, la légende reste intégralement visible.
+ * Scopé `.article__body` seulement — l'éditeur conserve la légende native
+ * non tronquée. La légende complète = texte intégral révélé à l'expansion.
+ * ============================================================ */
+.article__body figcaption.caption-readmore {
+	display: flex;
+	align-items: baseline;
+	gap: var(--space-2xs, 8px);
+}
+
+.article__body .caption-readmore__text {
+	flex: 1 1 auto;
+	min-width: 0;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 1;
+	line-clamp: 1;
+	overflow: hidden;
+}
+
+/* État étendu : pleine hauteur, plus de troncature. */
+.article__body figcaption.caption-readmore.is-expanded {
+	align-items: flex-start;
+}
+
+.article__body .caption-readmore.is-expanded .caption-readmore__text {
+	-webkit-line-clamp: unset;
+	line-clamp: unset;
+	overflow: visible;
+}
+
+/* Lien « Voir plus » / « Voir moins » — gris atténué (cohérent avec la
+   légende), souligné pour l'affordance de lien. */
+.article__body .caption-readmore__toggle {
+	flex: 0 0 auto;
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: pointer;
+	font-family: var(--font-display, "Oswald", sans-serif);
+	font-size: var(--text-sm, 0.875rem);
+	color: var(--color-fg-muted, #6e6e6e);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+	white-space: nowrap;
+}
+
+.article__body .caption-readmore__toggle:hover,
+.article__body .caption-readmore__toggle:focus-visible {
+	text-decoration-thickness: 2px;
+}
+
+/* ============================================================
+ * LOT 3 — Galerie en slideshow (FRONT uniquement).
+ *
+ * Coque DS du slideshow construit par src/js/gallery-slideshow.js (moteur
+ * partagé modules/slideshow.js, extrait du carousel Abonnement). Reprend le
+ * langage visuel du carousel Abonnement (piste scroll-snap, flèches rondes
+ * auto-suffisantes, points accent) AVEC tokens DS.
+ *
+ * CONTRAINTE ÉDITORIALE (HARD) : aucun recadrage, aucun overlay/voile sur les
+ * photos. Les images gardent leur ratio natif (object-fit non forcé). Seules
+ * des CHROME UI (flèches, points) sont posées. Le radius vient de la règle
+ * `.wp-block-image img` ci-dessus. Sans JS : grille native conservée (la
+ * classe `.gallery-slideshow` n'est posée que par le module).
+ * ============================================================ */
+/* La galerie enrichie redevient un bloc simple (le flex natif de
+   .wp-block-gallery placerait sinon viewport + légende côte à côte). */
+.article__body .gallery-slideshow.is-enhanced {
+	display: block;
+}
+
+.article__body .gallery-slideshow__viewport {
+	position: relative;
+}
+
+.article__body .gallery-slideshow__track {
+	display: flex;
+	gap: var(--space-sm, 16px);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+	-webkit-overflow-scrolling: touch;
+	scrollbar-width: none;
+}
+
+.article__body .gallery-slideshow__track::-webkit-scrollbar {
+	display: none;
+}
+
+.article__body .gallery-slideshow__track:focus-visible {
+	outline: 2px solid var(--color-accent, #ffae3a);
+	outline-offset: 3px;
+	border-radius: var(--radius-md, 8px);
+}
+
+.article__body .gallery-slideshow__slide {
+	flex: 0 0 100%;
+	min-width: 0;
+	scroll-snap-align: start;
+}
+
+/* La figure d'image conserve son ratio natif — neutralise le recadrage natif
+   de la galerie (`is-cropped` : object-fit cover + height 100%). */
+.article__body .gallery-slideshow__slide > figure.wp-block-image {
+	margin: 0;
+	display: block;
+}
+
+.article__body .gallery-slideshow__slide figure.wp-block-image img {
+	display: block;
+	width: 100%;
+	max-width: 100%;
+	height: auto;
+	object-fit: contain;
+}
+
+/* Slideshow (article) : WP core borne chaque figure de slide à 50% (style.css:284,
+   spécificité (1,3,1) via l'ID #individual-image dans :not()). On la ré-impose à 100%.
+   Équivalent de la correction grille recette (cf. ligne ~418). Hors @layer (core non-layered). */
+body .article__body .gallery-slideshow__slide figure.wp-block-image:not(#individual-image) {
+	width: 100%;
+}
+
+/* Les légendes par image restent dans leurs figures (lues par la lightbox)
+   mais sont MASQUÉES dans la piste : la légende visible est la version
+   synchronisée `.gallery-slideshow__caption`, rendue SOUS l'image. La piste
+   n'a ainsi que la hauteur de l'image → les flèches restent bien posées
+   dessus. */
+.article__body .gallery-slideshow__slide figure.wp-block-image figcaption {
+	display: none;
+}
+
+/* Légende synchronisée (sous l'image). Typo unifiée via la règle de légende
+   ci-dessus ; ici on neutralise la marge basse par défaut du <p>. */
+.article__body .gallery-slideshow__caption {
+	margin-block-end: 0;
+}
+
+.article__body .gallery-slideshow__caption[hidden] {
+	display: none;
+}
+
+/* Contrôles flèches GROUPÉS en bas-droite de l'image (sur-impression, pas de
+   voile sur la photo). Pas de pagination à points. */
+.article__body .gallery-slideshow__controls {
+	position: absolute;
+	right: var(--space-2xs, 8px);
+	bottom: var(--space-2xs, 8px);
+	display: flex;
+	gap: var(--space-2xs, 8px);
+	z-index: 2;
+}
+
+/* Flèches : bouton rond auto-suffisant (fond sombre lisible sans voile). */
+.article__body .gallery-slideshow__arrow {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	color: #fff;
+	background: rgba(0, 0, 0, 0.45);
+	border: 1px solid rgba(255, 255, 255, 0.6);
+	border-radius: var(--radius-pill, 999px);
+	cursor: pointer;
+	backdrop-filter: blur(2px);
+	transition: color var(--transition-fast, 150ms ease),
+		border-color var(--transition-fast, 150ms ease),
+		background-color var(--transition-fast, 150ms ease),
+		opacity var(--transition-fast, 150ms ease);
+}
+
+.article__body .gallery-slideshow__arrow:hover:not(:disabled),
+.article__body .gallery-slideshow__arrow:focus-visible:not(:disabled) {
+	color: var(--color-accent, #ffae3a);
+	border-color: var(--color-accent, #ffae3a);
+}
+
+.article__body .gallery-slideshow__arrow:focus-visible {
+	outline: 2px solid #fff;
+	outline-offset: 2px;
+}
+
+.article__body .gallery-slideshow__arrow:disabled {
+	opacity: 0.4;
+	cursor: default;
+}
+
+.article__body .gallery-slideshow__arrow svg {
+	width: 1.5rem;
+	height: 1.5rem;
+}
+
+/* Bouton « afficher en grand » (injecté par la lightbox) ancré en HAUT-droite
+   sur les slides de galerie — gouttière resserrée (--space-2xs) propre à la
+   galerie, override le placement d'article.css (spécificité 0,4,0 > 0,3,0). */
+.article__body .gallery-slideshow__slide .media-zoom-frame .media-zoom-trigger {
+	top: var(--space-2xs, 8px);
+	right: var(--space-2xs, 8px);
+	bottom: auto;
+}
+
+/* ============================================================
+ * Mobile — la galerie (slideshow) est élargie à une fine gouttière de 8px.
+ *
+ * `.article__body` borne le corps à la colonne de lecture (gouttière
+ * `padding-inline: var(--container-px)`, soit ~16px sur mobile). On élargit la
+ * galerie en débordant cette gouttière de façon SYMÉTRIQUE jusqu'à ne laisser
+ * que --space-2xs (8px) de chaque côté.
+ *
+ * `max-width: none` est INDISPENSABLE : `.article__body > * { max-width: 100% }`
+ * (article.css) plafonne sinon la largeur, et le margin négatif ne ferait que
+ * décaler la galerie vers la gauche (image collée au bord gauche, vide à droite)
+ * au lieu de l'élargir. L'arrondi (`--radius-md`) des images est conservé (cf.
+ * `.article__body .wp-block-image img`). Limité au slideshow enrichi
+ * (`.is-enhanced`) : sans JS la grille native reste dans la colonne de lecture.
+ * ============================================================ */
+@media (max-width: 767px) {
+	.article__body .gallery-slideshow.is-enhanced {
+		max-width: none;
+		margin-inline: calc(-1 * (var(--container-px) - var(--space-2xs)));
+	}
+}
+
+/* ============================================================
+ * Galeries dans le contenu RECETTE (étapes, intro, extras, accords).
+ *
+ * Le slideshow JS n'enrichit que les galeries de `.article__body` ; sur la
+ * fiche recette la galerie reste la grille native WP, où chaque figure est
+ * bornée à `width: calc(50% - gap/2)` (2 colonnes) par la feuille de bloc
+ * core. Résultat : l'image ne fait pas 100% de large et paraît décalée.
+ *
+ * On ramène chaque image à une colonne pleine largeur (100% du container de
+ * section `.container-180c`, qui porte la gouttière → marges latérales OK) et
+ * on garde l'arrondi DS. Le `:not(#individual-image)` reprend la spécificité
+ * (avec ID) de la règle core ; le préfixe `body .recipe` la dépasse même quand
+ * la galerie porte une classe `.columns-N`. Non-layered : les styles de bloc
+ * WordPress core le sont aussi.
+ * ============================================================ */
+body .recipe .wp-block-gallery.has-nested-images figure.wp-block-image:not(#individual-image) {
+	width: 100%;
+}
+
+.recipe .wp-block-gallery img {
+	border-radius: var(--radius-md);
+}

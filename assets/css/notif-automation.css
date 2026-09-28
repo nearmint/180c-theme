@@ -1,0 +1,239 @@
+/**
+ * Admin — panneau « Automation » sous la liste des notifications push.
+ *
+ * CSS nu, servi tel quel : les assets de wp-admin de ce thème ne passent pas
+ * par Vite et n'utilisent pas Tailwind (cf. assets/css/notif-admin.css).
+ * Nommage BEM. Réservé à l'admin, jamais chargé côté front.
+ */
+
+/*
+ * `.tablenav` est haut de 32 px dans le CSS du cœur (`wp-admin/css/list-tables.css:695`,
+ * vérifié sur WP 7.1). Le panneau étant rendu à
+ * l'intérieur de `.tablenav.bottom` (seul point d'accroche disponible sous le
+ * tableau, cf. l'en-tête de inc/notifications/automation-panel.php), il faut
+ * rendre la hauteur libre. Portée limitée à l'écran du CPT par la classe de
+ * body posée par wp-admin/admin-header.php.
+ */
+body.post-type-180c_notification .tablenav.bottom {
+	height: auto;
+}
+
+/*
+ * Pagination basse masquée sur ce seul écran. Elle est rendue APRÈS
+ * `extra_tablenav`, donc sous le panneau : le compteur « N items » se
+ * retrouvait à plus de mille pixels du tableau qu'il décrit. La pagination
+ * haute reste en place, la navigation n'est pas perdue.
+ */
+body.post-type-180c_notification .tablenav.bottom .tablenav-pages {
+	display: none;
+}
+
+.notif-automation {
+	clear: both;
+	float: none;
+	box-sizing: border-box;
+	max-width: 900px;
+	margin: 1.5em 0 1em;
+	padding: 1em 1.25em 1.25em;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	background: #fff;
+	box-shadow: 0 1px 1px rgba( 0, 0, 0, 0.04 );
+	text-align: left;
+}
+
+.notif-automation__title {
+	margin: 0 0 0.75em;
+	padding-bottom: 0.5em;
+	border-bottom: 1px solid #dcdcde;
+	font-size: 1.15em;
+}
+
+.notif-automation__subtitle {
+	margin: 1.75em 0 0.5em;
+	font-size: 1em;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: #50575e;
+}
+
+/* Interrupteur maître : volontairement distinct du reste du panneau. */
+.notif-automation__master {
+	margin: 0 0 1.25em;
+	padding: 0.85em 1em;
+	border-left: 4px solid #8c8f94;
+	border-radius: 2px;
+	background: #f6f7f7;
+}
+
+.notif-automation__master.is-on {
+	border-left-color: #00a32a;
+	background: #f0f6f1;
+}
+
+.notif-automation__master.is-off {
+	border-left-color: #dba617;
+}
+
+.notif-automation__master label {
+	font-size: 1.05em;
+}
+
+.notif-automation__master .description {
+	margin: 0.5em 0 0;
+}
+
+.notif-automation__grid {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0 2.5em;
+	align-items: flex-start;
+}
+
+.notif-automation__grid p {
+	margin: 0 0 0.75em;
+}
+
+.notif-automation__segments label {
+	display: inline-block;
+	margin-right: 1.5em;
+}
+
+.notif-automation__tokens {
+	margin: 0.25em 0 1.25em;
+}
+
+.notif-automation__tokens-label {
+	color: #50575e;
+}
+
+.notif-automation__token {
+	margin: 0 0.15em 0.25em 0;
+	padding: 0.1em 0.5em;
+	border: 1px solid #c3c4c7;
+	border-radius: 3px;
+	background: #f6f7f7;
+	color: #2271b1;
+	font-family: Consolas, Monaco, monospace;
+	font-size: 0.85em;
+	line-height: 1.6;
+	cursor: pointer;
+}
+
+.notif-automation__token:hover,
+.notif-automation__token:focus {
+	border-color: #2271b1;
+	background: #f0f6fc;
+}
+
+.notif-automation__counter {
+	margin: 0.25em 0 0;
+}
+
+.notif-automation__count {
+	font-weight: 600;
+}
+
+.notif-automation__counter.is-over .notif-automation__count {
+	color: #b32d2e;
+}
+
+/* Écart entre un envoi déjà programmé et le réglage courant. */
+.notif-automation__mismatch {
+	margin: 0.75em 0 0;
+	padding: 0.7em 0.9em;
+	border-left: 4px solid #dba617;
+	border-radius: 2px;
+	background: #fcf9e8;
+	color: #7a5c00;
+}
+
+.notif-automation__warning {
+	color: #8a6d1f;
+}
+
+.notif-automation__actions {
+	margin: 1.5em 0 0;
+	padding-top: 1em;
+	border-top: 1px solid #dcdcde;
+}
+
+.notif-automation__actions .button {
+	margin-right: 0.5em;
+}
+
+.notif-automation__preview,
+.notif-automation__state,
+.notif-automation__log {
+	max-width: 100%;
+	margin-top: 0.5em;
+}
+
+.notif-automation__preview th,
+.notif-automation__state th {
+	width: 130px;
+	text-align: left;
+}
+
+.notif-automation__preview-len {
+	width: 90px;
+	color: #646970;
+	white-space: nowrap;
+}
+
+.notif-automation__slot {
+	margin: 0.25em 0 0.75em;
+	font-size: 1.05em;
+}
+
+.notif-automation__badge {
+	display: inline-block;
+	padding: 0.05em 0.55em;
+	border-radius: 9px;
+	background: #f0f0f1;
+	color: #3c434a;
+	font-size: 0.85em;
+	white-space: nowrap;
+}
+
+.notif-automation__badge--scheduled,
+.notif-automation__badge--rescheduled,
+.notif-automation__badge--repaired {
+	background: #f0f6fc;
+	color: #0a4b78;
+}
+
+.notif-automation__badge--sent,
+.notif-automation__badge--test_sent {
+	background: #edfaef;
+	color: #00602a;
+}
+
+.notif-automation__badge--cancelled,
+.notif-automation__badge--replaced,
+.notif-automation__badge--skipped {
+	background: #fcf9e8;
+	color: #7a5c00;
+}
+
+.notif-automation__badge--api_error {
+	background: #fcf0f1;
+	color: #8a2424;
+}
+
+@media screen and ( max-width: 782px ) {
+	.notif-automation__grid {
+		display: block;
+	}
+}
+
+/* Pastilles de la colonne « Origine » de la liste. */
+.notif-automation__badge--origin-auto {
+	background: #f0f6fc;
+	color: #0a4b78;
+}
+
+.notif-automation__badge--origin-manual {
+	background: #f0f0f1;
+	color: #50575e;
+}

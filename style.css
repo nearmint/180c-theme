@@ -1,0 +1,16 @@
+/*
+Theme Name: 180°C
+Theme URI: https://github.com/nearmint/180c-theme
+Author: Nicolas Rapp
+Author URI: https://github.com/nearmint
+Description: Thème WordPress de 180c.fr. Hybride ACF Flexible Content + blocs Gutenberg custom. Vite + Tailwind CSS v4.
+Version: 0.1.0
+Requires at least: 6.4
+Requires PHP: 8.3
+License: MIT
+License URI: https://opensource.org/license/mit
+Text Domain: 180c
+Tags: custom-theme, woocommerce
+*/
+
+/* Les styles compilés sont chargés via dist/assets/ */

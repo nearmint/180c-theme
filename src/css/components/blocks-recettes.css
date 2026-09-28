@@ -1,0 +1,44 @@
+/* Blocs recettes en article — acf/recette-unique
+ *
+ * Styles minimaux : ce bloc réutilise le composant carte recette existant
+ * (.card-180c--recipe, stylé par components/recipe.css). On ne gère ici que le
+ * rythme vertical du bloc, le centrage / la contrainte de largeur de la carte,
+ * et le placeholder éditeur. Pendant de blocks-produits.css.
+ */
+
+/* -------------------------------------------------------------------------
+ * acf/recette-unique — carte unique centrée, largeur bornée.
+ * La carte (.card-180c) prend par défaut 100 % de son parent : on la centre
+ * et on borne sa largeur pour qu'elle ne s'étire jamais sur toute la colonne
+ * d'article (sinon le visuel et la typo se déforment).
+ * ------------------------------------------------------------------------- */
+.block-180c-recette-unique {
+  display: flex;
+  justify-content: center;
+  margin-block: var(--space-xl);
+}
+
+.block-180c-recette-unique .card-180c {
+  width: 100%;
+  max-width: clamp(260px, 60%, 340px);
+}
+
+/* Mobile : la carte peut occuper toute la colonne, sans étirement au-delà. */
+@media (max-width: 540px) {
+  .block-180c-recette-unique .card-180c {
+    max-width: 320px;
+  }
+}
+
+/* -------------------------------------------------------------------------
+ * Placeholder éditeur (rendu uniquement en aperçu).
+ * ------------------------------------------------------------------------- */
+.block-180c-recette-unique--placeholder {
+  display: block;
+  padding: var(--space-lg);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-fg-muted);
+  font-family: var(--font-body);
+  text-align: center;
+}

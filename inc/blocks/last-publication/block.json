@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "180c/last-publication",
+  "title": "Dernière publication",
+  "category": "180c",
+  "icon": "book",
+  "description": "Affiche le dernier livre de la maison d'édition avec couverture XL, baseline et CTA d'achat.",
+  "keywords": ["livre", "publication", "shop", "book"],
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "align": ["wide", "full"]
+  },
+  "attributes": {
+    "source": {
+      "type": "string",
+      "default": "auto",
+      "enum": ["auto", "manual"]
+    },
+    "manual_product_id": {
+      "type": "number"
+    },
+    "headline_override": {
+      "type": "string",
+      "default": ""
+    },
+    "cta_label": {
+      "type": "string",
+      "default": "Acheter"
+    }
+  },
+  "render": "file:./render.php",
+  "style": "file:./style.css"
+}

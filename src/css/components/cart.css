@@ -1,0 +1,459 @@
+/**
+ * Mini-panier 180°C — icône header, badge, drawer off-canvas.
+ *
+ * - Bouton panier : miroir du bouton compte / menu-trigger (icône 40×40,
+ *   hover bg-elevated + accent, radius-md). Badge accent #FFAE3A.
+ * - Drawer : overlay scrim + panneau glissant depuis la droite, piloté par
+ *   l'attribut `aria-hidden` du wrapper (cohérent avec le side-menu).
+ * - Photos JAMAIS recadrées : miniatures en `object-fit: contain`.
+ * - Scroll-lock body + override z-index du toast : déclarés HORS @layer
+ *   (l'unlayered bat @layer) pour gagner la cascade de façon fiable.
+ *
+ * État ouvert/fermé : src/js/modules/cart.js (toggle aria-hidden + classe
+ * body has-cart-drawer-open + focus-trap).
+ */
+
+@layer components {
+
+  /* ============================================================
+   * Bouton panier (header) + badge compteur
+   * ============================================================ */
+  .site-header__cart-wrap {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .site-header__cart {
+    position: relative;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: var(--color-fg);
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    transition: background-color var(--transition-fast),
+                color var(--transition-fast);
+  }
+
+  .site-header__cart:hover,
+  .site-header__cart[aria-expanded="true"] {
+    background-color: var(--color-bg-elevated);
+    color: var(--color-accent);
+  }
+
+  .site-header__cart:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .site-header__cart-badge {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    min-width: 18px;
+    height: 18px;
+    padding-inline: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-accent);
+    color: var(--color-on-accent);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-bold);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  /* ============================================================
+   * Drawer : wrapper plein écran + overlay + panneau
+   * ============================================================ */
+  .cart-drawer {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-cart-drawer);
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .cart-drawer[aria-hidden="false"] {
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .cart-drawer__overlay {
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-scrim);
+    opacity: 0;
+    transition: opacity var(--transition-base);
+  }
+
+  .cart-drawer[aria-hidden="false"] .cart-drawer__overlay {
+    opacity: 1;
+  }
+
+  .cart-drawer__panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    width: min(440px, 100vw);
+    background-color: var(--color-bg);
+    border-left: 1px solid var(--color-border);
+    box-shadow: var(--shadow-lg);
+    transform: translateX(100%);
+    transition: transform var(--transition-base);
+    will-change: transform;
+  }
+
+  .cart-drawer[aria-hidden="false"] .cart-drawer__panel {
+    transform: translateX(0);
+  }
+
+  /* ----- Entête ----- */
+  .cart-drawer__head {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .cart-drawer__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.01em;
+  }
+
+  .cart-drawer__close {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: var(--color-fg);
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    transition: background-color var(--transition-fast),
+                color var(--transition-fast);
+  }
+
+  .cart-drawer__close:hover {
+    background-color: var(--color-bg-elevated);
+    color: var(--color-accent);
+  }
+
+  .cart-drawer__close:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .cart-drawer__close svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* ----- Corps (zone défilante) ----- */
+  .cart-drawer__body {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .cart-drawer__items {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    margin: 0;
+    padding: var(--space-sm) var(--space-md);
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  /* ----- État vide ----- */
+  .cart-drawer__empty {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    padding: var(--space-2xl) var(--space-md);
+    text-align: center;
+  }
+
+  .cart-drawer__empty-text {
+    margin: 0;
+    color: var(--color-fg-muted);
+    font-size: var(--text-base);
+  }
+
+  /* ============================================================
+   * Ligne de panier
+   * ============================================================ */
+  .cart-line {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr) auto;
+    gap: var(--space-sm);
+    align-items: start;
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .cart-line:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  /* Mutation en cours (qté / suppression) : ligne atténuée. */
+  .cart-line.is-loading {
+    opacity: 0.55;
+  }
+
+  .cart-line__thumb {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-bg-elevated);
+    overflow: hidden;
+  }
+
+  /* Photo non recadrée : contain dans un cadre fixe (jamais cover/crop). */
+  .cart-line__thumb img,
+  .cart-line__thumb-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .cart-line__detail {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+  }
+
+  .cart-line__name {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.25;
+  }
+
+  .cart-line__name a {
+    color: var(--color-fg);
+    text-decoration: none;
+  }
+
+  .cart-line__name a:hover {
+    color: var(--color-accent);
+  }
+
+  .cart-line__variation {
+    font-size: var(--text-xs);
+    color: var(--color-fg-muted);
+  }
+
+  .cart-line__bottom {
+    margin-top: var(--space-3xs);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2xs);
+  }
+
+  .cart-line__stepper {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .cart-line__qty-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: var(--color-fg);
+    cursor: pointer;
+    transition: color var(--transition-fast);
+  }
+
+  .cart-line__qty-btn:hover:not(:disabled) {
+    color: var(--color-accent);
+  }
+
+  .cart-line__qty-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .cart-line__qty-btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+  }
+
+  .cart-line__qty-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .cart-line__qty {
+    min-width: 2ch;
+    padding-inline: var(--space-2xs);
+    text-align: center;
+    font-size: var(--text-sm);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cart-line__price {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    white-space: nowrap;
+  }
+
+  .cart-line__remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: var(--color-fg-muted);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: color var(--transition-fast),
+                background-color var(--transition-fast);
+  }
+
+  .cart-line__remove:hover {
+    color: var(--color-danger);
+    background-color: var(--color-bg-elevated);
+  }
+
+  .cart-line__remove:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* ============================================================
+   * Pied : sous-total + CTA
+   * ============================================================ */
+  .cart-drawer__footer {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-bg);
+  }
+
+  .cart-drawer__subtotal {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-sm);
+  }
+
+  .cart-drawer__subtotal-label {
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-fg-muted);
+  }
+
+  .cart-drawer__subtotal-amount {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-bold);
+  }
+
+  .cart-drawer__actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  .cart-drawer__action {
+    width: 100%;
+  }
+
+  .cart-drawer__empty-cta {
+    width: 100%;
+    max-width: 280px;
+  }
+
+  /* ============================================================
+   * Mobile : hit areas ≥ 44px, drawer quasi plein écran
+   * ============================================================ */
+  @media (max-width: 767px) {
+    .cart-line__qty-btn {
+      width: 44px;
+      height: 44px;
+    }
+
+    .cart-line__remove {
+      width: 44px;
+      height: 44px;
+    }
+
+    .cart-drawer__close {
+      width: 44px;
+      height: 44px;
+    }
+  }
+}
+
+/* ============================================================
+ * Hors @layer (l'unlayered bat @layer) — comportements globaux
+ * ============================================================ */
+
+/* Scroll-lock du body quand le drawer est ouvert (cf. side-menu). */
+body.has-cart-drawer-open {
+  overflow: hidden;
+}
+
+/* Les toasts d'erreur AJAX doivent rester visibles AU-DESSUS du drawer. */
+body.has-cart-drawer-open .toast-region {
+  z-index: calc(var(--z-cart-drawer) + 10);
+}
+
+/* Reduced motion : pas de glissement ni de fondu. */
+@media (prefers-reduced-motion: reduce) {
+  .cart-drawer__panel,
+  .cart-drawer__overlay {
+    transition: none;
+  }
+}

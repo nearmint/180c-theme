@@ -1,0 +1,61 @@
+/**
+ * Composant : page 404.
+ *
+ * @package 180c
+ */
+
+/* ============================================================
+ * Hero de la 404
+ * ============================================================ */
+
+.error-404 {
+  padding-block: var(--spacing-16);
+}
+
+.error-404__hero {
+  text-align: center;
+  padding-block: var(--spacing-16);
+}
+
+.error-404__title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg);
+  margin-block-end: var(--spacing-4);
+}
+
+.error-404__description {
+  font-size: var(--font-size-lg);
+  color: var(--color-fg-muted);
+  margin-block-end: var(--spacing-8);
+}
+
+/* .error-404__back : aucun override de `display`. Le bouton compose `.btn`
+ * (display:inline-flex, layer components) ; un `display:inline-block` non
+ * layered prenait le dessus et cassait l'alignement icône/texte du .btn. */
+
+/* ============================================================
+ * Recherche
+ * ============================================================ */
+
+.error-404__search {
+  padding-block: var(--spacing-12);
+  border-block-start: 1px solid var(--color-border);
+}
+
+.error-404__section-title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-xl);
+  color: var(--color-fg);
+  margin-block-end: var(--spacing-6);
+}
+
+/* ============================================================
+ * Suggestions de recettes
+ * ------------------------------------------------------------
+ * Le rail recettes est rendu par le shell mutualisé _180c_render_rail()
+ * (classes .rail-180c / .home-module--recipes_rail, stylées dans
+ * components/home/_rails.css). La 404 ne porte plus de markup de liste
+ * dédié — aucune règle spécifique nécessaire ici.
+ * ============================================================ */

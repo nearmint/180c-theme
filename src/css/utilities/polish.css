@@ -1,0 +1,115 @@
+/**
+ * Polish navigation — transitions sobres, reveal des rails, utilitaire skeleton.
+ *
+ * Périmètre volontairement borné (cf. PHASE 11) : micro-transitions discrètes,
+ * fondu léger des modules home au scroll (réutilise le pattern IntersectionObserver
+ * existant, posé par rail.js), et un utilitaire `.skeleton` réutilisable mais
+ * NON câblé par défaut. Aucun effet lourd, parallax, ni layout shift (transform
+ * et opacity uniquement). `prefers-reduced-motion` respecté partout.
+ *
+ * @package 180c
+ */
+
+@layer components {
+  /* ============================================================
+   * 1. Micro-transitions sobres sur les liens de navigation.
+   *    Couleur uniquement, via tokens, pour les items qui n'en
+   *    portaient pas encore (les autres conservent les leurs).
+   * ============================================================ */
+  .site-header__nav-cta,
+  .menu-highlight > a {
+    transition: color var(--transition-fast);
+  }
+
+  /* ============================================================
+   * 2. Reveal au scroll des modules home — fondu + léger glissement.
+   *    Gated par .is-reveal-pending, posée par rail.js UNIQUEMENT sur les
+   *    modules situés sous la ligne de flottaison au chargement. Ce qui est
+   *    déjà à l'écran n'est jamais masqué : masquer un candidat LCP (le hero
+   *    éditorial) pour le refondre ensuite retardait sa peinture de plusieurs
+   *    centaines de ms. Sans JS ou en reduced-motion, aucune classe n'est
+   *    posée et tout reste visible. Transform + opacity uniquement → aucun CLS.
+   * ============================================================ */
+  .home-module.is-reveal-pending {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity var(--transition-slow), transform var(--transition-slow);
+  }
+
+  .home-module.is-reveal-pending.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Exception : le bloc « Dernières recettes » (rail recettes) s'affiche
+   * d'emblée, sans fondu au scroll, même s'il est sous la ligne de flottaison.
+   * Spécificité supérieure à la règle de reveal ci-dessus → l'emporte. */
+  .home-module.home-module--recipes_rail.is-reveal-pending {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  /* ============================================================
+   * 3. Utilitaire `.skeleton` réutilisable (shimmer sobre).
+   *    Non câblé : à poser sur un placeholder pour des chargements
+   *    async futurs. Réserve l'espace côté markup pour éviter le CLS.
+   * ============================================================ */
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background-color: color-mix(in srgb, var(--color-fg) 8%, var(--color-bg));
+    border-radius: var(--radius-sm);
+  }
+
+  /* Même contrainte de compositing que le shimmer des rails
+   * (components/home/_rails.css) : on anime `transform`, jamais
+   * `background-position` — cette dernière n'est pas compositable et impose
+   * un repaint main-thread par frame, en boucle infinie. */
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: linear-gradient(
+      100deg,
+      transparent 30%,
+      color-mix(in srgb, var(--color-fg) 6%, transparent) 50%,
+      transparent 70%
+    );
+    animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  }
+
+  @keyframes skeleton-shimmer {
+    from {
+      transform: translateX(-100%);
+    }
+
+    to {
+      transform: translateX(100%);
+    }
+  }
+
+  /* ============================================================
+   * 4. prefers-reduced-motion — neutralise transitions et shimmer.
+   * ============================================================ */
+  @media (prefers-reduced-motion: reduce) {
+    .site-header__nav-cta,
+    .menu-highlight > a {
+      transition: none;
+    }
+
+    /* Filet de sécurité : rail.js sort déjà avant de poser la moindre classe
+     * en reduced-motion, mais si l'utilisateur active la préférence après le
+     * chargement, les modules déjà marqués doivent redevenir visibles. */
+    .home-module.is-reveal-pending {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+
+    .skeleton::after {
+      animation: none;
+    }
+  }
+}

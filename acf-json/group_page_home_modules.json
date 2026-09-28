@@ -1,0 +1,1482 @@
+{
+  "key": "group_page_home_modules",
+  "title": "Page - Home modules",
+  "fields": [
+    {
+      "key": "field_home_modules",
+      "label": "Modules",
+      "name": "home_modules",
+      "type": "flexible_content",
+      "instructions": "",
+      "required": 0,
+      "conditional_logic": 0,
+      "button_label": "Ajouter un module",
+      "min": 0,
+      "max": 0,
+      "layouts": {
+        "layout_hero_editorial": {
+          "key": "layout_hero_editorial",
+          "name": "hero_editorial",
+          "label": "Hero éditorial",
+          "display": "block",
+          "sub_fields": [
+            {
+              "key": "field_home_hero_auto_latest_recipe",
+              "label": "Mettre en avant automatiquement le dernier contenu",
+              "name": "hero_auto_latest_recipe",
+              "type": "true_false",
+              "instructions": "Ignore la sélection manuelle et met en avant le dernier contenu publié du type choisi ci-dessous (recette ou article).",
+              "required": 0,
+              "conditional_logic": 0,
+              "message": "",
+              "default_value": 0,
+              "ui": 1,
+              "ui_on_text": "",
+              "ui_off_text": ""
+            },
+            {
+              "key": "field_home_hero_auto_post_type",
+              "label": "Type de contenu automatique",
+              "name": "hero_auto_post_type",
+              "type": "select",
+              "instructions": "Quel dernier contenu publié mettre en avant : la home Recettes choisit « Dernière recette », la home Gazette « Dernier article ».",
+              "required": 0,
+              "conditional_logic": [
+                [
+                  {
+                    "field": "field_home_hero_auto_latest_recipe",
+                    "operator": "==",
+                    "value": "1"
+                  }
+                ]
+              ],
+              "choices": {
+                "recipe": "Dernière recette",
+                "post": "Dernier article"
+              },
+              "default_value": "recipe",
+              "return_format": "value",
+              "allow_null": 0,
+              "multiple": 0,
+              "ui": 0,
+              "ajax": 0,
+              "placeholder": ""
+            },
+            {
+              "key": "field_home_hero_selected_post",
+              "label": "Contenu mis en avant",
+              "name": "selected_post",
+              "type": "post_object",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": [
+                [
+                  {
+                    "field": "field_home_hero_auto_latest_recipe",
+                    "operator": "!=",
+                    "value": "1"
+                  }
+                ]
+              ],
+              "post_type": ["post", "recipe", "product"],
+              "taxonomy": [],
+              "allow_null": 1,
+              "multiple": 0,
+              "return_format": "id",
+              "filters": ["search"]
+            },
+            {
+              "key": "field_home_hero_display_style",
+              "label": "Style d'affichage",
+              "name": "display_style",
+              "type": "radio",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "choices": {
+                "full": "Plein écran (full)",
+                "split": "Divisé (split)"
+              },
+              "default_value": "full",
+              "layout": "horizontal",
+              "return_format": "value",
+              "allow_null": 0,
+              "other_choice": 0,
+              "save_other_choice": 0
+            },
+            {
+              "key": "field_home_hero_cta_label",
+              "label": "Libellé CTA",
+              "name": "cta_label",
+              "type": "text",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "placeholder": ""
+            },
+            {
+              "key": "field_home_hero_cta_url",
+              "label": "URL CTA",
+              "name": "cta_url",
+              "type": "url",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "placeholder": ""
+            },
+            {
+              "key": "field_home_hero_display",
+              "label": "Visibilité",
+              "name": "display",
+              "type": "radio",
+              "instructions": "Plateformes sur lesquelles le module est rendu.",
+              "required": 0,
+              "conditional_logic": 0,
+              "choices": {
+                "web_only": "Web uniquement",
+                "app_only": "App uniquement",
+                "web_app": "Web et App"
+              },
+              "default_value": "web_only",
+              "layout": "horizontal",
+              "return_format": "value",
+              "allow_null": 0,
+              "other_choice": 0,
+              "save_other_choice": 0
+            }
+          ],
+          "min": "",
+          "max": ""
+        },
+        "layout_articles_rail": {
+          "key": "layout_articles_rail",
+          "name": "articles_rail",
+          "label": "Rail d'articles",
+          "display": "block",
+          "sub_fields": [
+            {
+              "key": "field_home_artrail_title",
+              "label": "Titre",
+              "name": "title",
+              "type": "text",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "placeholder": ""
+            },
+            {
+              "key": "field_home_artrail_mode",
+              "label": "Mode",
+              "name": "mode",
+              "type": "radio",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "choices": {
+                "recent": "Récents",
+                "category": "Par catégorie",
+                "tag": "Par tag",
+                "manual": "Manuel"
+              },
+              "default_value": "recent",
+              "layout": "horizontal",
+              "return_format": "value",
+              "allow_null": 0,
+              "other_choice": 0,
+              "save_other_choice": 0
+            },
+            {
+              "key": "field_home_artrail_category",
+              "label": "Catégorie",
+              "name": "category",
+              "type": "taxonomy",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": [
+                [
+                  {
+                    "field": "field_home_artrail_mode",
+                    "operator": "==",
+                    "value": "category"
+                  }
+                ]
+              ],
+              "taxonomy": "category",
+              "field_type": "select",
+              "allow_null": 1,
+              "add_term": 0,
+              "save_terms": 0,
+              "load_terms": 0,
+              "return_format": "object",
+              "multiple": 0
+            },
+            {
+              "key": "field_home_artrail_tag",
+              "label": "Tag",
+              "name": "tag",
+              "type": "taxonomy",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": [
+                [
+                  {
+                    "field": "field_home_artrail_mode",
+                    "operator": "==",
+                    "value": "tag"
+                  }
+                ]
+              ],
+              "taxonomy": "post_tag",
+              "field_type": "select",
+              "allow_null": 1,
+              "add_term": 0,
+              "save_terms": 0,
+              "load_terms": 0,
+              "return_format": "object",
+              "multiple": 0
+            },
+            {
+              "key": "field_home_artrail_count",
+              "label": "Nombre d'articles",
+              "name": "count",
+              "type": "number",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "default_value": 8,
+              "min": 3,
+              "max": 20,
+              "step": 1,
+              "placeholder": ""
+            },
+            {
+              "key": "field_home_artrail_manual_posts",
+              "label": "Articles manuels",
+              "name": "manual_posts",
+              "type": "post_object",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": [
+                [
+                  {
+                    "field": "field_home_artrail_mode",
+                    "operator": "==",
+                    "value": "manual"
+                  }
+                ]
+              ],
+              "post_type": ["post"],
+              "taxonomy": [],
+              "allow_null": 1,
+              "multiple": 1,
+              "return_format": "id",
+              "filters": ["search"]
+            },
+            {
+              "key": "field_home_artrail_display",
+              "label": "Visibilité",
+              "name": "display",
+              "type": "radio",
+              "instructions": "Plateformes sur lesquelles le module est rendu.",
+              "required": 0,
+              "conditional_logic": 0,
+              "choices": {
+                "web_only": "Web uniquement",
+                "app_only": "App uniquement",
+                "web_app": "Web et App"
+              },
+              "default_value": "web_only",
+              "layout": "horizontal",
+              "return_format": "value",
+              "allow_null": 0,
+              "other_choice": 0,
+              "save_other_choice": 0
+            }
+          ],
+          "min": "",
+          "max": ""
+        },
+        "layout_recipes_rail": {
+          "key": "layout_recipes_rail",
+          "name": "recipes_rail",
+          "label": "Rail de recettes",
+          "display": "block",
+          "sub_fields": [
+            {
+              "key": "field_home_recrail_title",
+              "label": "Titre",
+              "name": "title",
+              "type": "text",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "placeholder": ""
+            },
+            {
+              "key": "field_home_recrail_mode",
+              "label": "Mode",
+              "name": "mode",
+              "type": "radio",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "choices": {
+                "recent": "Récents",
+                "category": "Par catégorie",
+                "season": "Par saison",
+                "current_season": "Saison en cours (auto)",
+                "type": "Par type",
+                "manual": "Manuel"
+              },
+              "default_value": "recent",
+              "layout": "horizontal",
+              "return_format": "value",
+              "allow_null": 0,
+              "other_choice": 0,
+              "save_other_choice": 0
+            },
+            {
+              "key": "field_home_recrail_recipe_category",
+              "label": "Catégorie culinaire",
+              "name": "recipe_category",
+              "type": "taxonomy",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": [
+                [
+                  {
+                    "field": "field_home_recrail_mode",
+                    "operator": "==",
+                    "value": "category"
+                  }
+                ]
+              ],
+              "taxonomy": "recipe_publication",
+              "field_type": "select",
+              "allow_null": 1,
+              "add_term": 0,
+              "save_terms": 0,
+              "load_terms": 0,
+              "return_format": "object",
+              "multiple": 0
+            },
+            {
+              "key": "field_home_recrail_season",
+              "label": "Saison",
+              "name": "season",
+              "type": "taxonomy",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": [
+                [
+                  {
+                    "field": "field_home_recrail_mode",
+                    "operator": "==",
+                    "value": "season"
+                  }
+                ]
+              ],
+              "taxonomy": "recipe_season",
+              "field_type": "select",
+              "allow_null": 1,
+              "add_term": 0,
+              "save_terms": 0,
+              "load_terms": 0,
+              "return_format": "object",
+              "multiple": 0
+            },
+            {
+              "key": "field_home_recrail_type",
+              "label": "Type",
+              "name": "type",
+              "type": "taxonomy",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": [
+                [
+                  {
+                    "field": "field_home_recrail_mode",
+                    "operator": "==",
+                    "value": "type"
+                  }
+                ]
+              ],
+              "taxonomy": "recipe_category",
+              "field_type": "select",
+              "allow_null": 1,
+              "add_term": 0,
+              "save_terms": 0,
+              "load_terms": 0,
+              "return_format": "object",
+              "multiple": 0
+            },
+            {
+              "key": "field_home_recrail_count",
+              "label": "Nombre de recettes",
+              "name": "count",
+              "type": "number",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "default_value": 8,
+              "min": 3,
+              "max": 20,
+              "step": 1,
+              "placeholder": ""
+            },
+            {
+              "key": "field_home_recrail_manual_recipes",
+              "label": "Recettes manuelles",
+              "name": "manual_recipes",
+              "type": "post_object",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": [
+                [
+                  {
+                    "field": "field_home_recrail_mode",
+                    "operator": "==",
+                    "value": "manual"
+                  }
+                ]
+              ],
+              "post_type": ["recipe"],
+              "taxonomy": [],
+              "allow_null": 1,
+              "multiple": 1,
+              "return_format": "id",
+              "filters": ["search"]
+            },
+            {
+              "key": "field_home_recrail_exclude_displayed",
+              "label": "Exclure les recettes déjà affichées",
+              "name": "exclude_displayed",
+              "type": "true_false",
+              "instructions": "Évite les doublons : masque les recettes déjà rendues par un module situé plus haut sur la page.",
+              "required": 0,
+              "conditional_logic": [
+                [
+                  {
+                    "field": "field_home_recrail_mode",
+                    "operator": "!=",
+                    "value": "manual"
+                  }
+                ]
+              ],
+              "message": "",
+              "default_value": 0,
+              "ui": 1,
+              "ui_on_text": "",
+              "ui_off_text": ""
+            },
+            {
+              "key": "field_home_recrail_display",
+              "label": "Visibilité",
+              "name": "display",
+              "type": "radio",
+              "instructions": "Plateformes sur lesquelles le module est rendu.",
+              "required": 0,
+              "conditional_logic": 0,
+              "choices": {
+                "web_only": "Web uniquement",
+                "app_only": "App uniquement",
+                "web_app": "Web et App"
+              },
+              "default_value": "web_only",
+              "layout": "horizontal",
+              "return_format": "value",
+              "allow_null": 0,
+              "other_choice": 0,
+              "save_other_choice": 0
+            }
+          ],
+          "min": "",
+          "max": ""
+        },
+        "layout_recipes_slider": {
+          "key": "layout_recipes_slider",
+          "name": "recipes_slider",
+          "label": "Slider de recettes",
+          "display": "block",
+          "sub_fields": [
+            {
+              "key": "field_home_recslider_title",
+              "label": "Titre",
+              "name": "title",
+              "type": "text",
+              "instructions": "Vide = « Les dernières recettes publiées ».",
+              "required": 0,
+              "conditional_logic": 0,
+              "placeholder": "Les dernières recettes publiées"
+            },
+            {
+              "key": "field_home_recslider_count",
+              "label": "Nombre de recettes",
+              "name": "count",
+              "type": "number",
+              "instructions": "Une seule recette est visible à la fois : au-delà de 10 vignettes la frise de pagination devient illisible. Plafonné à 10.",
+              "required": 0,
+              "conditional_logic": 0,
+              "default_value": 6,
+              "min": 1,
+              "max": 10,
+              "step": 1,
+              "placeholder": ""
+            },
+            {
+              "key": "field_home_recslider_exclude_displayed",
+              "label": "Exclure les recettes déjà affichées",
+              "name": "exclude_displayed",
+              "type": "true_false",
+              "instructions": "Évite les doublons : masque les recettes déjà rendues par un module situé plus haut sur la page.",
+              "required": 0,
+              "conditional_logic": 0,
+              "message": "",
+              "default_value": 0,
+              "ui": 1,
+              "ui_on_text": "",
+              "ui_off_text": ""
+            },
+            {
+              "key": "field_home_recslider_display",
+              "label": "Visibilité",
+              "name": "display",
+              "type": "radio",
+              "instructions": "Plateformes sur lesquelles le module est rendu.",
+              "required": 0,
+              "conditional_logic": 0,
+              "choices": {
+                "web_only": "Web uniquement",
+                "app_only": "App uniquement",
+                "web_app": "Web et App"
+              },
+              "default_value": "web_only",
+              "layout": "horizontal",
+              "return_format": "value",
+              "allow_null": 0,
+              "other_choice": 0,
+              "save_other_choice": 0
+            }
+          ],
+          "min": "",
+          "max": ""
+        },
+        "layout_recipe_search": {
+          "key": "layout_recipe_search",
+          "name": "recipe_search",
+          "label": "Recherche de recettes",
+          "display": "block",
+          "sub_fields": [
+            {
+              "key": "field_home_recipe_search_title",
+              "label": "Titre",
+              "name": "title",
+              "type": "text",
+              "instructions": "Titre affiché au-dessus du champ de recherche.",
+              "required": 0,
+              "conditional_logic": 0,
+              "default_value": "Trouvez une recette",
+              "placeholder": "Trouvez une recette"
+            },
+            {
+              "key": "field_home_recipe_search_placeholder",
+              "label": "Placeholder du champ",
+              "name": "placeholder",
+              "type": "text",
+              "instructions": "Texte d'invite affiché dans le champ de recherche.",
+              "required": 0,
+              "conditional_logic": 0,
+              "default_value": "Rechercher une recette…",
+              "placeholder": "Rechercher une recette…"
+            },
+            {
+              "key": "field_home_recipe_search_display",
+              "label": "Visibilité",
+              "name": "display",
+              "type": "radio",
+              "instructions": "Plateformes sur lesquelles le module est rendu.",
+              "required": 0,
+              "conditional_logic": 0,
+              "choices": {
+                "web_only": "Web uniquement",
+                "app_only": "App uniquement",
+                "web_app": "Web et App"
+              },
+              "default_value": "web_only",
+              "layout": "horizontal",
+              "return_format": "value",
+              "allow_null": 0,
+              "other_choice": 0,
+              "save_other_choice": 0
+            }
+          ],
+          "min": "",
+          "max": ""
+        },
+        "layout_products_rail": {
+          "key": "layout_products_rail",
+          "name": "products_rail",
+          "label": "Rail de produits",
+          "display": "block",
+          "sub_fields": [
+            {
+              "key": "field_180c_hm_products_rail_title",
+              "label": "Titre",
+              "name": "title",
+              "type": "text",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "placeholder": ""
+            },
+            {
+              "key": "field_180c_hm_products_rail_mode",
+              "label": "Mode",
+              "name": "mode",
+              "type": "radio",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "choices": {
+                "recent": "Récents",
+                "category": "Par catégorie",
+                "manual": "Manuel"
+              },
+              "default_value": "recent",
+              "layout": "horizontal",
+              "return_format": "value",
+              "allow_null": 0,
+              "other_choice": 0,
+              "save_other_choice": 0
+            },
+            {
+              "key": "field_180c_hm_products_rail_product_cat",
+              "label": "Catégorie produit",
+              "name": "product_cat",
+              "type": "taxonomy",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": [
+                [
+                  {
+                    "field": "field_180c_hm_products_rail_mode",
+                    "operator": "==",
+                    "value": "category"
+                  }
+                ]
+              ],
+              "taxonomy": "product_cat",
+              "field_type": "select",
+              "allow_null": 1,
+              "add_term": 0,
+              "save_terms": 0,
+              "load_terms": 0,
+              "return_format": "object",
+              "multiple": 0
+            },
+            {
+              "key": "field_180c_hm_products_rail_count",
+              "label": "Nombre de produits",
+              "name": "count",
+              "type": "number",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "default_value": 8,
+              "min": 3,
+              "max": 20,
+              "step": 1,
+              "placeholder": ""
+            },
+            {
+              "key": "field_180c_hm_products_rail_manual_products",
+              "label": "Produits manuels",
+              "name": "manual_products",
+              "type": "post_object",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": [
+                [
+                  {
+                    "field": "field_180c_hm_products_rail_mode",
+                    "operator": "==",
+                    "value": "manual"
+                  }
+                ]
+              ],
+              "post_type": ["product"],
+              "taxonomy": [],
+              "allow_null": 1,
+              "multiple": 1,
+              "return_format": "id",
+              "filters": ["search"]
+            },
+            {
+              "key": "field_180c_hm_products_rail_display",
+              "label": "Visibilité",
+              "name": "display",
+              "type": "radio",
+              "instructions": "Plateformes sur lesquelles le module est rendu.",
+              "required": 0,
+              "conditional_logic": 0,
+              "choices": {
+                "web_only": "Web uniquement",
+                "app_only": "App uniquement",
+                "web_app": "Web et App"
+              },
+              "default_value": "web_only",
+              "layout": "horizontal",
+              "return_format": "value",
+              "allow_null": 0,
+              "other_choice": 0,
+              "save_other_choice": 0
+            }
+          ],
+          "min": "",
+          "max": ""
+        },
+        "layout_collection_mosaic": {
+          "key": "layout_collection_mosaic",
+          "name": "collection_mosaic",
+          "label": "Collection (mosaïque de couvertures)",
+          "display": "block",
+          "sub_fields": [
+            {
+              "key": "field_home_collection_title",
+              "label": "Titre",
+              "name": "title",
+              "type": "text",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "default_value": "Complétez votre collection 180°C.",
+              "placeholder": "Complétez votre collection 180°C."
+            },
+            {
+              "key": "field_home_collection_cta_label",
+              "label": "Libellé CTA",
+              "name": "cta_label",
+              "type": "text",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "default_value": "Commander les numéros manquants",
+              "placeholder": "Commander les numéros manquants"
+            },
+            {
+              "key": "field_home_collection_cta_url",
+              "label": "URL CTA",
+              "name": "cta_url",
+              "type": "url",
+              "instructions": "Cible du bouton. Par défaut, l'archive de la catégorie « Les revues 180°C » si vide.",
+              "required": 0,
+              "conditional_logic": 0,
+              "placeholder": "https://..."
+            },
+            {
+              "key": "field_home_collection_display",
+              "label": "Visibilité",
+              "name": "display",
+              "type": "radio",
+              "instructions": "Plateformes sur lesquelles le module est rendu.",
+              "required": 0,
+              "conditional_logic": 0,
+              "choices": {
+                "web_only": "Web uniquement",
+                "app_only": "App uniquement",
+                "web_app": "Web et App"
+              },
+              "default_value": "web_only",
+              "layout": "horizontal",
+              "return_format": "value",
+              "allow_null": 0,
+              "other_choice": 0,
+              "save_other_choice": 0
+            }
+          ],
+          "min": "",
+          "max": ""
+        },
+        "layout_category_tiles": {
+          "key": "layout_category_tiles",
+          "name": "category_tiles",
+          "label": "Tuiles de catégories",
+          "display": "block",
+          "sub_fields": [
+            {
+              "key": "field_180c_hm_category_tiles_title",
+              "label": "Titre",
+              "name": "title",
+              "type": "text",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "placeholder": ""
+            },
+            {
+              "key": "field_180c_hm_category_tiles_taxonomy",
+              "label": "Taxonomie",
+              "name": "taxonomy",
+              "type": "select",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "choices": {
+                "category": "Catégories d'articles",
+                "recipe_category": "Types de plat",
+                "product_cat": "Catégories produits",
+                "recipe_publication": "Publications",
+                "recipe_season": "Saisons"
+              },
+              "default_value": "category",
+              "allow_null": 0,
+              "multiple": 0,
+              "ui": 0,
+              "ajax": 0,
+              "return_format": "value",
+              "placeholder": ""
+            },
+            {
+              "key": "field_180c_hm_category_tiles_count",
+              "label": "Nombre de catégories",
+              "name": "count",
+              "type": "number",
+              "instructions": "Les catégories les plus fournies sont affichées en priorité.",
+              "required": 0,
+              "conditional_logic": 0,
+              "default_value": 8,
+              "min": 3,
+              "max": 12,
+              "step": 1,
+              "placeholder": ""
+            },
+            {
+              "key": "field_180c_hm_category_tiles_columns",
+              "label": "Colonnes (desktop)",
+              "name": "columns",
+              "type": "number",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "default_value": 4,
+              "min": 2,
+              "max": 6,
+              "step": 1,
+              "placeholder": ""
+            },
+            {
+              "key": "field_180c_hm_category_tiles_display",
+              "label": "Visibilité",
+              "name": "display",
+              "type": "radio",
+              "instructions": "Plateformes sur lesquelles le module est rendu.",
+              "required": 0,
+              "conditional_logic": 0,
+              "choices": {
+                "web_only": "Web uniquement",
+                "app_only": "App uniquement",
+                "web_app": "Web et App"
+              },
+              "default_value": "web_only",
+              "layout": "horizontal",
+              "return_format": "value",
+              "allow_null": 0,
+              "other_choice": 0,
+              "save_other_choice": 0
+            }
+          ],
+          "min": "",
+          "max": ""
+        },
+        "layout_grid_paginated": {
+          "key": "layout_grid_paginated",
+          "name": "grid_paginated",
+          "label": "Grille paginée",
+          "display": "block",
+          "sub_fields": [
+            {
+              "key": "field_180c_hm_grid_paginated_title",
+              "label": "Titre",
+              "name": "title",
+              "type": "text",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "placeholder": ""
+            },
+            {
+              "key": "field_180c_hm_grid_paginated_source",
+              "label": "Source",
+              "name": "source",
+              "type": "select",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "choices": {
+                "post": "Articles",
+                "recipe": "Recettes",
+                "product": "Produits"
+              },
+              "default_value": "post",
+              "allow_null": 0,
+              "multiple": 0,
+              "ui": 0,
+              "ajax": 0,
+              "return_format": "value",
+              "placeholder": ""
+            },
+            {
+              "key": "field_180c_hm_grid_paginated_columns",
+              "label": "Colonnes (desktop)",
+              "name": "columns",
+              "type": "number",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "default_value": 3,
+              "min": 2,
+              "max": 4,
+              "step": 1,
+              "placeholder": ""
+            },
+            {
+              "key": "field_180c_hm_grid_paginated_rows",
+              "label": "Lignes par page",
+              "name": "rows",
+              "type": "number",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "default_value": 2,
+              "min": 1,
+              "max": 6,
+              "step": 1,
+              "placeholder": ""
+            },
+            {
+              "key": "field_180c_hm_grid_paginated_exclude_displayed",
+              "label": "Exclure les recettes déjà affichées",
+              "name": "exclude_displayed",
+              "type": "true_false",
+              "instructions": "Source « Recettes » uniquement : masque les recettes déjà rendues par un module situé plus haut sur la page.",
+              "required": 0,
+              "conditional_logic": [
+                [
+                  {
+                    "field": "field_180c_hm_grid_paginated_source",
+                    "operator": "==",
+                    "value": "recipe"
+                  }
+                ]
+              ],
+              "message": "",
+              "default_value": 0,
+              "ui": 1,
+              "ui_on_text": "",
+              "ui_off_text": ""
+            },
+            {
+              "key": "field_180c_hm_grid_paginated_display",
+              "label": "Visibilité",
+              "name": "display",
+              "type": "radio",
+              "instructions": "Plateformes sur lesquelles le module est rendu.",
+              "required": 0,
+              "conditional_logic": 0,
+              "choices": {
+                "web_only": "Web uniquement",
+                "app_only": "App uniquement",
+                "web_app": "Web et App"
+              },
+              "default_value": "web_only",
+              "layout": "horizontal",
+              "return_format": "value",
+              "allow_null": 0,
+              "other_choice": 0,
+              "save_other_choice": 0
+            }
+          ],
+          "min": "",
+          "max": ""
+        },
+        "layout_subscription_banner": {
+          "key": "layout_subscription_banner",
+          "name": "subscription_banner",
+          "label": "Bannière abonnement",
+          "display": "block",
+          "sub_fields": [
+            {
+              "key": "field_home_subbanner_title",
+              "label": "Titre",
+              "name": "title",
+              "type": "text",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "placeholder": ""
+            },
+            {
+              "key": "field_home_subbanner_description",
+              "label": "Sous-titre",
+              "name": "description",
+              "type": "textarea",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "rows": 3,
+              "new_lines": "br"
+            },
+            {
+              "key": "field_home_subbanner_cta_label",
+              "label": "Libellé CTA",
+              "name": "cta_label",
+              "type": "text",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "default_value": "Je m'abonne",
+              "placeholder": "Je m'abonne"
+            },
+            {
+              "key": "field_home_subbanner_cta_url",
+              "label": "URL CTA",
+              "name": "cta_url",
+              "type": "url",
+              "instructions": "Cible du bouton (par défaut la page Abonnement du thème si vide).",
+              "required": 1,
+              "conditional_logic": 0,
+              "placeholder": "https://..."
+            },
+            {
+              "key": "field_home_subbanner_secondary_label",
+              "label": "Libellé lien secondaire",
+              "name": "secondary_link_label",
+              "type": "text",
+              "instructions": "Lien optionnel affiché à droite du CTA. Rendu seulement si le libellé ET l'URL sont renseignés.",
+              "required": 0,
+              "conditional_logic": 0,
+              "placeholder": ""
+            },
+            {
+              "key": "field_home_subbanner_secondary_url",
+              "label": "URL lien secondaire",
+              "name": "secondary_link_url",
+              "type": "url",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "placeholder": "https://..."
+            },
+            {
+              "key": "field_home_subbanner_hide_subscribers",
+              "label": "Masquer pour les abonnés",
+              "name": "hide_for_subscribers",
+              "type": "true_false",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "default_value": 1,
+              "ui": 1,
+              "ui_on_text": "Oui",
+              "ui_off_text": "Non"
+            },
+            {
+              "key": "field_home_subbanner_display",
+              "label": "Visibilité",
+              "name": "display",
+              "type": "radio",
+              "instructions": "Plateformes sur lesquelles le module est rendu.",
+              "required": 0,
+              "conditional_logic": 0,
+              "choices": {
+                "web_only": "Web uniquement",
+                "app_only": "App uniquement",
+                "web_app": "Web et App"
+              },
+              "default_value": "web_only",
+              "layout": "horizontal",
+              "return_format": "value",
+              "allow_null": 0,
+              "other_choice": 0,
+              "save_other_choice": 0
+            }
+          ],
+          "min": "",
+          "max": ""
+        },
+        "layout_gift_banner": {
+          "key": "layout_gift_banner",
+          "name": "gift_banner",
+          "label": "Bannière offrir un abonnement",
+          "display": "block",
+          "sub_fields": [
+            {
+              "key": "field_home_giftbanner_title",
+              "label": "Titre",
+              "name": "title",
+              "type": "text",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "placeholder": ""
+            },
+            {
+              "key": "field_home_giftbanner_description",
+              "label": "Sous-titre",
+              "name": "description",
+              "type": "textarea",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "rows": 3,
+              "new_lines": "br"
+            },
+            {
+              "key": "field_home_giftbanner_cta_label",
+              "label": "Libellé CTA",
+              "name": "cta_label",
+              "type": "text",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "default_value": "Offrir un abonnement",
+              "placeholder": "Offrir un abonnement"
+            },
+            {
+              "key": "field_home_giftbanner_cta_url",
+              "label": "URL CTA",
+              "name": "cta_url",
+              "type": "url",
+              "instructions": "Cible du bouton. Vide = page « Offrir un abonnement » du thème (/offrir-un-abonnement/).",
+              "required": 0,
+              "conditional_logic": 0,
+              "placeholder": "https://..."
+            },
+            {
+              "key": "field_home_giftbanner_secondary_label",
+              "label": "Libellé lien secondaire",
+              "name": "secondary_link_label",
+              "type": "text",
+              "instructions": "Lien optionnel affiché à droite du CTA. Rendu seulement si le libellé ET l'URL sont renseignés.",
+              "required": 0,
+              "conditional_logic": 0,
+              "placeholder": ""
+            },
+            {
+              "key": "field_home_giftbanner_secondary_url",
+              "label": "URL lien secondaire",
+              "name": "secondary_link_url",
+              "type": "url",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "placeholder": "https://..."
+            },
+            {
+              "key": "field_home_giftbanner_display",
+              "label": "Visibilité",
+              "name": "display",
+              "type": "radio",
+              "instructions": "Plateformes sur lesquelles le module est rendu. Le module n'est de toute façon visible que pour les abonnés connectés.",
+              "required": 0,
+              "conditional_logic": 0,
+              "choices": {
+                "web_only": "Web uniquement",
+                "app_only": "App uniquement",
+                "web_app": "Web et App"
+              },
+              "default_value": "web_only",
+              "layout": "horizontal",
+              "return_format": "value",
+              "allow_null": 0,
+              "other_choice": 0,
+              "save_other_choice": 0
+            }
+          ],
+          "min": "",
+          "max": ""
+        },
+        "layout_newsletter_form": {
+          "key": "layout_newsletter_form",
+          "name": "newsletter_form",
+          "label": "Formulaire newsletter",
+          "display": "block",
+          "sub_fields": [
+            {
+              "key": "field_home_nl_title",
+              "label": "Titre",
+              "name": "title",
+              "type": "text",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "default_value": "Inscrivez-vous à la newsletter",
+              "placeholder": "Inscrivez-vous à la newsletter"
+            },
+            {
+              "key": "field_home_nl_description",
+              "label": "Description",
+              "name": "description",
+              "type": "textarea",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "rows": 3,
+              "new_lines": "br"
+            },
+            {
+              "key": "field_home_nl_image",
+              "label": "Image",
+              "name": "image",
+              "type": "image",
+              "instructions": "Optionnelle, variant avec image.",
+              "required": 0,
+              "conditional_logic": 0,
+              "return_format": "array",
+              "preview_size": "medium",
+              "library": "all",
+              "min_width": 0,
+              "min_height": 0,
+              "min_size": "",
+              "max_width": "",
+              "max_height": "",
+              "max_size": ""
+            },
+            {
+              "key": "field_home_nl_submit_label",
+              "label": "Libellé bouton",
+              "name": "submit_label",
+              "type": "text",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "default_value": "S'inscrire",
+              "placeholder": "S'inscrire"
+            },
+            {
+              "key": "field_home_nl_signup_legal",
+              "label": "Mention sous le bouton",
+              "name": "signup_legal_text",
+              "type": "wysiwyg",
+              "instructions": "Texte rich-text affiché sous le bouton (consentement / double opt-in, liens autorisés). Vide → mention par défaut.",
+              "required": 0,
+              "conditional_logic": 0,
+              "tabs": "all",
+              "toolbar": "basic",
+              "media_upload": 0,
+              "delay": 0
+            },
+            {
+              "key": "field_home_nl_display",
+              "label": "Visibilité",
+              "name": "display",
+              "type": "radio",
+              "instructions": "Plateformes sur lesquelles le module est rendu.",
+              "required": 0,
+              "conditional_logic": 0,
+              "choices": {
+                "web_only": "Web uniquement",
+                "app_only": "App uniquement",
+                "web_app": "Web et App"
+              },
+              "default_value": "web_only",
+              "layout": "horizontal",
+              "return_format": "value",
+              "allow_null": 0,
+              "other_choice": 0,
+              "save_other_choice": 0
+            }
+          ],
+          "min": "",
+          "max": ""
+        },
+        "layout_separator": {
+          "key": "layout_separator",
+          "name": "separator",
+          "label": "Séparateur",
+          "display": "block",
+          "sub_fields": [
+            {
+              "key": "field_home_sep_display",
+              "label": "Visibilité",
+              "name": "display",
+              "type": "radio",
+              "instructions": "Plateformes sur lesquelles le module est rendu.",
+              "required": 0,
+              "conditional_logic": 0,
+              "choices": {
+                "web_only": "Web uniquement",
+                "app_only": "App uniquement",
+                "web_app": "Web et App"
+              },
+              "default_value": "web_only",
+              "layout": "horizontal",
+              "return_format": "value",
+              "allow_null": 0,
+              "other_choice": 0,
+              "save_other_choice": 0
+            }
+          ],
+          "min": "",
+          "max": ""
+        },
+        "layout_carnet": {
+          "key": "layout_carnet",
+          "name": "carnet",
+          "label": "Carnet de recettes",
+          "display": "block",
+          "sub_fields": [
+            {
+              "key": "field_180c_hm_carnet_title",
+              "label": "Titre",
+              "name": "carnet_title",
+              "type": "text",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "default_value": "Mon carnet de recettes",
+              "placeholder": "Mon carnet de recettes"
+            },
+            {
+              "key": "field_180c_hm_carnet_count",
+              "label": "Nombre de recettes",
+              "name": "carnet_count",
+              "type": "number",
+              "instructions": "Nombre maximum de favoris affichés dans le rail.",
+              "required": 0,
+              "conditional_logic": 0,
+              "default_value": 10,
+              "min": 1,
+              "max": 30,
+              "step": 1,
+              "placeholder": ""
+            },
+            {
+              "key": "field_180c_hm_carnet_empty_text",
+              "label": "Texte état vide (abonné sans favori)",
+              "name": "carnet_empty_text",
+              "type": "textarea",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "default_value": "Ajoutez vos premières recettes en favori pour les retrouver ici.",
+              "rows": 3,
+              "new_lines": "wpautop"
+            },
+            {
+              "key": "field_180c_hm_carnet_cta_title",
+              "label": "Titre incitation (visiteur non abonné)",
+              "name": "carnet_cta_title",
+              "type": "text",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "default_value": "Accédez à toutes les recettes de 180°C",
+              "placeholder": ""
+            },
+            {
+              "key": "field_180c_hm_carnet_cta_text",
+              "label": "Texte incitation (visiteur non abonné)",
+              "name": "carnet_cta_text",
+              "type": "textarea",
+              "instructions": "",
+              "required": 0,
+              "conditional_logic": 0,
+              "default_value": "Recettes 100% saison, anciens numéros, Cahiers de Delphine chaque vendredi. À partir de 2,99€/mois, sans engagement.",
+              "rows": 3,
+              "new_lines": "wpautop"
+            },
+            {
+              "key": "field_180c_hm_carnet_display",
+              "label": "Visibilité",
+              "name": "display",
+              "type": "radio",
+              "instructions": "Plateformes sur lesquelles le module est rendu.",
+              "required": 0,
+              "conditional_logic": 0,
+              "choices": {
+                "web_only": "Web uniquement",
+                "app_only": "App uniquement",
+                "web_app": "Web et App"
+              },
+              "default_value": "web_only",
+              "layout": "horizontal",
+              "return_format": "value",
+              "allow_null": 0,
+              "other_choice": 0,
+              "save_other_choice": 0
+            }
+          ],
+          "min": "",
+          "max": ""
+        },
+        "layout_instagram_promo": {
+          "key": "layout_instagram_promo",
+          "name": "instagram_promo",
+          "label": "Module Instagram",
+          "display": "block",
+          "sub_fields": [
+            {
+              "key": "field_180c_hm_instagram_titre",
+              "label": "Titre",
+              "name": "titre",
+              "type": "text",
+              "instructions": "Titre affiché au-dessus des trois tuiles.",
+              "required": 0,
+              "conditional_logic": 0,
+              "default_value": "Entre deux numéros, la cuisine continue en images",
+              "placeholder": "Entre deux numéros, la cuisine continue en images"
+            },
+            {
+              "key": "field_180c_hm_instagram_display",
+              "label": "Visibilité",
+              "name": "display",
+              "type": "radio",
+              "instructions": "Plateformes sur lesquelles le module est rendu.",
+              "required": 0,
+              "conditional_logic": 0,
+              "choices": {
+                "web_only": "Web uniquement",
+                "app_only": "App uniquement",
+                "web_app": "Web et App"
+              },
+              "default_value": "web_only",
+              "layout": "horizontal",
+              "return_format": "value",
+              "allow_null": 0,
+              "other_choice": 0,
+              "save_other_choice": 0
+            }
+          ],
+          "min": "",
+          "max": ""
+        }
+      }
+    }
+  ],
+  "location": [
+    [
+      {
+        "param": "page_type",
+        "operator": "==",
+        "value": "front_page"
+      }
+    ],
+    [
+      {
+        "param": "page_template",
+        "operator": "==",
+        "value": "template-home.php"
+      }
+    ]
+  ],
+  "menu_order": 10,
+  "position": "normal",
+  "style": "seamless",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "hide_on_screen": ["the_content"],
+  "active": true,
+  "description": "Modules flexibles de la page d'accueil et de la page « La Gazette ».",
+  "modified": 1785893581
+}

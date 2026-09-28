@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "180c/newsletter-form",
+  "title": "Formulaire newsletter",
+  "category": "180c",
+  "icon": "email",
+  "description": "Formulaire d'inscription à la newsletter gratuite avec opt-in double.",
+  "keywords": ["newsletter", "email", "inscription", "form"],
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "align": ["wide", "full"]
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "default": "Restez aux fourneaux"
+    },
+    "description": {
+      "type": "string",
+      "default": ""
+    },
+    "image_url": {
+      "type": "string",
+      "default": ""
+    },
+    "submit_label": {
+      "type": "string",
+      "default": "S'inscrire"
+    }
+  },
+  "render": "file:./render.php",
+  "style": "file:./style.css"
+}

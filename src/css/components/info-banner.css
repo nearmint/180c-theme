@@ -1,0 +1,155 @@
+/**
+ * Bandeau d'information administrable.
+ *
+ * Markup émis par inc/info-banner.php sur wp_body_open :
+ *   div.info-banner.info-banner--{variant}[.info-banner--desktop|--mobile]
+ *     [data-info-banner][data-version][data-start][data-end]
+ *     div.info-banner__inner.site-container
+ *       p.info-banner__text
+ *       button.info-banner__close[data-info-banner-close]   (si dismissible)
+ *         svg.info-banner__close-icon
+ *
+ * Position statique au-dessus du header (pousse le contenu, jamais sticky).
+ * Trois variantes pilotées par tokens composant --info-banner-bg/-fg/-link.
+ * Contraste AA garanti (texte ET lien) sur chaque fond, dans les deux modes.
+ *
+ * Tokens de variante : les couleurs « signal » (info sombre, alerte rouge) ne
+ * figurent pas dans la palette globale du thème — elles sont déclarées ici en
+ * tokens composant, CONSTANTES (indépendantes du dark mode, par design) et
+ * vérifiées AA. La promo réutilise les tokens globaux --color-accent /
+ * --color-on-accent.
+ *
+ * Masquage device : géré par le CSS (media query au breakpoint --md = 768px),
+ * jamais par PHP. --desktop masqué sous md, --mobile masqué à partir de md.
+ */
+
+@layer base {
+  /* Garde no-FOUC : le mini-script de wp_head pose .info-banner--prehidden sur
+   * <html> si la version courante a déjà été fermée. Masquage avant le paint.
+   * En base (et non components) pour rester robuste quel que soit l'ordre. */
+  .info-banner--prehidden .info-banner {
+    display: none;
+  }
+}
+
+@layer components {
+  .info-banner {
+    /* Tokens composant — valeurs de la variante Promo par défaut, surchargées
+     * par les modificateurs de variante ci-dessous. */
+    --info-banner-bg: var(--color-accent);
+    --info-banner-fg: var(--color-on-accent);
+    --info-banner-link: var(--color-on-accent);
+
+    position: static;
+    width: 100%;
+    background-color: var(--info-banner-bg);
+    color: var(--info-banner-fg);
+
+    /* Collapse de fermeture (hauteur + opacité). Le JS pose .is-closing puis
+     * retire le nœud. Transition tokenisée, neutralisée en reduced-motion. */
+    overflow: hidden;
+    transition:
+      height var(--transition-base),
+      opacity var(--transition-fast);
+  }
+
+  /* ----- Variantes ----- */
+
+  /* Info : fond sombre constant / texte clair. Lien en accent (AA sur sombre). */
+  .info-banner--info {
+    --info-banner-bg: #14110f;
+    --info-banner-fg: #f5f5f5;
+    --info-banner-link: var(--color-accent);
+  }
+
+  /* Alerte : signal rouge / texte blanc. Lien blanc souligné (AA, 6.6:1). */
+  .info-banner--alert {
+    --info-banner-bg: #b42318;
+    --info-banner-fg: #ffffff;
+    --info-banner-link: #ffffff;
+  }
+
+  /* ----- Structure ----- */
+
+  .info-banner__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    min-height: 44px;
+    padding-block: var(--space-2xs);
+  }
+
+  .info-banner__text {
+    flex: 1 1 auto;
+    margin: 0;
+    /* Chrome / UI → token fixe --text-sm (jamais fluid). Police display du
+     * thème pour s'aligner sur la nav du header. */
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.35;
+  }
+
+  .info-banner__text a {
+    color: var(--info-banner-link);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .info-banner__text a:hover,
+  .info-banner__text a:focus-visible {
+    text-decoration: none;
+  }
+
+  /* ----- Bouton de fermeture (cible tactile ≥ 44×44) ----- */
+
+  .info-banner__close {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    /* Compense le padding optique pour aligner la croix sur le bord du gutter. */
+    margin-inline-end: calc(-1 * var(--space-2xs));
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+  }
+
+  .info-banner__close:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  .info-banner__close-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* ----- Masquage device (le markup émet --desktop OU --mobile, jamais les
+   * deux ; aucun modificateur = visible partout). Breakpoint --md = 768px. ----- */
+
+  @media (max-width: 767.98px) {
+    .info-banner--desktop {
+      display: none;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .info-banner--mobile {
+      display: none;
+    }
+  }
+
+  /* ----- Reduced motion : pas de collapse animé (en plus du reset global). ----- */
+
+  @media (prefers-reduced-motion: reduce) {
+    .info-banner {
+      transition: none;
+    }
+  }
+}

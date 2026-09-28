@@ -1,0 +1,96 @@
+/**
+ * Pagination — composant réutilisable (v2, étape 6).
+ *
+ * Rendu par _180c_render_pagination() (inc/helpers.php).
+ *
+ * Structure BEM :
+ *   nav.pagination
+ *     ul.pagination__list
+ *       li.pagination__item
+ *         a.pagination__link
+ *         a.pagination__link.pagination__link--current     (current page)
+ *         a.pagination__link.pagination__link--prev        (« précédent »)
+ *         a.pagination__link.pagination__link--next        (« suivant »)
+ *         span.pagination__link.pagination__link--dots     (« … »)
+ *
+ * Cibles tactiles 44×44 px minimum (WCAG 2.5.5). Focus visible via le
+ * focus-visible global de main.css (outline accent).
+ */
+
+@layer components {
+  .pagination {
+    margin-block-start: var(--space-8);
+  }
+
+  .pagination__list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-2);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .pagination__item {
+    display: block;
+  }
+
+  .pagination__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-sm);
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: var(--font-sm);
+    font-weight: var(--font-weight-medium);
+    text-decoration: none;
+    transition: color var(--transition-fast),
+                border-color var(--transition-fast),
+                background-color var(--transition-fast);
+  }
+
+  .pagination__link:hover {
+    background-color: var(--cream);
+    border-color: var(--rule);
+    color: var(--ink);
+  }
+
+  /* Focus-visible : géré par la règle globale de main.css (outline accent).
+     On garde ici juste l'élévation tactile. */
+
+  .pagination__link--current {
+    background-color: var(--primary);
+    color: var(--on-accent);
+    border-color: transparent;
+    cursor: default;
+  }
+
+  .pagination__link--current:hover {
+    background-color: var(--primary);
+    color: var(--on-accent);
+  }
+
+  .pagination__link--prev,
+  .pagination__link--next {
+    font-size: var(--font-md);
+  }
+
+  /* Les « … » (paginate_links les emet en <span>, pas <a>) — non clickable. */
+  .pagination__link--dots {
+    border-color: transparent;
+    background-color: transparent;
+    cursor: default;
+  }
+
+  .pagination__link--dots:hover {
+    background-color: transparent;
+  }
+}

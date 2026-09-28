@@ -1,0 +1,18 @@
+/* Block: 180c/products-rail
+ *
+ * Le rail lui-même réutilise le shell mutualisé .home-module / .rail-180c
+ * (styles globaux : scroll-snap, flèches, container). On ne gère ici que le
+ * rythme vertical du wrapper de bloc + le placeholder éditeur.
+ */
+
+.block-180c-products-rail {
+  margin-block: var(--space-xl);
+}
+
+.block-180c-products-rail--placeholder {
+  padding: var(--space-lg);
+  border: 2px dashed var(--color-border);
+  color: var(--color-fg-muted);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+}

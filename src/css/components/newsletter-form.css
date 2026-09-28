@@ -1,0 +1,220 @@
+/**
+ * Form newsletter — utilisé dans footer + page /newsletter/ + module home.
+ *
+ * Classes émises par parts/footer/main.php et blocs newsletter :
+ *  form.newsletter-form (.js-newsletter-form)
+ *    .newsletter-form__group
+ *      input.newsletter-form__input
+ *      button.newsletter-form__submit
+ *    p.newsletter-form__consent
+ *
+ * Mobile-first : empilé. ≥420px : input + bouton sur même ligne.
+ */
+
+@layer components {
+  .newsletter-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+  }
+
+  /* ============================================================
+   * Group input + bouton
+   * ============================================================ */
+  .newsletter-form__group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    width: 100%;
+  }
+
+  @media (min-width: 420px) {
+    .newsletter-form__group {
+      flex-direction: row;
+      align-items: stretch;
+    }
+  }
+
+  /* ============================================================
+   * Input
+   * ============================================================ */
+  .newsletter-form__input {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    padding: var(--spacing-2) var(--spacing-3);
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    color: var(--color-fg);
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    transition: border-color var(--transition-fast),
+                box-shadow var(--transition-fast);
+  }
+
+  .newsletter-form__input::placeholder {
+    color: var(--color-fg-muted);
+  }
+
+  .newsletter-form__input:hover {
+    border-color: color-mix(in srgb, var(--color-fg) 30%, transparent);
+  }
+
+  .newsletter-form__input:focus,
+  .newsletter-form__input:focus-visible {
+    outline: 0;
+    border-color: var(--color-accent);
+    /* Halo box-shadow retiré : il doublait la bordure (anneau + outline global
+       = deux traits jaunes). La bordure passe en accent comme seul repère. */
+  }
+
+  .newsletter-form__input:invalid:not(:placeholder-shown) {
+    border-color: var(--color-danger);
+  }
+
+  /* Sur ≥420px, l'input garde son radius gauche + supprime radius droit */
+  @media (min-width: 420px) {
+    .newsletter-form__input {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      border-right: 0;
+    }
+  }
+
+  /* ============================================================
+   * Bouton submit
+   * ============================================================ */
+  .newsletter-form__submit {
+    min-height: 44px;
+    padding-inline: var(--spacing-5);
+    font-family: var(--font-display);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--color-on-accent);
+    background-color: var(--color-accent);
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: filter var(--transition-fast),
+                box-shadow var(--transition-fast);
+    white-space: nowrap;
+  }
+
+  @media (min-width: 420px) {
+    .newsletter-form__submit {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+  }
+
+  .newsletter-form__submit:hover {
+    filter: brightness(0.93);
+  }
+
+  .newsletter-form__submit:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .newsletter-form__submit:disabled,
+  .newsletter-form__submit[aria-busy="true"] {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* ============================================================
+   * Texte de consentement
+   * ============================================================ */
+  .newsletter-form__consent {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: var(--font-size-xs);
+    color: var(--color-fg-muted);
+    line-height: var(--line-height-normal);
+  }
+
+  .newsletter-form__consent a {
+    color: var(--color-fg-muted);
+    text-decoration: underline;
+    transition: color var(--transition-fast);
+  }
+
+  .newsletter-form__consent a:hover {
+    color: var(--color-accent);
+  }
+
+  /* ============================================================
+   * Texte secondaire (rich text ACF, sous le champ email)
+   * ============================================================ */
+  .newsletter-form__secondary {
+    margin-top: var(--spacing-3);
+    font-family: var(--font-body);
+    font-size: var(--font-size-xs);
+    color: var(--color-fg-muted);
+    line-height: var(--line-height-normal);
+  }
+
+  .newsletter-form__secondary :where(p) {
+    margin: 0;
+  }
+
+  .newsletter-form__secondary a {
+    color: var(--color-fg-muted);
+    text-decoration: underline;
+    transition: color var(--transition-fast);
+  }
+
+  .newsletter-form__secondary a:hover {
+    color: var(--color-accent);
+  }
+
+  /* ============================================================
+   * Honeypot — hors flux, jamais visible ni focalisable (anti-bot).
+   * Partagé par toutes les surfaces (page, module home, bloc Gutenberg).
+   * ============================================================ */
+  .newsletter-form__gotcha {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  /* ============================================================
+   * États post-soumission (gérés par JS via aria-live)
+   * ============================================================ */
+  .newsletter-form__feedback {
+    margin: 0;
+    padding: var(--spacing-2) var(--spacing-3);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+  }
+
+  .newsletter-form__feedback--success {
+    color: var(--color-success);
+    background-color: color-mix(in srgb, var(--color-success) 12%, transparent);
+  }
+
+  .newsletter-form__feedback--error {
+    color: var(--color-danger);
+    background-color: color-mix(in srgb, var(--color-danger) 12%, transparent);
+  }
+}
+
+/* ============================================================
+ * Override HORS @layer — anti double bordure au focus
+ * ------------------------------------------------------------
+ * La règle globale `*:focus-visible { outline: 2px solid accent }`
+ * (main.css) est NON-layered : elle l'emporterait sur le `outline: 0`
+ * ci-dessus (dans @layer components), réintroduisant un 2e trait jaune.
+ * On la neutralise UNIQUEMENT sur l'input newsletter — spécificité
+ * supérieure entre règles non-layered — pour ne garder que la bordure
+ * accent comme repère de focus. Le reste du site conserve son outline a11y.
+ * ============================================================ */
+.newsletter-form__input:focus-visible {
+  outline: none;
+}

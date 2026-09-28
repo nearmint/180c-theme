@@ -1,0 +1,134 @@
+/*
+ * Home module — newsletter_form
+ *
+ * Section wrapper + layout for the home newsletter module. The form itself
+ * (input group, submit, consent, feedback) is the shared `.newsletter-form`
+ * component (src/css/components/newsletter-form.css), wired to the AJAX
+ * handler via [data-form="newsletter"]. This file only owns the section
+ * surface, the centered content column, and the optional full-bleed background
+ * image + overlay (variant `--newsletter-with-image`).
+ */
+
+@layer components {
+  .home-module--newsletter_form {
+    padding-block: var(--section-y);
+    background-color: var(--color-bg-elevated);
+    border-radius: var(--radius-lg);
+  }
+
+  /* Colonne de contenu : centrée, étroite, empilée. */
+  .newsletter-180c {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-5);
+    max-width: 42rem;
+    margin-inline: auto;
+  }
+
+  .newsletter-180c__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+    text-align: center;
+  }
+
+  .newsletter-180c__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    line-height: 1.15;
+    color: var(--color-fg);
+  }
+
+  .newsletter-180c__description {
+    margin-inline: auto;
+    max-width: 55ch;
+    font-family: var(--font-body);
+    color: var(--color-fg-muted);
+    line-height: var(--line-height-normal);
+  }
+
+  /* Le formulaire est centré et borné, indépendamment de la largeur du module. */
+  .newsletter-180c__form {
+    width: 100%;
+    max-width: 32rem;
+    margin-inline: auto;
+  }
+
+  /* Padding latéral renforcé du bouton « S'inscrire » (scopé au module home
+     pour ne pas altérer les autres instances de .newsletter-form). */
+  .home-module--newsletter_form .newsletter-form__submit {
+    padding-inline: var(--spacing-8);
+  }
+
+  /* Pas de gap entre l'input et le CTA : ils sont jointifs (les rayons mitoyens
+     sont déjà fusionnés par le contrat .newsletter-form à ≥420px). */
+  @media (min-width: 420px) {
+    .home-module--newsletter_form .newsletter-form__group {
+      gap: 0;
+    }
+  }
+
+  /* Mention secondaire (rich-text) centrée sous le formulaire. */
+  .newsletter-180c__form .newsletter-form__secondary {
+    text-align: center;
+  }
+
+  /* ============================================================
+   * Variante avec image : image en fond plein module + overlay sombre.
+   * (Aligné sur le hero de la page /newsletter/.)
+   * ============================================================ */
+  .home-module--newsletter-with-image {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    /* Fond de repli si l'image ne charge pas. */
+    background-color: #111;
+  }
+
+  .newsletter-180c__media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .newsletter-180c__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  /* Overlay : filtre noir 0.6 + assombrissement progressif vers le bas (lisibilité). */
+  .home-module--newsletter-with-image::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+      linear-gradient(to bottom, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0.45) 100%),
+      rgba(0, 0, 0, 0.6);
+    pointer-events: none;
+  }
+
+  /* Contenu au-dessus de l'overlay, texte clair. */
+  .home-module--newsletter-with-image .newsletter-180c__content {
+    position: relative;
+    z-index: 2;
+    color: #fff;
+  }
+
+  .home-module--newsletter-with-image .newsletter-180c__title {
+    color: #fff;
+  }
+
+  .home-module--newsletter-with-image .newsletter-180c__description,
+  .home-module--newsletter-with-image .newsletter-form__secondary {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .home-module--newsletter-with-image .newsletter-form__secondary a {
+    color: #fff;
+  }
+}

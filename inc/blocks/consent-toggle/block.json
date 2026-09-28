@@ -1,0 +1,25 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "one80c/consent-toggle",
+  "title": "Gestion des cookies",
+  "category": "180c",
+  "icon": "privacy",
+  "description": "Interrupteur « Mesure d'audience » et bouton « Enregistrer ». À placer sur la page Politique de cookies : c'est le seul endroit du site où le visiteur revient sur son choix.",
+  "keywords": [
+    "cookies",
+    "consentement",
+    "consent",
+    "rgpd",
+    "audience",
+    "cmp"
+  ],
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "multiple": false,
+    "reusable": false
+  },
+  "render": "file:./render.php",
+  "editorScript": "file:./index.js"
+}

@@ -1,0 +1,37 @@
+/**
+ * État vide d'archive / liste — 180°C.
+ *
+ * Styles du part parts/empty-state.php. Vocabulaire tokens. Le CTA
+ * réutilise le composant bouton partagé (.btn.btn--ghost, buttons.css).
+ *
+ * @package 180c
+ */
+
+@layer components {
+  .empty-state {
+    padding-block: var(--space-12);
+    text-align: center;
+    color: var(--ink);
+  }
+
+  .empty-state__title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    line-height: var(--line-height-snug);
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .empty-state__message {
+    font-family: var(--font-body);
+    font-size: var(--font-md);
+    line-height: var(--line-height-relaxed);
+    color: var(--muted);
+    max-width: 60ch;
+    margin: var(--space-3) auto 0;
+  }
+
+  .empty-state__cta {
+    margin-block-start: var(--space-6);
+  }
+}

@@ -1,0 +1,357 @@
+/**
+ * Recherche 180°C — formulaire + page de résultats + author-card.
+ *
+ * Vocabulaire tokens : (paper / cream / ink / muted / rule / primary,
+ * --space-N, --radius-*, --text-*, --font-*). Aucune règle dark-mode locale :
+ * la bascule des aliases est wired globalement (src/css/main.css + tokens.css).
+ *
+ * Structure BEM :
+ *  .search-form                       — formulaire réutilisable (parts/search-form.php)
+ *  .search-form__input / __submit / __icon
+ *  .search-results                    — <main> de la page de résultats
+ *  .search-results__header / __heading (h1)
+ *  .search-results__intro / __lead    — invite (requête vide)
+ *  .search-tabs                       — barre d'onglets (nav par liens)
+ *  .search-tabs__list / __item / __link / __label / __count
+ *  .search-results__panel             — panneau du type actif (paginé)
+ *  .search-results__grid              — grille 1 → 2 → 3 cols (cartes recette/article)
+ *  .search-results__grid--authors     — grille dense 2 → 3 → 4 cols (author-card)
+ *  .search-results__item              — wrapper de carte
+ *  .search-results__empty / __empty-title / __empty-help — état vide
+ *  .author-card                       — composant partagé carte auteur
+ *  .author-card__link / __media / __photo / __monogram / __text / __name / __role
+ */
+
+@layer components {
+
+  /* ================================================================
+   * FORMULAIRE — pill input pleine largeur (mobile-first)
+   * ================================================================ */
+  .search-form {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    max-width: 36rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-pill);
+    background-color: var(--paper);
+    overflow: hidden;
+    transition: border-color var(--transition-fast);
+  }
+
+  .search-form:focus-within {
+    border-color: var(--primary);
+  }
+
+  .search-form__input {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: var(--space-3) var(--space-4);
+    border: 0;
+    background-color: transparent;
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: 1.4;
+  }
+
+  .search-form__input::placeholder {
+    color: var(--muted);
+  }
+
+  .search-form__input:focus-visible {
+    outline: none;
+  }
+
+  .search-form__submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    min-width: 44px;
+    min-height: 44px;
+    padding-inline: var(--space-4);
+    border: 0;
+    background-color: var(--primary);
+    color: var(--color-fg);
+    cursor: pointer;
+    transition: filter var(--transition-fast);
+  }
+
+  .search-form__submit:hover,
+  .search-form__submit:focus-visible {
+    filter: brightness(0.94);
+  }
+
+  .search-form__icon {
+    display: block;
+  }
+
+  /* ================================================================
+   * PAGE DE RÉSULTATS — en-tête + intro
+   * ================================================================ */
+  .search-results__header {
+    margin-block-end: var(--space-8);
+  }
+
+  .search-results__heading {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    line-height: var(--line-height-snug);
+    color: var(--ink);
+    text-wrap: balance;
+  }
+
+  .search-results__intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-block-end: var(--space-10);
+  }
+
+  .search-results__lead {
+    font-family: var(--font-body);
+    font-size: var(--text-lg);
+    color: var(--muted);
+    margin: 0;
+    max-width: 50ch;
+  }
+
+  /* ================================================================
+   * PAGE — espacement bas (au-dessus du footer) + rythme interne.
+   * .search-results EST l'élément .site-main : ses enfants directs
+   * héritent de --section-y via `.site-main > * + *`. On resserre la nav
+   * et le panneau sous le h1 (sélecteurs plus spécifiques que la règle
+   * globale, donc pas de !important).
+   * ================================================================ */
+  .search-results {
+    padding-block-end: var(--section-y);
+  }
+
+  .search-results > .search-tabs {
+    margin-block-start: var(--space-6);
+  }
+
+  .search-results > .search-results__panel {
+    margin-block-start: var(--space-8);
+  }
+
+  /* ================================================================
+   * ONGLETS — navigation par liens (rechargement serveur). Sémantique
+   * <nav> ; l'onglet actif porte aria-current="page" + .is-active.
+   * Défilement latéral propre si débordement mobile (pas de wrap brutal).
+   * ================================================================ */
+  .search-tabs {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .search-tabs__list {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--space-2);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .search-tabs__list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .search-tabs__item {
+    flex: 0 0 auto;
+  }
+
+  .search-tabs__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: 44px;
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    font-family: var(--font-display);
+    font-size: var(--font-sm);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color var(--transition-fast),
+                border-color var(--transition-fast);
+  }
+
+  .search-tabs__link:hover,
+  .search-tabs__link:focus-visible {
+    color: var(--ink);
+  }
+
+  .search-tabs__link.is-active,
+  .search-tabs__link[aria-current="page"] {
+    color: var(--ink);
+    border-bottom-color: var(--primary);
+  }
+
+  /* Compteur = chrome UI → token fixe, couleur atténuée. */
+  .search-tabs__count {
+    font-weight: var(--font-weight-regular);
+    color: var(--muted);
+  }
+
+  /* ================================================================
+   * GRILLES — cartes recette/article (1 → 2 → 3), auteurs (2 → 3 → 4)
+   * ================================================================ */
+  .search-results__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  @media (min-width: 640px) {
+    .search-results__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .search-results__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .search-results__grid--authors {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 640px) {
+    .search-results__grid--authors {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .search-results__grid--authors {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .search-results__item {
+    display: block;
+  }
+
+  /* ================================================================
+   * ÉTAT VIDE
+   * ================================================================ */
+  .search-results__empty {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-block-end: var(--space-10);
+  }
+
+  .search-results__empty-title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--ink);
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .search-results__empty-help {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    color: var(--muted);
+    margin: 0 0 var(--space-2);
+    max-width: 50ch;
+  }
+
+  /* ================================================================
+   * AUTHOR-CARD — composant partagé (mêmes proportions que les rails
+   * auteur : avatar rond 96px, nom display, fonction muted).
+   * ================================================================ */
+  .author-card {
+    display: block;
+  }
+
+  .author-card__link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-3);
+    border-radius: var(--radius-md);
+    color: var(--ink);
+    text-align: center;
+    text-decoration: none;
+    transition: background-color var(--transition-fast),
+                transform var(--transition-fast);
+  }
+
+  .author-card__link:hover,
+  .author-card__link:focus-visible {
+    background-color: var(--cream);
+    transform: translateY(-2px);
+  }
+
+  .author-card__media {
+    margin: 0;
+  }
+
+  .author-card__photo,
+  .author-card__monogram {
+    width: 96px;
+    height: 96px;
+    border-radius: var(--radius-full);
+    background-color: var(--cream);
+    flex-shrink: 0;
+  }
+
+  .author-card__photo {
+    display: block;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .author-card__monogram {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--ink);
+    letter-spacing: 0.02em;
+  }
+
+  .author-card__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .author-card__name {
+    font-family: var(--font-display);
+    font-size: var(--font-md);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-snug);
+    color: var(--ink);
+    text-wrap: balance;
+  }
+
+  .author-card__role {
+    font-family: var(--font-display);
+    font-size: var(--font-sm);
+    font-weight: var(--font-weight-regular);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+}

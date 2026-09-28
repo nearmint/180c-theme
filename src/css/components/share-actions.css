@@ -1,0 +1,159 @@
+/**
+ * Share actions — barre partage social + favoris (module partagé).
+ *
+ * Styles migrés depuis recipe.css (.recipe-actions__inner, .recipe-share,
+ * .recipe-share__btn, .recipe-share__icon, .recipe-share__feedback,
+ * .recipe-favorite) — tokens conservés à l'identique.
+ *
+ * Neutre vis-à-vis du flow vertical : aucun padding-block ni border-top
+ * sur le wrapper externe. Côté recette, la classe additionnelle
+ * `.recipe-section .recipe-actions` impose le padding de section (et
+ * supprime la border-top via une rule dédiée). Côté article, le parent
+ * apporte ses propres marges.
+ *
+ * Coexistence avec les anciens sélecteurs `.recipe-share*` /
+ * `.recipe-favorite` : ces classes restent imprimées sur les mêmes
+ * éléments (back-compat avec `recipe.js` qui cible `[data-recipe-share]`
+ * et le markup historique). Les déclarations stylistiques associées sont
+ * supprimées de recipe.css dans le même commit — pas de duplication.
+ */
+
+@layer components {
+
+  .share-actions {
+    /* Wrapper neutre — le parent gère margin/padding-block. */
+    display: block;
+  }
+
+  .share-actions__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3) var(--spacing-6);
+  }
+
+  /* ----------------------------------------------------------------
+   * Barre de partage social.
+   * ---------------------------------------------------------------- */
+  .share-actions__share {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-2);
+    position: relative;
+  }
+
+  .share-actions__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    /* Cible tactile minimale (WCAG) ≥ 44px. */
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    padding: 0 var(--spacing-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background-color: transparent;
+    color: var(--color-fg-muted);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color var(--transition-fast),
+                border-color var(--transition-fast),
+                background-color var(--transition-fast);
+  }
+
+  .share-actions__btn:hover,
+  .share-actions__btn:focus-visible {
+    color: var(--color-fg);
+    border-color: var(--color-accent);
+    background-color: var(--color-bg-elevated);
+  }
+
+  .share-actions__btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .share-actions__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    line-height: 0;
+  }
+
+  .share-actions__icon svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .share-actions__feedback {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1.75rem;
+    font-family: var(--font-body);
+    font-size: var(--font-size-xs);
+    color: var(--color-fg-muted);
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+    pointer-events: none;
+  }
+
+  .share-actions__feedback--visible {
+    opacity: 1;
+  }
+
+  /* ----------------------------------------------------------------
+   * Bouton favoris — état désactivé (activation =).
+   * ---------------------------------------------------------------- */
+  .share-actions__favorite.is-disabled,
+  .share-actions__favorite[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .share-actions__favorite:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* ----------------------------------------------------------------
+   * Mobile — la barre de partage tient sur UNE ligne avec scroll
+   * latéral ; le bouton « Ajouter à mon carnet » / favori passe sur
+   * sa propre ligne (la nav prend toute la largeur via flex-basis 100%,
+   * donc l'item suivant du `.share-actions__inner` wrappe dessous).
+   *
+   * `padding-block-end` réserve la place du feedback « Lien copié »
+   * (positionné en absolu sous la barre) : sans cela `overflow-y`
+   * (forcé à `hidden` par `overflow-x: auto`) le rognerait.
+   * ---------------------------------------------------------------- */
+  @media (max-width: 767px) {
+    .share-actions__share {
+      flex: 1 1 100%;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; /* Firefox */
+      padding-block-end: var(--spacing-6);
+    }
+
+    .share-actions__share::-webkit-scrollbar {
+      display: none;
+    }
+
+    .share-actions__btn {
+      flex: 0 0 auto;
+    }
+
+    .share-actions__feedback {
+      bottom: var(--space-3xs);
+    }
+  }
+}

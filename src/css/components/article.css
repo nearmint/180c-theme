@@ -1,0 +1,522 @@
+/**
+ * Article template — single.php
+ *
+ * Couvre :
+ *  - .reading-progress : barre de progression de lecture (top-fixed).
+ *  - .article-hero     : hero immersif (figure pleine largeur + texte).
+ *  - .article          : main, largeur de lecture confortable.
+ *  - bloc « produit source » : mutualisé recette + article, rendu via
+ *    _180c_render_source_product() → markup .recipe-section .recipe-source
+ *    (styles dans recipe.css/woo.css). Plus de styles .article-source ici.
+ *  - .article-author-bio : bio auteur (s'aligne sur le pattern auteur).
+ *  - « À lire aussi »  : rail mutualisé du Home Builder (.home-module--articles_rail).
+ *
+ * Les cards article elles-mêmes utilisent .card-180c--article (cards.css),
+ * source unique du markup partagée avec le bloc « articles-rail » et les
+ * grilles auteur. Ce fichier ne (re)définit donc PAS les styles de card.
+ */
+
+/* ============================================================
+ * Reading progress — barre ancrée au bas du header, scaleX(progress)
+ *
+ * Composant strictement décoratif (aria-hidden) : si JS échoue, la barre
+ * reste à 0 et le contenu est intégralement lisible.
+ *
+ * Ancrée DANS le header (enfant de .site-header, rendu par header.php sur les
+ * articles). .site-header est `position: sticky` → la barre `position: absolute;
+ * bottom: 0` suit AUTOMATIQUEMENT la hauteur du header (80px ↔ 56px scrollé)
+ * et vit dans son contexte d'empilement, donc reste visible sur son bord bas.
+ *
+ * Pourquoi pas `position: fixed` : #site-shell porte `will-change: transform`
+ * (main.css), ce qui en fait le containing block ET un contexte d'empilement
+ * pour tout descendant fixed → la barre s'y retrouvait piégée et masquée.
+ * ============================================================ */
+.reading-progress {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 3px;
+	z-index: 1;
+	background-color: transparent;
+	pointer-events: none;
+}
+
+.reading-progress__bar {
+	height: 100%;
+	width: 100%;
+	background-color: var(--color-accent);
+	transform: scaleX(0);
+	transform-origin: left center;
+	will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.reading-progress__bar {
+		will-change: auto;
+	}
+}
+
+/* ============================================================
+ * Article — wrapper <main>
+ *
+ * Espacement entre sections via la règle globale .site-main > * + *
+ * (margin-block-start: var(--section-y)) déjà définie dans main.css.
+ * ============================================================ */
+.article {
+	display: block;
+}
+
+/* ============================================================
+ * Widths — header & share PLEINE LARGEUR container, corps 42rem
+ *
+ * v3 :
+ *  - `.article__header-container` = container de page pleine largeur
+ *    (mêmes contraintes que `.site-container` / `.container-180c` /
+ *    `.container` définies dans main.css : max-width var(--container-max)
+ *    = 1280px, padding-inline var(--container-px), margin-inline auto).
+ *  - `.article__share` vit DANS `.article__header-container`, hérite
+ *    naturellement de sa largeur ; on lui retire toute `max-inline-size`
+ *    qui le bridait à 42rem.
+ *  - `.article__body` reste à `var(--content-width, 42rem)` (lecture
+ *    confortable, inchangé).
+ * ============================================================ */
+.article__header-container {
+	max-width: var(--container-max);
+	margin-inline: auto;
+	padding-inline: var(--container-px);
+	box-sizing: border-box;
+}
+
+.article__body {
+	max-width: var(--content-width, 42rem);
+	margin-inline: auto;
+	padding-inline: var(--container-px);
+}
+
+.article__body > * {
+	max-width: 100%;
+}
+
+/* Corps lisible : un cran plus grand que --text-base pour le texte
+   long, line-height détendue. Hérité par les paragraphes Gutenberg. */
+.article__body {
+	font-family: var(--font-body);
+	font-size: var(--text-lg);
+	line-height: var(--line-height-relaxed);
+	color: var(--color-fg);
+
+	/* Séparateur en haut du corps : reprend strictement le token de
+	   .recipe-section (border-top 1px var(--color-border)) + son
+	   rythme vertical (--spacing-8 mobile, --spacing-12 ≥768px). */
+	border-block-start: 1px solid var(--color-border);
+	padding-block-start: var(--spacing-8);
+	margin-block-start: var(--spacing-8);
+}
+
+@media (min-width: 768px) {
+	.article__body {
+		padding-block-start: var(--spacing-12);
+		margin-block-start: var(--spacing-12);
+	}
+}
+
+/* Conflit de cascade : la règle générique `.site-main > * + *` (margin
+   --section-y, définie plus bas dans main.css) cible aussi le corps d'article
+   (frère direct de .site-main) et, à spécificité égale (0,1,0) mais source
+   postérieure, écrasait le margin-block-start ci-dessus. On rétablit le rythme
+   de séparateur propre à l'article (--spacing-8 / --spacing-12) avec une
+   spécificité supérieure (0,2,0). */
+.site-main > .article__body {
+	margin-block-start: var(--spacing-8);
+}
+
+@media (min-width: 768px) {
+	.site-main > .article__body {
+		margin-block-start: var(--spacing-12);
+	}
+}
+
+.article__body p {
+	margin-block: 0 1em;
+}
+
+.article__body h2,
+.article__body h3 {
+	margin-block-start: 1.5em;
+}
+
+.article__body figure {
+	margin-block: 1.5em;
+}
+
+.article__body figure img {
+	width: 100%;
+	height: auto;
+}
+
+/* ============================================================
+ * Zoom bouton sur les images du corps — injecté par lightbox.js
+ * (.media-zoom-trigger compose .overlay-icon-btn).
+ *
+ * Ancrage (v6) : le bouton est placé DANS un cadre
+ * `<span class="media-zoom-frame">` qui enveloppe **l'image** (ou
+ * son anchor parent). La <figcaption> reste hors du cadre — le
+ * bouton ne recouvre donc jamais la légende. La classe
+ * `.is-zoomable` sur la figure reste comme marqueur sémantique
+ * mais n'est plus le contexte de positionnement.
+ *
+ * Visibilité : bouton VISIBLE par défaut (opacity .85) pour la
+ * découvrabilité. Opacity 1 au hover / focus-within du cadre ou
+ * focus du bouton. `display: inline-flex` redéclaré localement
+ * en défense de la cascade (un sélecteur plus spécifique d'un
+ * autre composant pourrait sinon écraser `.overlay-icon-btn`).
+ * ============================================================ */
+.article__body .media-zoom-frame {
+	position: relative;
+	display: block;
+}
+
+/* Évite le gap inline-baseline sous l'image quand l'`<img>` reste
+   `display: inline` par défaut (le span parent est en flow inline). */
+.article__body .media-zoom-frame > img,
+.article__body .media-zoom-frame > a > img {
+	display: block;
+	max-width: 100%;
+	height: auto;
+}
+
+.article__body .media-zoom-frame .media-zoom-trigger {
+	display: inline-flex;
+	position: absolute;
+	top: var(--spacing-2);
+	right: var(--spacing-2);
+	opacity: 0.85;
+	transition: opacity var(--transition-fast);
+}
+
+.article__body .media-zoom-frame:hover .media-zoom-trigger,
+.article__body .media-zoom-frame:focus-within .media-zoom-trigger,
+.article__body .media-zoom-frame .media-zoom-trigger:focus-visible {
+	opacity: 1;
+}
+
+/* Légendes des images du corps — compose .media-caption (typo et
+   couleur unifiées) avec ajustements scope corps : aligné gauche,
+   couleur muted (vs blanc dans la lightbox). */
+.article__body figcaption,
+.article__body .wp-element-caption {
+	margin: var(--space-2xs) 0 0;
+	color: var(--color-fg-muted);
+	font-family: var(--font-body);
+	font-size: var(--font-size-sm);
+	font-style: italic;
+	line-height: var(--line-height-snug);
+	text-align: left;
+}
+
+/* Espacement vertical entre l'entry-header et la barre de partage. */
+.article__share {
+	margin-block-start: var(--spacing-6);
+}
+
+/* Boutons sociaux centrés (article uniquement) — pas de bouton favoris
+   sur l'article, donc l'unique enfant du `.share-actions__inner` (la nav
+   `.share-actions__share`) se collait à gauche par défaut. Cibler
+   `.article__share` préserve le `space-between` natif de la recette
+   (réseaux à gauche, bouton « Favoris » à droite). */
+.article__share .share-actions__inner {
+	justify-content: center;
+}
+
+/* ============================================================
+ * Article hero — image cadrée sur la carte entry-header.
+ *
+ * L'image n'est PLUS pleine page : elle a EXACTEMENT la largeur de la carte
+ * `.entry-header` (mobile : 100% du container ; ≥1024px : 80%, centrée), et se
+ * colle à son bord supérieur. Les deux forment une carte continue :
+ *  - image : coins HAUT arrondis (--radius-lg), coins BAS carrés ;
+ *  - header : coins HAUT mis à plat (cf. règle :has ci-dessous), coins BAS
+ *    arrondis (--radius-lg, déjà porté par .entry-header).
+ *
+ * Le hero et l'entry-header sont des frères directs de
+ * `.article__header-container` (cf. single.php) → ils se touchent (pas de
+ * gap). Pas de gradient (retiré).
+ * ============================================================ */
+.article-hero__media {
+	margin: 0 auto;
+	position: relative;
+	max-inline-size: 100%;
+}
+
+@media (min-width: 1024px) {
+	.article-hero__media {
+		max-inline-size: 80%;
+	}
+}
+
+.article-hero__image {
+	display: block;
+	width: 100%;
+	height: auto;
+	/* Ratio naturel — jamais croppée (règle 180°C). */
+	/* Coins HAUT arrondis (= coins BAS du header), coins BAS carrés. */
+	border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+/* Header collé sous l'image : coins HAUT mis à plat quand une image hero le
+   précède dans le container (carte continue). `:has()` → s'applique seulement
+   si l'article a une image à la une. */
+.article__header-container:has(.article-hero__media) .entry-header {
+	border-start-start-radius: 0;
+	border-start-end-radius: 0;
+}
+
+/* Crédit © repliable + bouton agrandir au-dessus de l'image. */
+.media-credit__toggle,
+.media-credit__caption {
+	z-index: 2;
+}
+
+/* Bouton « afficher en grand » — coin HAUT-droit de l'image (le crédit © reste
+   en bas-droite). Le look rond vient de .overlay-icon-btn (media.css). */
+.article-hero__zoom {
+	position: absolute;
+	top: var(--space-sm, 16px);
+	right: var(--space-sm, 16px);
+	z-index: 2;
+}
+
+.article-hero__zoom-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	line-height: 0;
+}
+
+.article-hero__zoom-icon svg {
+	width: 1.25rem;
+	height: 1.25rem;
+	display: block;
+}
+
+/* ============================================================
+ * Media credit — légende repliable (composant partagé).
+ *
+ * Bouton overlay ancré bas-droite. Légende positionnée à gauche du
+ * bouton, repliée par défaut (sous .js-enhanced) → s'étend vers la
+ * gauche au clic (.is-open). Sans JS (pas de .js-enhanced) la
+ * légende reste visible.
+ * ============================================================ */
+.media-credit {
+	position: relative;
+}
+
+.media-credit__toggle {
+	position: absolute;
+	right: var(--space-sm, 0.75rem);
+	bottom: var(--space-sm, 0.75rem);
+	/* Le look (rond, fond noir, hover) vient de .overlay-icon-btn (media.css). */
+}
+
+.media-credit__caption {
+	position: absolute;
+	right: calc(2.75rem + var(--space-sm, 0.75rem) + var(--space-2xs, 0.5rem));
+	bottom: var(--space-sm, 0.75rem);
+	max-width: min(60ch, calc(100vw - 6rem));
+	padding: var(--space-2xs, 0.5rem) var(--space-xs, 0.625rem);
+	background-color: rgb(0 0 0 / 0.6);
+	color: #fff;
+	border-radius: var(--radius-sm, 0.25rem);
+	text-align: right;
+	white-space: normal;
+	/* Typo alignée sur la légende du bloc image (content-blocks.css) :
+	   --font-display, --text-sm, non-italique (vs --font-body italique hérité
+	   de .media-caption). Couleur #fff conservée (légende sur l'image). */
+	font-family: var(--font-display);
+	font-size: var(--text-sm);
+	font-style: normal;
+	line-height: var(--line-height-snug);
+}
+
+/* JS désactivé (ou avant boot) → la légende est positionnée mais
+   visible naturellement, sans transition. */
+
+/* JS actif → la légende est repliée à droite, prête à s'ouvrir. */
+.media-credit.js-enhanced .media-credit__caption {
+	/* Replié : largeur 0, opacité 0, clippé. transform-origin droit pour
+	   un déploiement « vers la gauche ». */
+	max-width: 0;
+	padding-inline: 0;
+	opacity: 0;
+	overflow: hidden;
+	pointer-events: none;
+	transition: max-width var(--transition-base, 0.25s) ease,
+		padding var(--transition-base, 0.25s) ease,
+		opacity var(--transition-fast, 0.15s) ease;
+}
+
+.media-credit.js-enhanced.is-open .media-credit__caption {
+	max-width: min(60ch, calc(100vw - 6rem));
+	padding-inline: var(--space-xs, 0.625rem);
+	opacity: 1;
+	pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.media-credit.js-enhanced .media-credit__caption {
+		transition: none;
+	}
+}
+
+/* ============================================================
+ * Author bio — reprise du traitement /
+ *
+ * On réutilise les helpers _180c_author_* et la palette du pattern
+ * auteur (cf. components/author.css). Si l'on mutualise plus tard
+ * un composant `author-bio` partagé, ce bloc s'y plugera (mêmes
+ * tokens, BEM aligné).
+ *
+ * Séparateur fin d'article : border-top + padding-block-start
+ * reprenant le mix exact de `.recipe-section` (1px var(--color-border)
+ * + --spacing-8 mobile / --spacing-12 ≥768px) — marque visuellement
+ * la fin du corps avant le bloc auteur.
+ * ============================================================ */
+.article-author-bio {
+	max-width: var(--content-width, 42rem);
+	margin-inline: auto;
+	padding-inline: var(--container-pad);
+	border-block-start: 1px solid var(--color-border);
+	padding-block-start: var(--spacing-8);
+	margin-block-start: var(--spacing-8);
+}
+
+@media (min-width: 768px) {
+	.article-author-bio {
+		padding-block-start: var(--spacing-12);
+		margin-block-start: var(--spacing-12);
+	}
+}
+
+.article-author-bio__inner {
+	display: grid;
+	gap: var(--space-md);
+	grid-template-columns: 96px 1fr;
+	align-items: start;
+}
+
+.article-author-bio__media {
+	margin: 0;
+}
+
+.article-author-bio__photo {
+	width: 96px;
+	height: 96px;
+	border-radius: 50%;
+	object-fit: cover;
+	display: block;
+}
+
+.article-author-bio__monogram {
+	width: 96px;
+	height: 96px;
+	border-radius: 50%;
+	background-color: var(--color-bg-elevated);
+	color: var(--color-fg);
+	font-family: var(--font-display);
+	font-size: var(--text-2xl);
+	font-weight: var(--font-weight-semibold);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	letter-spacing: 0.05em;
+}
+
+.article-author-bio__text {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2xs);
+}
+
+.article-author-bio__title {
+	font-family: var(--font-display);
+	font-size: var(--text-xl);
+	line-height: 1.2;
+	margin: 0;
+}
+
+.article-author-bio__name {
+	color: var(--color-fg);
+	text-decoration: none;
+}
+
+.article-author-bio__name:hover,
+.article-author-bio__name:focus-visible {
+	color: var(--color-accent);
+	text-decoration: underline;
+}
+
+.article-author-bio__role {
+	font-family: var(--font-display);
+	font-size: var(--text-sm);
+	color: var(--color-fg-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	margin: 0;
+}
+
+.article-author-bio__description {
+	font-family: var(--font-body);
+	font-size: var(--text-base);
+	line-height: 1.6;
+	color: var(--color-fg);
+	margin: 0;
+}
+
+.article-author-bio__description p {
+	margin-block: 0 0.5em;
+}
+
+.article-author-bio__description p:last-child {
+	margin-block-end: 0;
+}
+
+.article-author-bio__links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-xs) var(--space-md);
+	margin-top: var(--space-2xs);
+	list-style: none;
+	padding: 0;
+}
+
+.article-author-bio__link {
+	font-family: var(--font-display);
+	font-size: var(--text-sm);
+	color: var(--color-accent-text);
+	text-decoration: none;
+	font-weight: var(--font-weight-semibold);
+	letter-spacing: 0.02em;
+}
+
+.article-author-bio__link:hover,
+.article-author-bio__link:focus-visible {
+	text-decoration: underline;
+}
+
+/* ============================================================
+ * Related — « À lire aussi »
+ * Réutilise le rail mutualisé du Home Builder
+ * (.home-module--articles_rail : scroll latéral, mêmes cartes 'sm'). Hors
+ * wrapper .home-modules, on rétablit ici le rythme vertical inter-sections
+ * + le décollement du footer.
+ * ============================================================ */
+.site-main.article > .home-module--articles_rail {
+	margin-block: var(--spacing-12);
+}
+
+@media (min-width: 768px) {
+	.site-main.article > .home-module--articles_rail {
+		margin-block: var(--spacing-16);
+	}
+}

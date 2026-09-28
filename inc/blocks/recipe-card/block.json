@@ -1,0 +1,22 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "180c/recipe-card",
+  "title": "Carte recette",
+  "category": "180c",
+  "icon": "food",
+  "description": "Carte d'une recette individuelle. Insertable dans les articles et pages.",
+  "keywords": ["recette", "recipe", "card", "inline"],
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "align": ["left", "right", "wide"]
+  },
+  "attributes": {
+    "recipe_id": {
+      "type": "number"
+    }
+  },
+  "render": "file:./render.php",
+  "style": "file:./style.css"
+}

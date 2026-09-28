@@ -1,0 +1,64 @@
+/**
+ * En-tête de section d'archive / liste — 180°C.
+ *
+ * Styles du part parts/section-header.php. Vocabulaire tokens
+ * (ink / muted, --space-N, --text-*, --font-*). Aucune règle dark-mode locale :
+ * les aliases --ink/--muted héritent de la bascule globale (main.css).
+ *
+ * Discipline typo (cf. tokens.css) : eyebrow = token UI FIXE (--text-xs)
+ * uppercase + letter-spacing ; titre d'archive = token éditorial FLUID
+ * (--text-3xl).
+ *
+ * @package 180c
+ */
+
+@layer components {
+  .section-header {
+    padding-block: var(--space-10) var(--space-8);
+    color: var(--ink);
+  }
+
+  .section-header__eyebrow {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 var(--space-2);
+  }
+
+  .section-header__title {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    line-height: var(--line-height-tight);
+    color: var(--ink);
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .section-header__subtitle {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-regular);
+    color: var(--muted);
+    margin: var(--space-3) 0 0;
+  }
+
+  .section-header__description {
+    font-family: var(--font-body);
+    font-size: var(--font-md);
+    line-height: var(--line-height-relaxed);
+    color: var(--muted);
+    margin: var(--space-4) 0 0;
+    max-width: 65ch;
+  }
+
+  .section-header__description p {
+    margin: 0 0 0.75em;
+  }
+
+  .section-header__description p:last-child {
+    margin-bottom: 0;
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "key": "group_180c_survey",
+  "title": "Sondage",
+  "fields": [
+    {
+      "key": "field_180c_survey_enabled",
+      "label": "Activer le sondage",
+      "name": "survey_enabled",
+      "type": "true_false",
+      "instructions": "Interrupteur maître. Désactivé : aucun lien vers le sondage nulle part sur le site — ni dans Mon compte, ni au Centre d'aide, ni au pied de page.",
+      "required": 0,
+      "conditional_logic": 0,
+      "wrapper": {
+        "width": "",
+        "class": "",
+        "id": ""
+      },
+      "message": "",
+      "default_value": 0,
+      "ui": 1,
+      "ui_on_text": "Activé",
+      "ui_off_text": "Désactivé"
+    },
+    {
+      "key": "field_180c_survey_typeform_url",
+      "label": "Lien Typeform",
+      "name": "survey_typeform_url",
+      "type": "url",
+      "instructions": "Doit commencer par https://. Le lien s'ouvre dans un nouvel onglet ; aucun script Typeform n'est chargé sur 180c.fr et aucun paramètre n'est ajouté à l'URL.",
+      "required": 0,
+      "conditional_logic": 0,
+      "wrapper": {
+        "width": "",
+        "class": "",
+        "id": ""
+      },
+      "default_value": "",
+      "placeholder": "https://form.typeform.com/to/xxxxxxxx"
+    }
+  ],
+  "location": [
+    [
+      {
+        "param": "options_page",
+        "operator": "==",
+        "value": "180c-survey"
+      }
+    ]
+  ],
+  "menu_order": 0,
+  "position": "normal",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "hide_on_screen": "",
+  "active": true,
+  "description": "Lien vers le sondage en ligne (Marketing > Sondage). Quatre touchpoints statiques.",
+  "modified": 1789171200
+}

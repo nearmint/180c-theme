@@ -1,0 +1,126 @@
+/**
+ * Lightbox — overlay image plein écran partagé (recette + article).
+ *
+ * Styles migrés depuis recipe.css (.recipe-lightbox*) — neutralisés
+ * sous BEM `.lightbox*`. Le composant compose :
+ *  - `.overlay-icon-btn` (media.css) pour le bouton de fermeture ;
+ *  - `.media-caption` (media.css) pour la typo de la légende.
+ *
+ * Le markup historique de la recette (`.recipe-lightbox*`) reste
+ * imprimé en alias par le JS pour compatibilité immédiate ; ces
+ * sélecteurs sont aliasés ici via une rule unique pour ne pas casser
+ * d'eventuelles overrides projet (filets de sécurité — à retirer une
+ * fois que plus rien ne référence `.recipe-lightbox*`).
+ */
+
+@layer components {
+
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-modal);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-4);
+    padding: var(--spacing-6);
+    background-color: rgb(0 0 0 / 0.6);
+  }
+
+  .lightbox[hidden] {
+    display: none;
+  }
+
+  .lightbox__image {
+    max-width: 100%;
+    max-height: 85vh;
+    width: auto;
+    height: auto;
+    display: block;
+  }
+
+  /* Layout lightbox : max-width + centrage. La typo de base vient de
+     .media-caption (media.css) ; on l'UNIFORMISE ici avec les légendes de bloc
+     image/galerie (cf. content-blocks.css) → même famille (--font-display) et
+     non-italique, taille --text-sm conservée. La couleur reste #fff (fond
+     sombre du plein écran). */
+  .lightbox__caption {
+    max-width: min(80ch, 100%);
+    text-align: center;
+    font-family: var(--font-display, "Oswald", sans-serif);
+    font-style: normal;
+  }
+
+  /* Bouton de fermeture — placement absolu coin haut-droit.
+     Le look (rond, fond sombre, hover) vient de .overlay-icon-btn. */
+  .lightbox__close {
+    position: absolute;
+    top: var(--spacing-4);
+    right: var(--spacing-4);
+    /* La taille (2.75rem) et le fond viennent de .overlay-icon-btn.
+       On laisse une teinte légèrement transparente sur la lightbox
+       (background distinct) pour rester lisible sur fond sombre. */
+    background-color: rgb(255 255 255 / 0.12);
+  }
+
+  .lightbox__close:hover,
+  .lightbox__close:focus-visible {
+    background-color: rgb(255 255 255 / 0.25);
+  }
+
+  .lightbox__close-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+  }
+
+  .lightbox__close-icon svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    display: block;
+  }
+
+  /* Flèches de défilement (mode galerie) — centrées verticalement sur les
+     bords. Look rond via .overlay-icon-btn, teinte claire comme la croix. */
+  .lightbox__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgb(255 255 255 / 0.12);
+  }
+
+  .lightbox__nav--prev {
+    left: var(--spacing-4);
+  }
+
+  .lightbox__nav--next {
+    right: var(--spacing-4);
+  }
+
+  .lightbox__nav:hover,
+  .lightbox__nav:focus-visible {
+    background-color: rgb(255 255 255 / 0.25);
+  }
+
+  .lightbox__nav[hidden] {
+    display: none;
+  }
+
+  .lightbox__nav:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .lightbox__nav svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    display: block;
+  }
+}
+
+/* Verrou scroll sur <html> pendant l'ouverture. */
+html.lightbox-lock {
+  overflow: hidden;
+}

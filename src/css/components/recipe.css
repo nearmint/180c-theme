@@ -1,0 +1,1394 @@
+/**
+ * Fiche recette 180°C — styles spécifiques.
+ *
+ * Structure BEM :
+ *  .recipe                    — article container
+ *  .recipe-hero               — hero image + titre
+ *  .recipe-section            — section générique avec padding
+ *  .recipe-ingredients        — section ingrédients
+ *  .recipe-ingredients__group — groupe d'ingrédients
+ *  .recipe-ingredients__item  — ligne quantity + name + note
+ *  .recipe-steps              — liste des étapes
+ *  .recipe-step               — étape individuelle
+ *  .recipe-extras             — chef_tip + wine_pairing
+ *  .recipe-related            — grille recettes liées + article + numéro
+ *  .recipe-preview-fade       — masque fondu en mode paywall
+ *  .recipe-filters            — nav filtres taxonomie (archive)
+ *  .recipes-grid              — grille cards (archive)
+ */
+
+@layer components {
+
+  /* ================================================================
+   * Container principal
+   * ================================================================ */
+  .recipe {
+    max-width: var(--container-max);
+    margin-inline: auto;
+  }
+
+  /* ================================================================
+   * HERO — 2 colonnes (image 1/4 · contenu 3/4) au desktop, empilé mobile
+   * Le radius est porté par le hero (overflow:hidden clippe l'image flush).
+   * ================================================================ */
+  .recipe-hero {
+    position: relative;
+    margin-top: var(--spacing-6);
+    background-color: var(--color-bg-elevated);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+
+    /* Mobile-first : pile naturelle, image puis contenu. */
+    display: flex;
+    flex-direction: column;
+
+    @media (min-width: 1024px) {
+      display: grid;
+      grid-template-columns: 1fr 3fr;
+      /* La séparation image/contenu est portée par le padding-left du
+         content (un seul réglage à toucher). */
+      column-gap: 0;
+      align-items: start;
+    }
+  }
+
+  .recipe-hero__figure {
+    position: relative;
+    /* Override defensif des resets navigateur / @layer base sur l'élément
+       <figure> (UA stylesheet : margin-block-start/end 1em + 40px inline).
+       L'image doit être strictement flush en bas, sans gap résiduel. */
+    margin: 0;
+    padding: 0;
+  }
+
+  .recipe-hero__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    /* Ratio naturel — jamais croppée. Le radius vit sur .recipe-hero. */
+  }
+
+  /* Bouton « Agrandir » — overlay coin haut-droit, desktop uniquement.
+   *
+   * Compose .overlay-icon-btn (media.css) pour le look (rond, fond
+   * sombre, hover/focus, cible tactile ≥44px). Ici on ne garde QUE :
+   *  - le placement (top/right absolute) ;
+   *  - le masquage mobile ;
+   *  - le reveal opacity au hover/focus du parent figure.
+   */
+  .recipe-hero__zoom {
+    display: none; /* masqué mobile par défaut */
+  }
+
+  @media (min-width: 1024px) {
+    .recipe-hero__zoom {
+      /* Re-declare display because .recipe-hero__zoom { display: none }
+       * (mobile default) wins source-order over .overlay-icon-btn's
+       * `display: inline-flex` (media.css is imported before recipe.css).
+       * Sans cette ligne, le bouton zoom reste invisible et non-cliquable
+       * en desktop — la lightbox ne s'ouvre alors jamais. */
+      display: inline-flex;
+      position: absolute;
+      top: var(--spacing-2);
+      right: var(--spacing-2);
+      opacity: 0;
+    }
+
+    .recipe-hero__figure:hover .recipe-hero__zoom,
+    .recipe-hero__figure:focus-within .recipe-hero__zoom,
+    .recipe-hero__zoom:focus-visible {
+      opacity: 1;
+    }
+  }
+
+  /* Slot icône local (compatibilité avec le markup historique
+   * `<span class="recipe-hero__zoom-icon">`). La taille effective de
+   * l'icône est portée par .overlay-icon-btn > svg (media.css). */
+  .recipe-hero__zoom-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+  }
+
+  .recipe-hero__zoom-icon svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    display: block;
+  }
+
+  .recipe-hero__content {
+    /* Mobile : padding interne (l'image est flush, le contenu respire). */
+    padding: var(--spacing-6);
+
+    @media (min-width: 1024px) {
+      /* Desktop : padding sur les 4 côtés ; le left = spacing-8 sépare
+         l'image du contenu (le column-gap du grid est mis à 0). */
+      padding: var(--spacing-8);
+    }
+  }
+
+  /* ================================================================
+   * Sections génériques
+   * ================================================================ */
+  .recipe-section {
+    padding-block: var(--spacing-8);
+    border-top: 1px solid var(--color-border);
+
+    @media (min-width: 768px) {
+      padding-block: var(--spacing-12);
+    }
+  }
+
+  .recipe-section__title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-fg);
+    margin: 0 0 var(--spacing-6);
+    line-height: var(--line-height-snug);
+  }
+
+  /* Intro recette */
+  .recipe-intro__text {
+    font-family: var(--font-body);
+    font-size: var(--font-size-lg);
+    color: var(--color-fg-muted);
+    line-height: var(--line-height-relaxed);
+    max-width: 680px;
+    margin: 0;
+    font-style: italic;
+  }
+
+  /* ================================================================
+   * INGRÉDIENTS — layout 1 → 2 colonnes
+   * ================================================================ */
+  .recipe-ingredients {
+    position: relative;
+  }
+
+  .recipe-ingredients__group {
+    margin-bottom: var(--spacing-6);
+  }
+
+  .recipe-ingredients__group-title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg-muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin: 0 0 var(--spacing-3);
+  }
+
+  .recipe-ingredients__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--spacing-2);
+
+    @media (min-width: 640px) {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .recipe-ingredients__item {
+    display: flex;
+    align-items: baseline;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) 0;
+    border-bottom: 1px solid var(--color-border);
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    color: var(--color-fg);
+  }
+
+  .recipe-ingredients__quantity {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg);
+    white-space: nowrap;
+  }
+
+  .recipe-ingredients__name {
+    flex: 1;
+  }
+
+  .recipe-ingredients__note {
+    font-size: var(--font-size-sm);
+    color: var(--color-fg-muted);
+    font-style: italic;
+  }
+
+  /* Fade-out en mode preview (sur le dernier groupe visible) */
+  .recipe-preview-fade {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: var(--spacing-16);
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      var(--color-bg) 100%
+    );
+    pointer-events: none;
+  }
+
+  /* ================================================================
+   * ÉTAPES
+   * ================================================================ */
+  .recipe-steps__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-8);
+  }
+
+  .recipe-step {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--spacing-4) var(--spacing-6);
+
+    @media (min-width: 768px) {
+      gap: var(--spacing-4) var(--spacing-8);
+    }
+  }
+
+  .recipe-step__header {
+    display: flex;
+    align-items: flex-start;
+    padding-top: var(--spacing-1);
+  }
+
+  .recipe-step__number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-accent);
+    color: var(--color-on-accent);
+    font-family: var(--font-display);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  .recipe-step__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+  }
+
+  .recipe-step__content {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    color: var(--color-fg);
+    line-height: var(--line-height-relaxed);
+  }
+
+  .recipe-step__content p {
+    margin: 0 0 var(--spacing-3);
+  }
+
+  .recipe-step__content p:last-child {
+    margin-bottom: 0;
+  }
+
+  .recipe-step__figure {
+    margin: 0;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    max-width: 480px;
+  }
+
+  .recipe-step__image {
+    width: 100%;
+    height: auto;
+    display: block;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  .recipe-step__caption {
+    font-family: var(--font-body);
+    font-size: var(--font-size-xs);
+    color: var(--color-fg-muted);
+    font-style: italic;
+    padding: var(--spacing-2) var(--spacing-3);
+    background-color: var(--color-bg-elevated);
+  }
+
+  /* ================================================================
+   * COMPLÉMENTS (chef_tip, wine_pairing)
+   * ================================================================ */
+  .recipe-extras__grid {
+    display: grid;
+    gap: var(--spacing-6);
+
+    @media (min-width: 640px) {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .recipe-extras__card {
+    padding: var(--spacing-6);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+  }
+
+  .recipe-extras__card--tip {
+    border-left: 3px solid var(--color-accent);
+  }
+
+  .recipe-extras__card--wine {
+    border-left: 3px solid var(--color-fg-muted);
+  }
+
+  .recipe-extras__card-title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg);
+    margin: 0 0 var(--spacing-3);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .recipe-extras__card-content {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    color: var(--color-fg-muted);
+    line-height: var(--line-height-relaxed);
+    margin: 0;
+  }
+
+  .recipe-extras__source {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: var(--color-fg-muted);
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+  }
+
+  /* ================================================================
+   * LIENS ÉDITORIAUX
+   * ================================================================ */
+  .recipe-related__grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--spacing-6);
+    grid-template-columns: 1fr;
+
+    @media (min-width: 640px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: 1024px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* ================================================================
+   * ARCHIVE — FILTRES TAXONOMIE
+   * ================================================================ */
+  .recipe-filters {
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    padding-block: var(--spacing-4);
+    margin-bottom: var(--spacing-8);
+    background-color: var(--color-bg-elevated);
+  }
+
+  .recipe-filters .container-180c {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-4) var(--spacing-8);
+  }
+
+  .recipe-filters__group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-2);
+  }
+
+  .recipe-filters__group-label {
+    font-family: var(--font-display);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-right: var(--spacing-1);
+  }
+
+  .recipe-filters__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+  }
+
+  .recipe-filters__link {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--spacing-1) var(--spacing-3);
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--color-border);
+    font-family: var(--font-display);
+    font-size: var(--font-size-sm);
+    color: var(--color-fg-muted);
+    text-decoration: none;
+    transition: color var(--transition-fast),
+                border-color var(--transition-fast),
+                background-color var(--transition-fast);
+  }
+
+  .recipe-filters__link:hover {
+    color: var(--color-fg);
+    border-color: var(--color-fg-muted);
+  }
+
+  .recipe-filters__link--active,
+  .recipe-filters__link[aria-current="page"] {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-on-accent);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .recipe-filters__link--reset {
+    background-color: transparent;
+    border-color: var(--color-fg-muted);
+    color: var(--color-fg-muted);
+  }
+
+  .recipe-filters__link--reset:hover {
+    border-color: var(--color-fg);
+    color: var(--color-fg);
+  }
+
+  .recipe-filters__link:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* ================================================================
+   * ARCHIVE — GRILLE RECETTES
+   * ================================================================ */
+  .recipes-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--spacing-6);
+    /* Mobile : une recette par ligne (card pleine largeur). */
+    grid-template-columns: 1fr;
+    padding-block: var(--spacing-8);
+
+    @media (min-width: 640px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (min-width: 1024px) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  /* Garde-fou anti-débordement : un item de grille a `min-width: auto` par
+     défaut et refuse de se réduire sous la largeur min-content de son contenu,
+     ce qui fait déborder la card hors de sa piste (visible en 2 colonnes sur
+     mobile). `min-width: 0` autorise la piste `1fr` à contraindre la card. */
+  .recipes-grid__item {
+    min-width: 0;
+  }
+
+  /* État vide */
+  .recipes-empty {
+    text-align: center;
+    padding-block: var(--spacing-16);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-6);
+  }
+
+  .recipes-empty__msg {
+    font-family: var(--font-body);
+    font-size: var(--font-size-lg);
+    color: var(--color-fg-muted);
+    margin: 0;
+  }
+
+  /* ================================================================
+   * HEADER D'ARCHIVE
+   * ================================================================ */
+  .archive-header {
+    padding-block: var(--spacing-12);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .archive-header__title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-fg);
+    margin: 0 0 var(--spacing-3);
+    line-height: var(--line-height-tight);
+  }
+
+  /* H1 + action « Mon carnet » sur le même rail, action alignée à droite. */
+  .archive-header__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3) var(--spacing-4);
+  }
+
+  /* Le titre porte déjà sa marge basse ; à l'intérieur du bar on la neutralise
+     pour garder l'alignement vertical avec l'action. */
+  .archive-header__bar .archive-header__title {
+    margin-bottom: 0;
+  }
+
+  /* La description reprend l'écart sous le bar (la marge du titre étant neutralisée). */
+  .archive-header__bar + .archive-header__desc {
+    margin-top: var(--spacing-3);
+  }
+
+  .archive-header__action {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .archive-header__desc {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    color: var(--color-fg-muted);
+    line-height: var(--line-height-relaxed);
+    max-width: 680px;
+    margin: 0;
+  }
+
+  /* « Toutes les recettes » (explore) + « Mon carnet » : pas de séparateur sous
+     le H1 et aucune marge au-dessus de la barre de filtres (la barre remonte au
+     contact du titre). */
+  .recipe-archive--explore .archive-header,
+  .mon-carnet .archive-header {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  /* ================================================================
+   * HERO — typo eyebrow/title/standfirst/byline migrée vers
+   * src/css/components/entry-header.css (polish). Le
+   * positionnement de `.recipe-hero__content` (cellule de grille,
+   * padding desktop) reste local — cf. plus haut dans ce fichier.
+   *
+   * Override : le visuel de carte (background + radius + padding +
+   * max-inline-size) que `.entry-header` apporte par défaut est
+   * NEUTRALISÉ lorsqu'il est utilisé dans le contexte recette — la
+   * carte vit déjà sur `.recipe-hero` (parent), et `.recipe-hero__content`
+   * fournit son propre padding. Sans cette override on aurait des
+   * cartes imbriquées et du padding cumulé.
+   * ================================================================ */
+  .recipe-hero__content > .entry-header {
+    background-color: transparent;
+    border-radius: 0;
+    padding: 0;
+    max-inline-size: none;
+    margin-inline: 0;
+    /* v3 : neutralise le centrage par défaut de .entry-header — le hero
+       recette reste aligné à gauche dans sa colonne 3fr. */
+    text-align: left;
+  }
+
+  /* Sur recette, les flex containers internes du .entry-header retrouvent
+     leur alignement à gauche (override des justify-content:center posés
+     par défaut sur l'eyebrow et la byline). */
+  .recipe-hero__content > .entry-header .entry-header__eyebrow,
+  .recipe-hero__content > .entry-header .entry-header__byline {
+    justify-content: flex-start;
+  }
+
+  /* Titre de recette : TOUJOURS Playfair Display (--font-body), quelle que
+     soit la surface de rendu. `.entry-header__title` est mutualisé avec les
+     articles (Oswald) : on ne surcharge donc que dans le contexte recette.
+     Pendants : `.card-180c--recipe .card-180c__title` (recipes-rail.css),
+     `.recipes-slider__slide-title` (recipes-slider.css) et la feuille
+     d'impression (print/recipe-print.css). */
+  .recipe-hero__content > .entry-header .entry-header__title {
+    font-family: var(--font-body);
+  }
+
+  /* ================================================================
+   * ÉTAPES — titre + timer
+   * ================================================================ */
+  .recipe-step__title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg);
+    margin: 0 0 var(--spacing-2);
+  }
+
+  .recipe-step__timer {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-1) var(--spacing-3);
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-pill);
+    background-color: transparent;
+    color: var(--color-fg);
+    font-family: var(--font-display);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+  }
+
+  .recipe-step__timer:hover {
+    background-color: var(--color-bg-elevated);
+  }
+
+  /* ================================================================
+   * TAGS (chips)
+   * ================================================================ */
+  .recipe-tags__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+  }
+
+  .recipe-tags__chip {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--spacing-1) var(--spacing-3);
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--color-border);
+    font-family: var(--font-display);
+    font-size: var(--font-size-sm);
+    color: var(--color-fg-muted);
+    text-decoration: none;
+    transition: color var(--transition-fast),
+                border-color var(--transition-fast);
+  }
+
+  .recipe-tags__chip:hover {
+    color: var(--color-fg);
+    border-color: var(--color-accent);
+  }
+
+  /* ================================================================
+   * BIO AUTEUR
+   * ================================================================ */
+  .recipe-author-bio__inner {
+    display: flex;
+    gap: var(--spacing-4);
+    align-items: flex-start;
+  }
+
+  .recipe-author-bio__avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: var(--radius-pill);
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .recipe-author-bio__name {
+    font-family: var(--font-display);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-fg);
+    margin: 0 0 var(--spacing-2);
+  }
+
+  .recipe-author-bio__name a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .recipe-author-bio__name a:hover {
+    color: var(--color-accent);
+  }
+
+  .recipe-author-bio__desc {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    color: var(--color-fg-muted);
+    line-height: var(--line-height-relaxed);
+    margin: 0 0 var(--spacing-3);
+  }
+
+  .recipe-author-bio__more {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    font-family: var(--font-display);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-accent-text);
+    text-decoration: none;
+  }
+
+  .recipe-author-bio__more::after {
+    content: "→";
+    transition: transform var(--transition-fast);
+  }
+
+  .recipe-author-bio__more:hover::after {
+    transform: translateX(3px);
+  }
+
+  /* ================================================================
+   * RECIPE CARD — variantes de taille + méta saison
+   * ================================================================ */
+  .card-180c--recipe .card-180c__media {
+    aspect-ratio: 4 / 3;
+  }
+
+  .card-180c__season {
+    font-family: var(--font-display);
+    font-size: var(--font-size-xs);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-fg-muted);
+  }
+
+  .card-180c--sm .card-180c__title {
+    font-size: var(--font-size-base);
+  }
+
+  .card-180c--lg .card-180c__title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .card-180c--lg .card-180c__media {
+    aspect-ratio: 16 / 9;
+  }
+
+  /* ================================================================
+   * TIMER (overlay flottant)
+   * ================================================================ */
+  .recipe-timer {
+    position: fixed;
+    right: var(--spacing-4);
+    bottom: var(--spacing-4);
+    z-index: var(--z-toast);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    padding: var(--spacing-3) var(--spacing-4);
+    background-color: var(--color-fg);
+    color: var(--color-bg);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .recipe-timer__display {
+    font-family: var(--font-display);
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  .recipe-timer--done {
+    background-color: var(--color-accent);
+    color: var(--color-on-accent);
+    animation: recipe-timer-pulse 0.8s ease-in-out 3;
+  }
+
+  .recipe-timer__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background-color: rgba(255, 255, 255, 0.15);
+    color: inherit;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+  }
+
+  @keyframes recipe-timer-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  /* ================================================================
+   * STICKY PAYWALL CTA (mini-bannière)
+   * ================================================================ */
+  .recipe-sticky-cta {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--z-nav);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-3) var(--spacing-6);
+    padding: var(--spacing-3) var(--container-px);
+    background-color: var(--color-bg-elevated);
+    border-top: 1px solid var(--color-border);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(100%);
+    transition: transform var(--transition-base);
+  }
+
+  .recipe-sticky-cta--visible {
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .recipe-sticky-cta {
+      transition: none;
+    }
+  }
+
+  .recipe-sticky-cta__text {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    color: var(--color-fg);
+  }
+
+  .recipe-sticky-cta__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+  }
+
+  .recipe-sticky-cta__dismiss {
+    border: 0;
+    background: transparent;
+    color: var(--color-fg-muted);
+    font-family: var(--font-display);
+    font-size: var(--font-size-sm);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+  }
+
+  .recipe-sticky-cta__dismiss:hover {
+    color: var(--color-fg);
+  }
+
+  /* ================================================================
+   * ACTIONS — barre partage + favoris
+   *
+   * Styles internes migrés vers src/css/components/share-actions.css
+   * (.share-actions__inner, .share-actions__share, .share-actions__btn,
+   * .share-actions__icon, .share-actions__feedback, .share-actions__favorite).
+   * Le markup recette compose ces classes neutres via le renderer
+   * partagé _180c_render_share_actions(). Cette règle locale reste
+   * pour neutraliser la border-top que `.recipe-section` poserait.
+   * ================================================================ */
+  .recipe-section.recipe-actions {
+    border-top: 0;
+  }
+
+  /* ================================================================
+   * Carte « publié dans » (.recipe-source) : la carte produit du
+   * numéro d'origine est resserrée à 30% de la largeur de la section
+   * sur desktop (couverture = vignette, pas un bloc plein).
+   *
+   * Réglée ICI (et non dans inc/blocks/product-card/style.css) : cette
+   * feuille de bloc n'est enqueue QUE lorsque le bloc Gutenberg est
+   * parsé dans le contenu ; sur la fiche recette la carte est rendue
+   * programmatiquement → la feuille du bloc n'est pas chargée. recipe.css
+   * l'est sur toutes les pages, donc la règle s'applique de façon fiable
+   * et reste limitée à cette seule section (.recipe-source).
+   *
+   * Mobile-first : sous 768px la carte garde sa largeur naturelle.
+   * ================================================================ */
+  @media (min-width: 768px) {
+    .recipe-source .card-180c--product {
+      width: 30%;
+      max-width: none;
+    }
+  }
+
+  /* ================================================================
+   * LIGHTBOX — styles migrés vers src/css/components/lightbox.css
+   *
+   * La fiche recette consomme désormais strictement le module partagé
+   * `lightbox.js` (markup neutre `.lightbox*` + verrou scroll
+   * `html.lightbox-lock`) — plus aucun style recipe-only ici.
+   * ================================================================ */
+
+  /* ================================================================
+   * Bouton « Imprimer » (desktop) — placé à gauche du favori dans la
+   * barre d'actions partagée. Calqué sur .favorite-button--single
+   * (pill, bord, icône 24px). Masqué en-dessous de 768px.
+   * ================================================================ */
+  .recipe-print-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2xs);
+    min-height: 44px;
+    /* `margin-inline-start: auto` absorbe l'espace libre du conteneur
+       (.share-actions__inner en justify-content: space-between) pour coller
+       « Imprimer » au bouton carnet à droite, séparés par le seul column-gap
+       du parent (spacing-6) — au lieu de flotter au centre. */
+    margin: 0;
+    margin-inline-start: auto;
+    padding-inline: var(--space-sm);
+    border: 1px solid var(--color-border);
+    background: transparent;
+    color: var(--color-fg);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    line-height: 1.2;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    transition: border-color var(--transition-fast),
+                color var(--transition-fast);
+  }
+
+  @media (min-width: 768px) {
+    .recipe-print-btn {
+      display: inline-flex;
+    }
+  }
+
+  .recipe-print-btn:hover {
+    border-color: var(--color-accent);
+  }
+
+  .recipe-print-btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* État désactivé (réservé aux abonnés) : pas de hover actif. */
+  .recipe-print-btn.is-disabled,
+  .recipe-print-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .recipe-print-btn.is-disabled:hover,
+  .recipe-print-btn:disabled:hover {
+    border-color: var(--color-border);
+  }
+
+  .recipe-print-btn__icon {
+    display: inline-flex;
+    width: 24px;
+    height: 24px;
+  }
+
+  .recipe-print-btn__icon svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* ================================================================
+   * ARCHIVE « TOUTES LES RECETTES » — explore (filtres + scroll infini)
+   *
+   * Réutilise .recipe-filters / .recipes-grid. La barre de filtres devient
+   * sticky sous le header ; le champ recherche, le compteur, le loader et le
+   * sentinel de scroll infini sont propres à cette surface (archive-recipe.php,
+   * module recipes-archive.js). Le reset UA des chips <button> et le groupe
+   * recherche sont mutualisés depuis mon-carnet.css.
+   * ================================================================ */
+  .recipe-filters--explore {
+    position: sticky;
+    top: var(--header-height-scrolled);
+    z-index: calc(var(--z-nav) - 1);
+    margin-bottom: var(--spacing-6);
+    /* Full-bleed : le module occupe 100% de la largeur de la page. Le parent
+       .site-container est plafonné à --container-max ; on s'en extrait via le
+       break-out maison (cf. home/hero-editorial.css, article.css). Pas de
+       transform ici → les panneaux `position: fixed` (bottom sheet mobile)
+       continuent de s'échapper du contexte. */
+    width: 100vw;
+    max-width: none;
+    margin-inline: calc(50% - 50vw);
+  }
+
+  /* Révélation au scroll : la barre n'apparaît qu'une fois l'en-tête d'archive
+     (.archive-header) sorti du viewport. Piloté par recipes-archive.js
+     (IntersectionObserver). État masqué = retiré du flux (aucun espace réservé
+     sous l'en-tête) ; rendu masqué côté serveur pour éviter tout flash au
+     chargement (les filtres sont de toute façon pilotés par JS). */
+  .recipe-filters--explore.recipe-filters--collapsed {
+    display: none;
+  }
+
+  .recipe-filters--explore.recipe-filters--revealed {
+    animation: recipe-filters-reveal 220ms ease both;
+  }
+
+  @keyframes recipe-filters-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(-0.5rem);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .recipe-filters--explore.recipe-filters--revealed {
+      animation: none;
+    }
+  }
+
+  /* L'agencement passe par .recipe-filters__bar (et non le flex par défaut
+     de .recipe-filters .container-180c). La gouttière padding-inline est
+     conservée, mais la contrainte max-width est neutralisée pour que la barre
+     remplisse toute la largeur de la page. */
+  .recipe-filters--explore > .container-180c {
+    display: block;
+    max-width: none;
+  }
+
+  /* Recherche + dropdowns sur une SEULE ligne, à toutes les résolutions.
+     Sur mobile, la ligne déborde et défile horizontalement (scroll latéral) ;
+     sur desktop tout tient et l'overflow redevient visible (sinon les panneaux
+     popover seraient rognés). */
+  .recipe-filters__bar {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: var(--spacing-2) var(--spacing-3);
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .recipe-filters__bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    .recipe-filters__bar {
+      overflow-x: visible;
+    }
+  }
+
+  /* « Tout effacer » : même gabarit que les toggles de dropdown. Sans ces
+     règles, le bouton se comprime (flex-shrink par défaut) dans la barre
+     étroite en overflow et « Tout effacer » passe sur deux lignes → hauteur
+     doublée. On fige donc sa largeur (flex: 0 0 auto) et on interdit le retour
+     à la ligne (white-space: nowrap), comme .recipe-filters__dropdown(-toggle). */
+  .recipe-filters__bar .recipe-filters__link--reset {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    /* Aligne la hauteur exacte sur les toggles/recherche (line-height 1.6). */
+    line-height: 1.6;
+  }
+
+  /* Le champ recherche occupe l'espace restant sur desktop ; sur mobile il
+     conserve une largeur plancher (ne se comprime pas) afin de garantir le
+     débordement de la ligne et donc le scroll latéral. */
+  .recipe-filters__group--search {
+    flex: 1 0 200px;
+    min-width: 200px;
+    display: flex;
+  }
+
+  @media (min-width: 768px) {
+    .recipe-filters__group--search {
+      flex: 1 1 220px;
+      min-width: 0;
+    }
+  }
+
+  /* Champ recherche de l'archive (aspect identique à .carnet-search). */
+  .recipe-filters__search {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: var(--spacing-1) var(--spacing-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background-color: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-display);
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
+  }
+
+  /* Dropdown multi-select --------------------------------------------- */
+  .recipe-filters__dropdown {
+    position: relative;
+    flex: 0 0 auto;
+  }
+
+  .recipe-filters__dropdown-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    padding: var(--spacing-1) var(--spacing-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background-color: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-display);
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color var(--transition-fast),
+                border-color var(--transition-fast),
+                background-color var(--transition-fast);
+  }
+
+  .recipe-filters__dropdown-toggle:hover {
+    border-color: var(--color-fg-muted);
+  }
+
+  .recipe-filters__dropdown-toggle:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* État actif : au moins une option cochée. */
+  .recipe-filters__dropdown-toggle--active {
+    border-color: var(--color-accent);
+  }
+
+  .recipe-filters__dropdown-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding-inline: var(--spacing-1);
+    border-radius: var(--radius-pill);
+    background-color: var(--color-accent);
+    color: var(--color-on-accent);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    line-height: 1;
+  }
+
+  .recipe-filters__dropdown-chevron {
+    flex: 0 0 auto;
+    transition: transform var(--transition-fast);
+  }
+
+  .recipe-filters__dropdown-toggle[aria-expanded="true"] .recipe-filters__dropdown-chevron {
+    transform: rotate(180deg);
+  }
+
+  /* Panneau d'options (popover). */
+  .recipe-filters__dropdown-panel {
+    position: absolute;
+    z-index: 10;
+    top: calc(100% + var(--spacing-1));
+    left: 0;
+    min-width: 200px;
+    max-height: 320px;
+    overflow-y: auto;
+    padding: var(--spacing-2);
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Le dernier dropdown s'aligne à droite (évite un débordement hors écran). */
+  .recipe-filters__dropdown:last-of-type .recipe-filters__dropdown-panel {
+    left: auto;
+    right: 0;
+  }
+
+  /* ================================================================
+     Bottom sheet mobile des filtres — spécifiques à la feuille générique.
+
+     L'habillage (overlay, panneau, en-tête, verrou, animations) vit dans le
+     module partagé `bottom-sheet.css` / `bottom-sheet.js` (même feuille que le
+     menu compte). Ici, seuls les bits propres aux filtres : cibles tactiles
+     des options et boutons du pied « Effacer » / « Voir les résultats ».
+     ================================================================ */
+
+  /* Cibles tactiles plus généreuses dans la feuille. */
+  .bottom-sheet__panel .recipe-filters__option {
+    padding: var(--spacing-3) var(--spacing-2);
+    font-size: var(--font-size-base);
+  }
+
+  .recipe-filters__sheet-clear,
+  .recipe-filters__sheet-apply {
+    min-height: 48px;
+    padding: var(--spacing-2) var(--spacing-4);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-display);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: background-color var(--transition-fast),
+                border-color var(--transition-fast);
+  }
+
+  .recipe-filters__sheet-clear {
+    flex: 0 0 auto;
+    min-width: 96px;
+    border: 1px solid var(--color-border);
+    background-color: transparent;
+    color: var(--color-fg);
+  }
+
+  .recipe-filters__sheet-clear:hover {
+    border-color: var(--color-fg-muted);
+  }
+
+  .recipe-filters__sheet-apply {
+    flex: 1 1 auto;
+    border: 1px solid var(--color-accent);
+    background-color: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+
+  .recipe-filters__sheet-apply:hover {
+    background-color: color-mix(in srgb, var(--color-accent) 88%, #000);
+    border-color: color-mix(in srgb, var(--color-accent) 88%, #000);
+  }
+
+  /* Sur mobile, la révélation de la barre d'archive reste en opacité seule
+     (pas de transform → pas de bloc conteneur parasite pour d'éventuels
+     enfants fixes). */
+  @media (max-width: 767px) {
+    .recipe-filters--explore.recipe-filters--revealed {
+      animation-name: recipe-filters-reveal-fade;
+    }
+  }
+
+  @keyframes recipe-filters-reveal-fade {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  .recipe-filters__options {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .recipe-filters__option {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-1) var(--spacing-2);
+    border-radius: var(--radius-md);
+    font-family: var(--font-display);
+    font-size: var(--font-size-sm);
+    color: var(--color-fg);
+    cursor: pointer;
+  }
+
+  .recipe-filters__option:hover {
+    background-color: var(--color-bg);
+  }
+
+  /* Case à cocher = composant du design system (.checkbox__input, forms.css).
+     Seul override : annuler le décalage optique multi-lignes (margin-top) car la
+     rangée du dropdown est centrée sur une seule ligne. */
+  .recipe-filters__option .checkbox__input {
+    margin-top: 0;
+  }
+
+  .recipe-filters__option-label {
+    min-width: 0;
+  }
+
+  .recipe-filters__search::placeholder {
+    color: var(--color-fg-muted);
+  }
+
+  .recipe-filters__search:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* Compteur de résultats (live region). */
+  .recipes-archive__count {
+    font-family: var(--font-display);
+    font-size: var(--font-size-sm);
+    color: var(--color-fg-muted);
+    margin: 0 0 var(--spacing-4);
+  }
+
+  /* État « aucun résultat » du filtrage serveur. */
+  .recipes-archive__noresults {
+    font-family: var(--font-body);
+    font-size: var(--font-size-lg);
+    color: var(--color-fg-muted);
+    text-align: center;
+    padding-block: var(--spacing-12);
+    margin: 0;
+  }
+
+  /* Loader de lot (scroll infini). */
+  .recipes-archive__loader {
+    display: flex;
+    justify-content: center;
+    padding-block: var(--spacing-8);
+  }
+
+  .recipes-archive__spinner {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-accent);
+    animation: recipes-archive-spin 0.7s linear infinite;
+  }
+
+  @keyframes recipes-archive-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .recipes-archive__spinner {
+      animation-duration: 1.8s;
+    }
+  }
+
+  /* Sentinel IntersectionObserver (déclenche le chargement avant le bas). */
+  .recipes-archive__sentinel {
+    width: 100%;
+    height: 1px;
+  }
+}

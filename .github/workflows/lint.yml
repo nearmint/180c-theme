@@ -1,0 +1,60 @@
+name: Lint
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lint-php:
+    runs-on: ubuntu-latest
+    name: PHPCS + WPCS (PHP ${{ matrix.php }})
+    # La production tourne en PHP 8.5 (relevé dans les logs du 2026-08-21).
+    # Ne linter que la 8.3 laissait sans couverture la version réellement
+    # exécutée en prod (constat de l'audit logs du 2026-08-22).
+    #
+    # phpcs.xml.dist cible déjà `testVersion 8.3-` : borne ouverte, elle
+    # couvre 8.5 sans modification.
+    #
+    # fail-fast: false — un échec sur 8.5 ne doit pas annuler le run 8.3,
+    # sinon on perd le résultat de la version de référence.
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.3', '8.5']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: ${{ runner.os }}-php${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run PHPCS
+        run: composer lint
+
+  lint-front:
+    runs-on: ubuntu-latest
+    name: ESLint + Stylelint
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint:js
+      - run: npm run lint:css

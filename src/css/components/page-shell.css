@@ -1,0 +1,26 @@
+/**
+ * Page shell — rythme vertical bas de page des archives (180°C).
+ *
+ * Garantit un espacement avant le footer sur toute surface archive/liste, pour
+ * éviter le tassement du contenu contre le footer (règle DS dure).
+ * À appliquer sur le <main class="page-shell"> de chaque template d'archive
+ * (archive.php, category.php, tag.php, taxonomy-*.php, search.php, date.php,
+ * archive-recipe.php, archive-product.php).
+ *
+ * La page auteur gère son propre rythme bas via .author-related et
+ * n'utilise volontairement pas ce composant.
+ *
+ * @package 180c
+ */
+
+@layer components {
+  main.page-shell {
+    padding-block-end: var(--space-12);
+  }
+
+  @media (min-width: 1024px) {
+    main.page-shell {
+      padding-block-end: var(--space-16);
+    }
+  }
+}

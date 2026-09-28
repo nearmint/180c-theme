@@ -1,0 +1,132 @@
+{
+  "key": "group_180c_block_rail_produit",
+  "title": "Bloc — Rail de produits",
+  "fields": [
+    {
+      "key": "field_180c_rp_titre",
+      "label": "Titre du rail (optionnel)",
+      "name": "titre",
+      "type": "text",
+      "instructions": "Titre affiché au-dessus du rail. Laisser vide pour ne pas afficher de titre.",
+      "required": 0,
+      "conditional_logic": 0,
+      "default_value": "",
+      "placeholder": ""
+    },
+    {
+      "key": "field_180c_rp_source",
+      "label": "Source des produits",
+      "name": "source",
+      "type": "radio",
+      "instructions": "Comment composer le rail.",
+      "required": 1,
+      "conditional_logic": 0,
+      "choices": {
+        "categorie": "Par catégorie",
+        "manuel": "Sélection manuelle"
+      },
+      "default_value": "categorie",
+      "layout": "horizontal",
+      "return_format": "value",
+      "allow_null": 0,
+      "other_choice": 0,
+      "save_other_choice": 0
+    },
+    {
+      "key": "field_180c_rp_categorie",
+      "label": "Catégorie de produits",
+      "name": "categorie",
+      "type": "taxonomy",
+      "instructions": "Les produits les plus récents de cette catégorie seront affichés.",
+      "required": 1,
+      "conditional_logic": [
+        [
+          {
+            "field": "field_180c_rp_source",
+            "operator": "==",
+            "value": "categorie"
+          }
+        ]
+      ],
+      "taxonomy": "product_cat",
+      "field_type": "select",
+      "allow_null": 0,
+      "add_term": 0,
+      "save_terms": 0,
+      "load_terms": 0,
+      "return_format": "id",
+      "multiple": 0
+    },
+    {
+      "key": "field_180c_rp_nombre",
+      "label": "Nombre de produits",
+      "name": "nombre",
+      "type": "number",
+      "instructions": "Nombre de produits à afficher (tri du plus récent au plus ancien).",
+      "required": 0,
+      "conditional_logic": [
+        [
+          {
+            "field": "field_180c_rp_source",
+            "operator": "==",
+            "value": "categorie"
+          }
+        ]
+      ],
+      "default_value": 8,
+      "placeholder": "",
+      "prepend": "",
+      "append": "",
+      "min": 1,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "key": "field_180c_rp_produits",
+      "label": "Produits",
+      "name": "produits",
+      "type": "relationship",
+      "instructions": "Sélectionnez les produits à afficher, dans l'ordre souhaité.",
+      "required": 1,
+      "conditional_logic": [
+        [
+          {
+            "field": "field_180c_rp_source",
+            "operator": "==",
+            "value": "manuel"
+          }
+        ]
+      ],
+      "post_type": [
+        "product"
+      ],
+      "post_status": "",
+      "taxonomy": "",
+      "filters": [
+        "search"
+      ],
+      "return_format": "id",
+      "min": 1,
+      "max": 0,
+      "elements": ""
+    }
+  ],
+  "location": [
+    [
+      {
+        "param": "block",
+        "operator": "==",
+        "value": "acf/rail-produit"
+      }
+    ]
+  ],
+  "menu_order": 0,
+  "position": "normal",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "hide_on_screen": "",
+  "active": true,
+  "description": "Champs du bloc Gutenberg acf/rail-produit (rail de produits en article).",
+  "modified": 1780000000
+}

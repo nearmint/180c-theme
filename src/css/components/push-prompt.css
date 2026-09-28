@@ -1,0 +1,185 @@
+/**
+ * Composant — Invite d'activation des notifications web (.push-prompt).
+ *
+ * Encart compact ancré en bas à droite du viewport, proposé à un abonné après
+ * qu'il a consulté deux recettes distinctes. Fermeture persistante et versionnée
+ * (localStorage), sur le modèle du bandeau d'information.
+ *
+ * Rendu masqué par le serveur (`hidden`) : c'est le JS qui décide de l'afficher,
+ * après avoir vérifié le compteur de lectures, la fermeture mémorisée et l'état
+ * de `Notification.permission`. Aucune de ces trois données n'est connue du
+ * serveur, et le HTML peut être servi depuis le cache.
+ *
+ * ANCRAGE — deux pièges, tous deux déjà rencontrés dans ce thème :
+ *
+ *  1. `#site-shell` porte `will-change: transform`, ce qui en fait un
+ *     containing block pour ses descendants `position: fixed`. Le markup est
+ *     donc rendu HORS du shell (footer.php), à côté du side-menu et de la
+ *     modale de consentement, exactement pour cette raison.
+ *
+ *  2. `wp-components` (chargé en front par WooCommerce Blocks/Subscriptions)
+ *     pose `[role=region]{position:relative}` en règle NON-layered, qui bat
+ *     tout `position: fixed` déclaré dans `@layer`. L'ancrage est donc
+ *     réaffirmé hors layer en fin de fichier.
+ *
+ * Le bas du viewport est déjà occupé au centre (`.toast-region`) et sur toute
+ * la largeur (`.recipe-sticky-cta`, `.product-sticky-bar`) : l'invite se cale à
+ * droite, avec une largeur bornée, et laisse le centre libre.
+ *
+ * Chrome / UI → échelle typographique FIXE. Tokens DS uniquement.
+ *
+ * @package 180c
+ */
+
+@layer components {
+  .push-prompt {
+    position: fixed;
+    inset-block-end: var(--space-md);
+    inset-inline-end: var(--space-md);
+    z-index: var(--z-push-prompt);
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+
+    /* Bornée pour ne jamais recouvrir le centre bas (toasts) sur les petits
+       écrans, où elle s'étire à la place jusqu'aux marges. */
+    width: min(21rem, calc(100vw - 2 * var(--space-md)));
+    padding: var(--space-sm);
+
+    background-color: var(--color-bg);
+    color: var(--color-fg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+
+    animation: push-prompt-in var(--transition-base);
+  }
+
+  .push-prompt__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .push-prompt__body {
+    margin: 0;
+    font-size: var(--text-sm);
+    line-height: 1.4;
+    color: var(--color-fg);
+    opacity: 0.8;
+  }
+
+  .push-prompt__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    margin-block-start: var(--space-3xs);
+  }
+
+  .push-prompt__accept {
+    flex: 1 1 auto;
+    /* Cible tactile ≥ 44 px. */
+    min-height: 44px;
+    padding-inline: var(--space-sm);
+
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: 600;
+
+    /* `--color-on-accent` (#14110F, identique en clair et en sombre) et NON
+       `--color-bg` : ce dernier vaut #FFFFFF en mode clair, ce qui donnait du
+       blanc sur l'accent #FFAE3A — environ 1,9:1, très en deçà du 4,5:1 exigé.
+       Le défaut ne se voyait qu'en mode clair, le thème s'affichant en sombre
+       par défaut. C'est le token qu'emploie déjà .btn--primary. */
+    color: var(--color-on-accent);
+    background-color: var(--color-accent);
+    border: 0;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+
+  .push-prompt__accept:hover {
+    filter: brightness(1.08);
+  }
+
+  .push-prompt__accept:disabled {
+    cursor: progress;
+    opacity: 0.6;
+  }
+
+  .push-prompt__dismiss {
+    flex: 0 0 auto;
+    min-width: 44px;
+    min-height: 44px;
+
+    font-size: var(--text-sm);
+    color: var(--color-fg);
+    background: none;
+    border: 0;
+    cursor: pointer;
+    opacity: 0.7;
+  }
+
+  .push-prompt__dismiss:hover {
+    opacity: 1;
+  }
+
+  .push-prompt__accept:focus-visible,
+  .push-prompt__dismiss:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .push-prompt__feedback {
+    margin: 0;
+    font-size: var(--text-xs);
+    line-height: 1.4;
+    color: var(--color-fg);
+    opacity: 0.8;
+  }
+
+  /* `--color-danger` et non un rouge en dur : il a une déclinaison dark
+     (#E66666), sans laquelle le message d'erreur perdrait son contraste sur
+     fond sombre. C'est le token qu'emploie déjà .my-account-optin__feedback--error. */
+  .push-prompt__feedback--error {
+    color: var(--color-danger);
+    opacity: 1;
+  }
+
+  @keyframes push-prompt-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.5rem);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .push-prompt {
+      animation: none;
+    }
+  }
+}
+
+/* ============================================================
+ * Réaffirmation de l'ancrage HORS @layer.
+ *
+ * `wp-components` (wp-includes/css/dist/components/style.css) est chargé en
+ * front par WooCommerce Blocks / Subscriptions et pose
+ * `[role=region]{position:relative}` en règle NON-layered. Une règle non-layered
+ * bat TOUJOURS une règle layered, quelle que soit la spécificité (CSS Cascade
+ * niveau 5). L'invite ne porte pas `role="region"` — précisément pour éviter ce
+ * piège —, mais la même mécanique vaut pour toute règle non-layered visant un
+ * de ses attributs. On verrouille donc l'ancrage avec une spécificité (0,2,0),
+ * exactement comme `.product-sticky-bar` a dû le faire (commerce/woo.css).
+ * ============================================================ */
+.push-prompt[data-push-prompt] {
+  position: fixed;
+}

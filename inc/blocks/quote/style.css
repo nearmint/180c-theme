@@ -1,0 +1,80 @@
+/* Block: 180c/quote */
+
+.block-180c-quote {
+  position: relative;
+  margin: var(--spacing-8) 0;
+  padding: var(--spacing-6) var(--spacing-8) var(--spacing-6) var(--spacing-10);
+  border-left: 4px solid var(--color-accent);
+  background-color: var(--color-bg-elevated);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.block-180c-quote--placeholder {
+  border-color: var(--color-border);
+  color: var(--color-fg-muted);
+  font-family: var(--font-body);
+}
+
+/* Guillemet décoratif */
+.block-180c-quote::before {
+  content: '\201C';
+  position: absolute;
+  top: var(--spacing-2);
+  left: var(--spacing-3);
+  font-family: var(--font-body);
+  font-size: 3rem;
+  line-height: 1;
+  color: var(--color-accent);
+  opacity: 0.6;
+  font-style: italic;
+}
+
+.block-180c-quote__text {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  line-height: 1.6;
+  color: var(--color-fg);
+  margin: 0 0 var(--spacing-3) 0;
+  font-weight: 400;
+}
+
+.block-180c-quote__text em {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.block-180c-quote__attribution {
+  display: block;
+  font-family: var(--font-display);
+  font-style: normal;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-fg-muted);
+}
+
+.block-180c-quote__attribution::before {
+  content: '— ';
+}
+
+/* Variante large */
+.alignwide.block-180c-quote {
+  padding: var(--spacing-10) var(--spacing-12);
+  border-left: none;
+  text-align: center;
+  border-radius: var(--radius-lg);
+}
+
+.alignwide.block-180c-quote::before {
+  position: static;
+  display: block;
+  font-size: 4rem;
+  margin-bottom: calc(-1 * var(--spacing-4));
+}
+
+.alignwide .block-180c-quote__attribution {
+  text-align: center;
+}

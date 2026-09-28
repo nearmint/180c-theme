@@ -1,0 +1,117 @@
+/**
+ * Admin — écran d'édition d'une notification push (CPT 180c_notification).
+ * Style de l'aperçu « écran verrouillé iOS ». Réservé à l'admin ; jamais
+ * chargé côté front.
+ */
+
+.notif-ios-preview {
+	--notif-radius: 20px;
+	margin: 0.25rem 0 0.5rem;
+	padding: 22px 16px;
+	border-radius: 14px;
+	/* Fond neutre évoquant un fond d'écran verrouillé, pour lire la carte. */
+	background:
+		linear-gradient( 160deg, #5b6b82 0%, #37414f 60%, #232a34 100% );
+}
+
+.notif-ios-preview__card {
+	max-width: 380px;
+	margin: 0 auto;
+	padding: 12px 14px;
+	border-radius: var(--notif-radius);
+	background: rgba( 250, 250, 252, 0.92 );
+	box-shadow: 0 8px 24px rgba( 0, 0, 0, 0.22 );
+	color: #1c1c1e;
+	-webkit-backdrop-filter: blur( 20px );
+	backdrop-filter: blur( 20px );
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.notif-ios-preview__head {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	margin-bottom: 6px;
+}
+
+.notif-ios-preview__appicon img,
+.notif-ios-preview__appicon-ph {
+	display: block;
+	width: 20px;
+	height: 20px;
+	border-radius: 5px;
+	object-fit: cover;
+}
+
+.notif-ios-preview__appicon-ph {
+	background: linear-gradient( 135deg, #ffae3a, #ff8a3a );
+}
+
+.notif-ios-preview__appname {
+	flex: 1 1 auto;
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	color: rgba( 60, 60, 67, 0.6 );
+	text-transform: uppercase;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.notif-ios-preview__time {
+	flex: 0 0 auto;
+	font-size: 12px;
+	color: rgba( 60, 60, 67, 0.6 );
+}
+
+.notif-ios-preview__row {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+}
+
+.notif-ios-preview__text {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.notif-ios-preview__title {
+	font-size: 15px;
+	font-weight: 600;
+	line-height: 1.25;
+	word-break: break-word;
+	/* Le titre iOS tient sur une ligne, tronquée. */
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.notif-ios-preview__body {
+	margin-top: 2px;
+	font-size: 15px;
+	line-height: 1.3;
+	color: #1c1c1e;
+	word-break: break-word;
+	/* Troncature visuelle cohérente avec la bannière iOS déployée (≈ 4 lignes). */
+	display: -webkit-box;
+	-webkit-line-clamp: 4;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.notif-ios-preview__thumb {
+	flex: 0 0 auto;
+	width: 44px;
+	height: 44px;
+	border-radius: 8px;
+	overflow: hidden;
+	background: rgba( 0, 0, 0, 0.06 );
+}
+
+.notif-ios-preview__thumb img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}

@@ -1,0 +1,195 @@
+/**
+ * Cross-sells du panier (.cart-crosssells) — encart « Complétez avec un
+ * abonnement ».
+ *
+ * Encart promotionnel fond accent (titre + sous-titre + CTA), rendu par
+ * `_180c_crosssell_module_html()` (inc/woo/cart-crosssells.php) en deux
+ * variantes :
+ *  - `--full`   : page panier, dans `.cart-collaterals__inner`, pleine largeur
+ *                 (texte + CTA côte à côte ≥ tablette) ;
+ *  - `--drawer` : mini-panier latéral, compact (empilé), juste au-dessus du
+ *                 séparateur du pied (sous-total).
+ *
+ * Le fond accent (#FFAE3A) est CONSTANT dans les deux modes : on n'utilise donc
+ * que des tokens invariants pour le contenu —
+ *   - texte : --color-on-accent (#14110F, AA garanti sur l'accent) ;
+ *   - CTA : pastille foncée (bg --color-on-accent, texte --media-paper #fff).
+ * Le module ne « suit » pas le dark mode : c'est voulu (surface de marque).
+ */
+
+@layer components {
+
+  .cart-crosssells {
+    background-color: var(--color-accent);
+    color: var(--color-on-accent);
+    border-radius: var(--radius-lg);
+  }
+
+  .cart-crosssells__title {
+    font-family: var(--font-display);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-on-accent);
+    line-height: 1.15;
+    margin: 0;
+  }
+
+  .cart-crosssells__subtitle {
+    font-family: var(--font-body);
+    color: var(--color-on-accent);
+    line-height: var(--line-height-snug);
+    margin: 0;
+  }
+
+  /* CTA : pastille foncée à fort contraste sur l'accent, identique dans les
+   * deux modes (tokens constants). */
+  .cart-crosssells__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    min-height: 44px;
+    padding: var(--space-2xs) var(--space-lg);
+    border-radius: var(--radius-md);
+    background-color: var(--color-on-accent);
+    color: var(--media-paper);
+    font-family: var(--font-display);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.01em;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: filter var(--transition-fast);
+  }
+
+  .cart-crosssells__cta:hover {
+    filter: brightness(1.35);
+  }
+
+  .cart-crosssells__cta:active {
+    filter: brightness(1.2);
+  }
+
+  /* Lien « En savoir plus » : même type que le texte (famille body, couleur
+   * du module), uniquement souligné. La couleur + le soulignement sont
+   * (re)posés hors @layer pour battre `.entry-content a` sur la page panier. */
+  .cart-crosssells__link {
+    font-family: var(--font-body);
+    text-underline-offset: 2px;
+  }
+
+  /* ------------------------------------------------------------
+   * Variante pleine largeur — page panier
+   * ------------------------------------------------------------ */
+  .cart-crosssells--full {
+    margin-top: var(--space-xl);
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-md);
+  }
+
+  .cart-crosssells--full .cart-crosssells__title {
+    font-size: var(--font-size-xl);
+  }
+
+  .cart-crosssells--full .cart-crosssells__subtitle {
+    font-size: var(--font-size-base);
+    margin-top: var(--space-3xs);
+  }
+
+  /* ≥ tablette : texte à gauche, CTA à droite, alignés sur la même ligne. */
+  @media (min-width: 640px) {
+    .cart-crosssells--full {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-xl);
+    }
+  }
+
+  /* ------------------------------------------------------------
+   * Variante compacte — mini-panier latéral (drawer)
+   * Inséré entre la liste d'articles et le pied : inset horizontal aligné
+   * sur le padding du pied, empilé, au-dessus du séparateur du sous-total.
+   * ------------------------------------------------------------ */
+  .cart-crosssells--drawer {
+    flex: 0 0 auto;
+    margin: 0 var(--space-md) var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .cart-crosssells--drawer .cart-crosssells__title {
+    font-size: var(--text-base);
+  }
+
+  .cart-crosssells--drawer .cart-crosssells__subtitle {
+    font-size: var(--text-xs);
+    margin-top: var(--space-3xs);
+  }
+
+  /* Sidebar : bouton + lien « En savoir plus » sur une même ligne (le lien à
+   * droite du bouton), alignés verticalement. */
+  .cart-crosssells--drawer .cart-crosssells__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  /* Bouton compact dans la sidebar : largeur au contenu, hauteur et typo
+   * réduites par rapport à la version pleine page. */
+  .cart-crosssells--drawer .cart-crosssells__cta {
+    min-height: 36px;
+    padding: var(--space-3xs) var(--space-md);
+    font-size: var(--text-sm);
+  }
+
+  .cart-crosssells--drawer .cart-crosssells__link {
+    font-size: var(--text-xs);
+  }
+}
+
+/* ============================================================
+ * Overrides HORS @layer — battent les règles ÉDITORIALES layered de
+ * `.entry-content a / h2 / p` (components/single.css) qui s'appliquent à
+ * l'encart sur la PAGE panier (rendu dans `.entry-content`). En CSS Cascade
+ * L5, l'unlayered bat le layered quelle que soit la spécificité → fiable.
+ * (Le mini-panier n'est pas dans `.entry-content` : non concerné.)
+ * ============================================================ */
+
+/* Titre page panier : NOIR constant (sinon `.entry-content h2 { color:
+ * --color-fg }` le ferait basculer en clair en dark mode) + marges neutres
+ * (l'h2 éditorial injecte une grosse margin-top → titre décentré). */
+.cart-crosssells--full .cart-crosssells__title {
+  color: var(--color-on-accent);
+  margin: 0;
+}
+
+.cart-crosssells--full .cart-crosssells__subtitle {
+  margin: var(--space-3xs) 0 0;
+}
+
+/* CTA : texte BLANC + sans soulignement (sinon couleur accent + underline
+ * de `.entry-content a`). Couvre hover / focus. */
+.cart-crosssells__cta,
+.cart-crosssells__cta:hover,
+.cart-crosssells__cta:focus,
+.cart-crosssells__cta:focus-visible {
+  color: var(--media-paper);
+  text-decoration: none;
+}
+
+/* Lien « En savoir plus » : couleur du texte du module (au lieu de l'accent
+ * de `.entry-content a`), souligné. Même rendu sur la page panier et dans la
+ * sidebar. */
+.cart-crosssells__link,
+.cart-crosssells__link:hover,
+.cart-crosssells__link:focus,
+.cart-crosssells__link:focus-visible {
+  color: var(--color-on-accent);
+  text-decoration: underline;
+}
+

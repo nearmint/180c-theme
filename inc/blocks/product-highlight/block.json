@@ -1,0 +1,26 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "180c/product-highlight",
+  "title": "Mise en avant produit",
+  "category": "180c",
+  "icon": "star-filled",
+  "description": "Met en avant un produit WooCommerce (image non croppée, titre, prix, CTA). Résolution par ID ou SKU. Remplace le shortcode [produit].",
+  "keywords": ["produit", "product", "highlight", "mise en avant", "woo", "boutique"],
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "align": ["wide"]
+  },
+  "attributes": {
+    "product_id": {
+      "type": "number"
+    },
+    "sku": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "render": "file:./render.php",
+  "style": "file:./style.css"
+}

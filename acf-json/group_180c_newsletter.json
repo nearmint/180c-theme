@@ -1,0 +1,173 @@
+{
+  "key": "group_180c_newsletter",
+  "title": "Newsletter (page)",
+  "fields": [
+    {
+      "key": "field_180c_newsletter_hero_image",
+      "label": "Image hero",
+      "name": "newsletter_hero_image",
+      "type": "image",
+      "instructions": "Image plein écran du hero (candidat LCP). Format paysage haute résolution recommandé.",
+      "required": 0,
+      "conditional_logic": 0,
+      "return_format": "id",
+      "preview_size": "medium",
+      "library": "all",
+      "min_width": 0,
+      "min_height": 0,
+      "min_size": "",
+      "max_width": "",
+      "max_height": "",
+      "max_size": "",
+      "mime_types": ""
+    },
+    {
+      "key": "field_180c_newsletter_hero_title",
+      "label": "Titre du hero",
+      "name": "hero_title",
+      "type": "text",
+      "instructions": "Titre principal (H1) du hero.",
+      "required": 0,
+      "conditional_logic": 0,
+      "default_value": "Chaque semaine, les recettes de Delphine dans votre boîte mail",
+      "maxlength": "",
+      "placeholder": "",
+      "prepend": "",
+      "append": ""
+    },
+    {
+      "key": "field_180c_newsletter_hero_subtitle",
+      "label": "Sous-titre du hero",
+      "name": "hero_subtitle",
+      "type": "text",
+      "instructions": "Accroche affichée sous le titre du hero.",
+      "required": 0,
+      "conditional_logic": 0,
+      "default_value": "Un avant-goût offert chaque semaine — l'intégralité des recettes est réservée aux abonnés.",
+      "maxlength": "",
+      "placeholder": "",
+      "prepend": "",
+      "append": ""
+    },
+    {
+      "key": "field_180c_newsletter_hero_secondary",
+      "label": "Texte secondaire (sous le champ email)",
+      "name": "hero_secondary",
+      "type": "wysiwyg",
+      "instructions": "Mentions affichées sous le champ email (RGPD, désinscription, lien politique de confidentialité).",
+      "required": 0,
+      "conditional_logic": 0,
+      "default_value": "En vous inscrivant, vous acceptez de recevoir la newsletter de 180°C. Désinscription à tout moment via le lien présent dans chaque email ; vos données ne sont jamais cédées à des tiers. Voir notre <a href=\"/politique-confidentialite/\">Politique de confidentialité</a>.",
+      "tabs": "all",
+      "toolbar": "basic",
+      "media_upload": 0,
+      "delay": 0
+    },
+    {
+      "key": "field_180c_newsletter_sub_title",
+      "label": "Bannière abonnement — Titre",
+      "name": "newsletter_sub_title",
+      "type": "text",
+      "instructions": "Titre du bloc abonnement (composant Home Builder). Vide → défaut du thème.",
+      "required": 0,
+      "conditional_logic": 0,
+      "default_value": "",
+      "maxlength": "",
+      "placeholder": "",
+      "prepend": "",
+      "append": ""
+    },
+    {
+      "key": "field_180c_newsletter_sub_description",
+      "label": "Bannière abonnement — Sous-titre",
+      "name": "newsletter_sub_description",
+      "type": "textarea",
+      "instructions": "Accroche sous le titre.",
+      "required": 0,
+      "conditional_logic": 0,
+      "default_value": "",
+      "maxlength": "",
+      "rows": 2,
+      "new_lines": ""
+    },
+    {
+      "key": "field_180c_newsletter_sub_cta_label",
+      "label": "Bannière abonnement — Libellé CTA",
+      "name": "newsletter_sub_cta_label",
+      "type": "text",
+      "instructions": "Texte du bouton (vide → « Je m'abonne »).",
+      "required": 0,
+      "conditional_logic": 0,
+      "default_value": "",
+      "maxlength": "",
+      "placeholder": "",
+      "prepend": "",
+      "append": ""
+    },
+    {
+      "key": "field_180c_newsletter_sub_cta_url",
+      "label": "Bannière abonnement — URL CTA",
+      "name": "newsletter_sub_cta_url",
+      "type": "url",
+      "instructions": "Destination du bouton (vide → page d'abonnement du thème).",
+      "required": 0,
+      "conditional_logic": 0,
+      "default_value": "",
+      "placeholder": "https://"
+    },
+    {
+      "key": "field_180c_newsletter_sub_secondary_link_label",
+      "label": "Bannière abonnement — Lien secondaire (libellé)",
+      "name": "newsletter_sub_secondary_link_label",
+      "type": "text",
+      "instructions": "Libellé du lien secondaire (rendu seulement si libellé ET URL renseignés).",
+      "required": 0,
+      "conditional_logic": 0,
+      "default_value": "",
+      "maxlength": "",
+      "placeholder": "",
+      "prepend": "",
+      "append": ""
+    },
+    {
+      "key": "field_180c_newsletter_sub_secondary_link_url",
+      "label": "Bannière abonnement — Lien secondaire (URL)",
+      "name": "newsletter_sub_secondary_link_url",
+      "type": "url",
+      "instructions": "Destination du lien secondaire.",
+      "required": 0,
+      "conditional_logic": 0,
+      "default_value": "",
+      "placeholder": "https://"
+    },
+    {
+      "key": "field_180c_newsletter_sub_hide_for_subscribers",
+      "label": "Bannière abonnement — Masquer pour les abonnés",
+      "name": "newsletter_sub_hide_for_subscribers",
+      "type": "true_false",
+      "instructions": "Masque la bannière pour les abonnés recettes actifs.",
+      "required": 0,
+      "conditional_logic": 0,
+      "default_value": 1,
+      "ui": 1
+    }
+  ],
+  "location": [
+    [
+      {
+        "param": "page_template",
+        "operator": "==",
+        "value": "page-newsletter.php"
+      }
+    ]
+  ],
+  "menu_order": 0,
+  "position": "normal",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "hide_on_screen": "",
+  "active": true,
+  "description": "Champs de la page d'inscription newsletter (hero éditable + bannière abonnement Home Builder).",
+  "modified": 1780505124
+}

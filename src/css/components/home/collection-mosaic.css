@@ -1,0 +1,294 @@
+/*
+ * Home module — Collection (mosaïque de couvertures)
+ *
+ * Markup : parts/modules/collection_mosaic.php
+ *
+ * Cadre unique contenant une mosaïque de couvertures inclinée et en défilement
+ * vertical lent, voilée par un flou puis un fondu vers la surface, et surmontée
+ * d'un titre et d'un CTA. Purement décoratif côté mosaïque (aria-hidden) :
+ * aucune couverture n'est cliquable.
+ *
+ * Zéro JS. Le défilement, sa désynchronisation colonne par colonne et la pause
+ * au survol sont entièrement CSS. PHP ne fournit que la durée et le décalage de
+ * chaque colonne, via --collection-duration / --collection-offset.
+ *
+ * ----------------------------------------------------------------------------
+ * CONTINUITÉ DE LA BOUCLE — l'invariant à ne pas casser
+ *
+ * PHP double les couvertures d'une colonne (6 → 12) et l'animation translate la
+ * colonne de -50 % : la seconde moitié vient donc recouvrir exactement la
+ * première. Deux conditions :
+ *
+ *  1. -50 % doit tomber pile sur une frontière de jeu. Douze items séparés de
+ *     onze gouttières mesurent 12i + 11g, dont la moitié vaut 6i + 5,5g — un
+ *     demi-gap de dérive à chaque cycle. Le `padding-block-end` ajoute la
+ *     douzième gouttière : la hauteur devient 12i + 12g et la moitié 6i + 6g,
+ *     exacte.
+ *
+ *  2. La hauteur d'UN jeu (6i + 6g) doit dépasser celle de la grille débordée
+ *     (hauteur du cadre × 1,36), sinon un vide traverse la colonne. Vérifié aux
+ *     trois paliers, couvertures au ratio natif 3:4 (595 × 794) :
+ *
+ *       360 px  → 4 col. : jeu ≈ 983 px  >  cadre 560 × 1,36 = 762 px   ✓
+ *       768 px  → 6 col. : jeu ≈ 1458 px >  cadre 560 × 1,36 = 762 px   ✓
+ *       1024 px → 9 col. : jeu ≈ 1284 px >  cadre 620 × 1,36 = 843 px   ✓
+ *       1280 px → 9 col. : jeu ≈ 1578 px >  cadre 620 × 1,36 = 843 px   ✓
+ *
+ * Toucher au nombre de colonnes, à la hauteur du cadre ou au débord vertical
+ * sans refaire ce calcul rouvre le trou dans la boucle.
+ * ----------------------------------------------------------------------------
+ *
+ * PAS DE RECADRAGE : les couvertures gardent leur ratio natif (width: 100 % +
+ * height: auto, sans aspect-ratio ni object-fit). Les colonnes ont donc des
+ * hauteurs très légèrement inégales — les couvertures mesurées oscillent entre
+ * 0,749 et 0,751 de ratio, soit moins de 1 px d'écart.
+ */
+
+@layer components {
+  .collection-mosaic {
+    /* Le module porte sa propre surface : il garde un cadre à hauteur fixe et
+       ne suit pas la règle « pas de padding-block » des modules de flux. */
+    /* Le titre est mis à l'échelle de la largeur du module (unités cqi) pour
+       tenir sur une seule ligne à toutes les tailles. */
+    container-type: inline-size;
+
+    --collection-height: 560px;
+    --collection-gap: var(--space-2);
+    --collection-angle: -6deg;
+    --collection-blur: 12px;
+
+    /* Débord de la grille sous le cadre. En X, généreux : c'est lui qui élargit
+       la grille et resserre les colonnes (aspect « mosaïque dense »). En Y,
+       juste ce qu'il faut pour masquer les coins que la rotation découvre —
+       (largeur ÷ 2) × sin(6°) ≈ 11 % de la hauteur du cadre. */
+    --collection-overscan-x: 22%;
+    --collection-overscan-y: 18%;
+
+    /* Bornes du dégradé qui ramène la mosaïque vers la surface, du haut vers le
+       bas du cadre. Volontairement basses : la mosaïque doit rester nette et
+       lisible sur la plus grande partie du cadre, le voile n'intervenant que
+       pour dégager le bloc titre + CTA. */
+    --collection-fade-start: 44%;
+    --collection-fade-mid: 68%;
+    --collection-fade-end: 88%;
+
+    /* Bandeau du bas. Sous le tiers de la hauteur du cadre. */
+    --collection-content-height: 28%;
+
+    /* Gouttière serrée en mobile : chaque pixel repris ici est un pixel de
+       corps gagné par le titre, qui doit tenir sur une ligne. */
+    --collection-content-pad: var(--space-4);
+    --collection-content-gap: var(--space-5);
+    --collection-content-bottom: var(--space-6);
+  }
+
+  .collection-mosaic__stage {
+    position: relative;
+    height: var(--collection-height);
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background-color: var(--cream);
+
+    /* Confine le backdrop-filter du voile à ce cadre. */
+    isolation: isolate;
+  }
+
+  .collection-mosaic__grid {
+    position: absolute;
+    inset: calc(-1 * var(--collection-overscan-y)) calc(-1 * var(--collection-overscan-x));
+    display: flex;
+    gap: var(--collection-gap);
+    transform: rotate(var(--collection-angle));
+    transform-origin: center;
+  }
+
+  .collection-mosaic__column {
+    position: relative;
+    top: var(--collection-offset, 0%);
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    gap: var(--collection-gap);
+    min-width: 0;
+    align-self: flex-start;
+
+    /* Douzième gouttière — cf. condition 1 de l'invariant en tête de fichier. */
+    padding-block-end: var(--collection-gap);
+    animation: collection-mosaic-up var(--collection-duration, 60s) linear infinite;
+    will-change: transform;
+  }
+
+  .collection-mosaic__column--down {
+    animation-name: collection-mosaic-down;
+  }
+
+  .collection-mosaic__cover {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+
+    /* Fond d'attente pendant le chargement : suit le mode clair/sombre plutôt
+       que la valeur sombre figée de la maquette. */
+    background-color: var(--rule);
+  }
+
+  /* Voile flouté, révélé progressivement du haut vers le bas du cadre. */
+  .collection-mosaic__veil {
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(var(--collection-blur));
+    mask-image: linear-gradient(
+      to bottom,
+      transparent var(--collection-fade-start),
+      #000 var(--collection-fade-mid)
+    );
+    pointer-events: none;
+  }
+
+  /* Fondu vers la surface, qui isole le bloc titre + CTA. */
+  .collection-mosaic__fade {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      transparent var(--collection-fade-start),
+      color-mix(in srgb, var(--cream) 55%, transparent) var(--collection-fade-mid),
+      var(--cream) var(--collection-fade-end)
+    );
+    pointer-events: none;
+  }
+
+  .collection-mosaic__content {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--collection-content-gap);
+    height: var(--collection-content-height);
+    padding-inline: var(--collection-content-pad);
+    padding-block-end: var(--collection-content-bottom);
+    text-align: center;
+  }
+
+  .collection-mosaic__title {
+    margin: 0;
+    font-family: var(--font-display);
+
+    /*
+     * Une seule ligne, à toutes les largeurs.
+     *
+     * `--text-3xl` (32 → 48 px) reste le plafond : c'est l'échelle éditoriale
+     * fluide, légitime pour un titre porteur. Mais elle est calée sur la
+     * largeur du VIEWPORT, pas sur celle du module — en mobile, le titre
+     * dépassait et repassait à la ligne. Le second terme le borne à la largeur
+     * réellement disponible : 6 % de la largeur du module, coefficient calibré
+     * à la mesure sur le titre de la maquette (33 caractères) en gardant ~12 %
+     * de marge pour une saisie un peu plus longue.
+     *
+     * Conséquence à connaître : un titre nettement plus long saisi en
+     * back-office rétrécira la police au lieu de passer à la ligne. C'est le
+     * comportement voulu ici ; au-delà d'une quarantaine de caractères, mieux
+     * vaut raccourcir le titre que compter sur cette borne.
+     */
+    font-size: min(var(--text-3xl), 6cqi);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-tight);
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  /* Le survol suspend le défilement ; :focus-within couvre le parcours clavier,
+     le CTA étant à l'intérieur du cadre. */
+  .collection-mosaic__stage:hover .collection-mosaic__column,
+  .collection-mosaic__stage:focus-within .collection-mosaic__column {
+    animation-play-state: paused;
+  }
+
+  /* Suspension pilotée par src/js/modules/collection-mosaic.js : mosaïque hors
+     viewport, ou onglet en arrière-plan. Neuf colonnes en `will-change:
+     transform` faisaient repeindre le compositeur en permanence, pour un
+     contenu que personne ne regardait.
+
+     `animation-play-state` et non `animation: none` : c'est ce qui permet une
+     reprise SANS SAUT — l'animation redémarre là où elle s'est figée, alors
+     qu'une remise à zéro de la propriété relancerait le cycle depuis `from`. */
+  .collection-mosaic.is-paused .collection-mosaic__column {
+    animation-play-state: paused;
+  }
+
+  @keyframes collection-mosaic-up {
+    from {
+      transform: translateY(0);
+    }
+
+    to {
+      transform: translateY(-50%);
+    }
+  }
+
+  @keyframes collection-mosaic-down {
+    from {
+      transform: translateY(-50%);
+    }
+
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  /* ==========================================================================
+     Paliers responsive — le DOM est unique, seules les colonnes surnuméraires
+     sont retirées. PHP en rend 9 : c'est le maximum, affiché à partir de
+     1024 px.
+     ========================================================================== */
+
+  /* < 768 px : 4 colonnes. */
+  .collection-mosaic__column:nth-child(n + 5) {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    .collection-mosaic {
+      --collection-gap: 10px;
+      --collection-content-pad: var(--space-10);
+      --collection-content-gap: var(--space-6);
+      --collection-content-bottom: var(--space-8);
+    }
+
+    .collection-mosaic__column:nth-child(n + 5) {
+      display: flex;
+    }
+
+    .collection-mosaic__column:nth-child(n + 7) {
+      display: none;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .collection-mosaic {
+      --collection-height: 620px;
+      --collection-gap: var(--space-3);
+      --collection-content-pad: var(--space-14);
+      --collection-content-bottom: var(--space-10);
+      --collection-blur: 16px;
+    }
+
+    .collection-mosaic__column:nth-child(n + 7) {
+      display: flex;
+    }
+  }
+
+  /* Mouvement réduit : la mosaïque se fige. Elle reste composée et lisible,
+     seul le défilement disparaît. */
+  @media (prefers-reduced-motion: reduce) {
+    .collection-mosaic__column {
+      animation: none;
+    }
+  }
+}

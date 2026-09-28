@@ -1,0 +1,1176 @@
+/**
+ * Checkout — tunnel de commande WooCommerce.
+ *
+ * Styles de la page checkout (form-checkout, review-order, coupon) et de la
+ * page de confirmation (thankyou). BEM + tokens maison (var(--spacing-*),
+ * var(--font-size-*) comme woo.css), mobile-first, dark mode hérité.
+ *
+ * Règles en @layer components pour rester sous les overrides de base et
+ * au-dessus des styles natifs WooCommerce non-layered.
+ *
+ * NB : le bloc paiement natif (woocommerce_checkout_payment) n'est pas restylé
+ * en profondeur ici — les plugins de passerelle (Stripe Elements, PayPal,
+ * Express Checkout) y injectent leur propre markup.
+ *
+ * Sections (remplies aux étapes suivantes) :
+ *   - .checkout            grille 1 col mobile / 2 col >= lg
+ *   - .checkout__summary   récap (sticky desktop, <details> repliable mobile)
+ *   - .checkout__coupon    accordéon coupon
+ *   - .checkout__fields    champs facturation / livraison
+ *   - .checkout__payment   bloc paiement natif (intact)
+ *   - .checkout-thankyou   page de confirmation différenciée
+ */
+
+@layer components {
+
+	/* ============================================================
+	 * Wrapper page
+	 * ============================================================ */
+	.checkout-page {
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-6);
+		padding-inline: var(--spacing-4);
+	}
+
+	/* Coupon : zone discrète au-dessus de la grille. */
+	.checkout-page .checkout__coupon {
+		max-width: 42rem;
+		margin-block-end: var(--spacing-6);
+	}
+
+	/* Login (toggle + formulaire) : pleine largeur (pas de plafond). Le rythme
+	 * vertical entre la card « Votre commande », le login et le <form> est
+	 * désormais porté par le `gap` flex de `.checkout-page` (espacement constant,
+	 * y compris quand l'utilisateur est connecté et que le login n'est pas rendu). */
+	.checkout-page > .woocommerce-form-login-toggle,
+	.checkout-page > .woocommerce-form-login {
+		width: 100%;
+		max-width: none;
+		margin-block: 0;
+	}
+
+	/* Le look « notice » du module « Déjà client ? » et des messages natifs WC
+	 * (ex. « aucun moyen de paiement disponible ») est posé HORS @layer en bas
+	 * de fichier : sur le checkout, les feuilles WC core restent chargées et
+	 * leurs règles non-layered battraient toute règle @layer ici. */
+
+	/* ============================================================
+	 * Layout — cards empilées pleine largeur (1 colonne, même ordre
+	 * mobile/desktop) : Card 1 récap → Card 2 informations → Card 3 paiement.
+	 * ============================================================ */
+	.checkout {
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-6);
+
+		/* Champs WooCommerce theme-aware : WC lit ces custom props (fallback
+		 * #fff/#000, non theme-aware). On les mappe sur les tokens DS → les
+		 * inputs .input-text/select s'adaptent CLAIR / SOMBRE sans bataille de
+		 * spécificité ni couleur codée en dur. On utilise `--color-bg` (et non
+		 * `--color-bg-elevated`) pour que les champs contrastent avec le fond de
+		 * card, lui-même en `--color-bg-elevated`.
+		 *
+		 * Ces variables alimentent aussi l'API Appearance des Stripe Elements
+		 * (Phase 5) : le plugin woocommerce-gateway-stripe (UPE, classic
+		 * checkout) NE PROPOSE AUCUN filtre PHP/JS pour passer un objet
+		 * `appearance`. À la place, il GÉNÈRE l'appearance au chargement en
+		 * lisant le `getComputedStyle` de sélecteurs réels du thème — pour la
+		 * règle `.Input` (le champ carte), il clone `#billing_first_name`. Ce
+		 * champ étant stylé par WC core via `var(--wc-form-*)`, mapper ces tokens
+		 * DS suffit à aligner les champs carte : fond/texte/bordure ET rayon
+		 * (`--wc-form-border-radius` ci-dessous). Le fond de page détecté décide
+		 * en plus du thème Stripe `stripe` (clair) / `night` (sombre) → bascule
+		 * automatique au chargement.
+		 *
+		 * LIMITES documentées (inhérentes à cette version du plugin, pas de
+		 * contournement sans patcher le plugin) :
+		 *  - `colorPrimary` (accent de focus interne à l'Element) et
+		 *    `colorDanger` ne sont PAS dérivés d'un sélecteur CSS → ils restent
+		 *    aux valeurs Stripe par défaut. Non pilotables via CSS.
+		 *  - L'appearance est FIGÉE au chargement selon le thème actif
+		 *    (data-theme / prefers-color-scheme). Le toggle CLAIR/SOMBRE à la
+		 *    volée ne re-stylise PAS l'iframe : l'Element est géré par le plugin,
+		 *    on ne le ré-initialise pas (cela casserait le moteur de paiement).
+		 *    Un rechargement applique le nouveau thème.
+		 *  - `fontFamily` est lu depuis le thème (police body) ; l'iframe Stripe
+		 *    ne charge pas les polices custom non déclarées → repli système.
+		 */
+		--wc-form-color-background: var(--color-bg);
+		--wc-form-color-text: var(--color-fg);
+		--wc-form-border-color: var(--color-border);
+		--wc-form-border-width: 1px;
+		/* Rayon DS partagé par les champs WC ET dérivé pour `.Input` côté Stripe
+		 * (lu sur `#billing_first_name`). Manquait jusqu'ici → champs carte au
+		 * rayon WC par défaut ; on les aligne sur le DS. */
+		--wc-form-border-radius: var(--radius-md);
+	}
+
+	/* Conteneur Card 2 (billing + livraison) — même rythme vertical que les
+	 * cards de premier niveau. Classe (et non `#customer_details`) pour rester
+	 * kebab-case côté lint ; l'ID natif WC reste sur l'élément. */
+	.checkout__customer {
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-6);
+	}
+
+	/* Placeholder lisible + focus visible (l'outline n'est pas posé par WC). */
+	.checkout .input-text::placeholder,
+	.checkout textarea::placeholder {
+		color: var(--color-fg-muted);
+		opacity: 1;
+	}
+
+	.checkout .input-text:focus,
+	.checkout select:focus,
+	.checkout textarea:focus {
+		outline: 2px solid var(--color-accent);
+		outline-offset: 1px;
+	}
+
+	/* ============================================================
+	 * Card — fond gris subtil, radius, padding (tokens DS)
+	 * ============================================================ */
+	.checkout__section {
+		background: var(--color-bg-elevated);
+		border-radius: var(--radius-lg);
+		padding: var(--spacing-6);
+	}
+
+	@media (min-width: 1024px) {
+		.checkout__section {
+			padding: var(--spacing-8);
+		}
+	}
+
+	.checkout__section-title {
+		font-size: var(--font-size-xl);
+		margin-block: 0 var(--spacing-4);
+	}
+
+	/* Photos produit dans le récap : jamais croppées. */
+	.woocommerce-checkout-review-order img {
+		object-fit: contain;
+		height: auto;
+	}
+
+	/* ------------------------------------------------------------------
+	 * Récap + paiement : flux vertical simple, pleine largeur. Aucune
+	 * sous-grille ; on ne touche pas au markup natif WC.
+	 * ------------------------------------------------------------------ */
+	#order_review,
+	.checkout__section--payment #payment {
+		display: block;
+		inline-size: 100%;
+	}
+
+	/* Stripe Elements + champs de paiement : jamais de débordement,
+	 * labels au-dessus des champs. */
+	.checkout__section--payment #payment .payment_box,
+	.checkout__section--payment #payment .wc_payment_method,
+	.checkout__section--payment #payment .form-row,
+	.checkout__section--payment #payment .wc-stripe-elements-field,
+	.checkout__section--payment #payment .wc-stripe-payment-request-button,
+	.checkout__section--payment #payment .StripeElement {
+		inline-size: 100%;
+		max-inline-size: 100%;
+		box-sizing: border-box;
+	}
+
+	.checkout__section--payment #payment .StripeElement iframe,
+	.checkout__section--payment #payment .wc-stripe-elements-field iframe {
+		max-inline-size: 100%;
+	}
+
+	/* ============================================================
+	 * Coupon — accordéon discret
+	 * ============================================================ */
+	.checkout__coupon-trigger {
+		appearance: none;
+		background: none;
+		border: none;
+		padding: 0;
+		color: var(--color-accent);
+		font: inherit;
+		text-decoration: underline;
+		text-underline-offset: 0.2em;
+		cursor: pointer;
+	}
+
+	.checkout__coupon-panel {
+		margin-block-start: var(--spacing-3);
+	}
+
+	.checkout__coupon-field {
+		display: flex;
+		gap: var(--spacing-3);
+		flex-wrap: wrap;
+		margin: 0;
+	}
+
+	.checkout__coupon-field .input-text {
+		flex: 1 1 12rem;
+	}
+
+	.checkout__coupon-apply {
+		flex: 0 0 auto;
+	}
+
+	/* ============================================================
+	 * Récap différencié — tableau, badges, groupes, frais de port
+	 * ============================================================ */
+	.checkout-review {
+		inline-size: 100%;
+		border-collapse: collapse;
+		font-size: var(--font-size-sm);
+	}
+
+	.checkout-review thead th {
+		text-align: start;
+		font-size: var(--font-size-xs);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--color-fg-muted);
+		padding-block-end: var(--spacing-2);
+		border-bottom: 1px solid var(--color-border);
+	}
+
+	.checkout-review thead .product-total,
+	.checkout-review tfoot td {
+		text-align: end;
+	}
+
+	.checkout-review tbody td {
+		padding-block: var(--spacing-3);
+		vertical-align: top;
+		border-bottom: 1px solid var(--color-border);
+	}
+
+	.checkout-review .product-total {
+		text-align: end;
+		white-space: nowrap;
+	}
+
+	.checkout-review .product-quantity {
+		color: var(--color-fg-muted);
+		font-weight: 400;
+	}
+
+	/* Badge nature (Abonnement / Revue). */
+	.checkout-review__badge {
+		display: inline-block;
+		margin-inline-end: var(--spacing-2);
+		padding: 0.1em 0.5em;
+		border-radius: var(--radius-pill);
+		font-family: var(--font-display);
+		font-size: var(--font-size-xs);
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		line-height: 1.4;
+		vertical-align: middle;
+	}
+
+	.checkout-review__badge--subscription {
+		background: var(--color-accent);
+		color: #1a1a1a;
+	}
+
+	.checkout-review__badge--physical {
+		background: transparent;
+		color: var(--color-fg-muted);
+		border: 1px solid var(--color-border);
+	}
+
+	/* En-tête de groupe (panier mixte) — « Produits » / « Abonnement ».
+	   font-weight: 400 explicite pour neutraliser le gras UA des <th>
+	   (Playfair plancher à 400 : la hiérarchie vient de la casse + couleur). */
+	.checkout-review__group th {
+		text-align: start;
+		padding-block: var(--spacing-3) var(--spacing-1);
+		font-size: var(--font-size-xs);
+		font-weight: 400;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--color-fg-muted);
+		border-bottom: 0;
+	}
+
+	/* Totaux. */
+	.checkout-review tfoot th {
+		text-align: start;
+		font-weight: 400;
+		padding-block: var(--spacing-2);
+	}
+
+	.checkout-review tfoot td {
+		padding-block: var(--spacing-2);
+	}
+
+	.checkout-review .order-total th,
+	.checkout-review .order-total td {
+		padding-block-start: var(--spacing-3);
+		border-top: 1px solid var(--color-border);
+		font-size: var(--font-size-base);
+		font-weight: 400;
+	}
+
+	/* Frais de port : ligne claire, jamais de reflow brutal. */
+	.checkout-review .woocommerce-shipping-totals th,
+	.checkout-review .shipping th {
+		font-weight: 400;
+	}
+
+	.checkout-review .woocommerce-shipping-totals .woocommerce-shipping-methods {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	/* ============================================================
+	 * Récap refonte — 2 blocs (commande / paiement) + récurrent
+	 * ============================================================ */
+
+	/* Titres de bloc : « Votre commande » / « Récapitulatif paiement ».
+	   Oswald en 350 : libellé de section affiné, la prominence vient de la
+	   casse + letter-spacing (pas du gras). Plafond de graisse du tableau : 400. */
+	._180c-order-review__head th,
+	._180c-order-review__pay-head th {
+		font-family: var(--font-display);
+		font-size: var(--font-size-xs);
+		font-weight: 350;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--color-fg-muted);
+		text-align: start;
+	}
+
+	/* Séparation nette entre les 2 blocs : la tête « paiement » s'ouvre sur
+	   un trait + respiration au-dessus du tfoot. */
+	._180c-order-review__pay-head th {
+		padding-block: var(--spacing-4) var(--spacing-2);
+		border-top: 2px solid var(--color-border);
+	}
+
+	/* « À payer aujourd'hui » : ligne phare. Graisse plafonnée à 400 ; la
+	   dominance vient de la taille (lg) et de la couleur accent du montant. */
+	.checkout-review ._180c-order-review__today th,
+	.checkout-review ._180c-order-review__today td {
+		padding-block: var(--spacing-2);
+		border-top: 0;
+		font-size: var(--font-size-lg);
+		font-weight: 400;
+	}
+
+	._180c-order-review__today th {
+		font-family: var(--font-display);
+	}
+
+	._180c-order-review__today td {
+		color: var(--color-accent);
+		white-space: nowrap;
+	}
+
+	/* Sous-lignes TVA : discrètes, légèrement en retrait sous le total. */
+	.checkout-review ._180c-order-review__tax th,
+	.checkout-review ._180c-order-review__tax td {
+		padding-block: 0 var(--spacing-1);
+		font-size: var(--font-size-xs);
+		color: var(--color-fg-muted);
+	}
+
+	._180c-order-review__tax th {
+		padding-inline-start: var(--spacing-3);
+	}
+
+	/* Bloc récurrent : secondaire, visuellement détaché sous le total du jour. */
+	.checkout-review ._180c-order-review__recurring th,
+	.checkout-review ._180c-order-review__recurring td {
+		padding-block-start: var(--spacing-3);
+		margin-block-start: var(--spacing-2);
+		border-top: 1px dashed var(--color-border);
+		font-size: var(--font-size-base);
+		font-weight: 400;
+		color: var(--color-fg);
+	}
+
+	._180c-order-review__recurring td {
+		white-space: nowrap;
+	}
+
+	._180c-order-review__recurring-date th {
+		padding-block: 0 var(--spacing-2);
+		font-size: var(--font-size-xs);
+		font-weight: 400;
+		font-style: italic;
+		color: var(--color-fg-muted);
+		text-align: start;
+	}
+
+	/* ============================================================
+	 * Microcopy — helper texts des champs
+	 * ============================================================ */
+	.checkout .form-row .description {
+		display: block;
+		margin-block-start: var(--spacing-1);
+		font-size: var(--font-size-xs);
+		line-height: 1.4;
+		color: var(--color-fg-muted);
+	}
+
+	/* ============================================================
+	 * Réassurance — bloc texte sous le bouton de paiement
+	 * ============================================================ */
+	.checkout__reassurance {
+		inline-size: 100%;
+		margin: var(--spacing-4) 0 0;
+		padding: 0;
+		list-style: none;
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-2);
+		font-size: var(--font-size-xs);
+		color: var(--color-fg-muted);
+	}
+
+	.checkout__reassurance-item {
+		line-height: 1.5;
+		overflow-wrap: normal;
+		word-break: normal;
+	}
+
+	.checkout__reassurance a {
+		color: var(--color-accent);
+		text-underline-offset: 0.2em;
+	}
+
+	/* ============================================================
+	 * États du bouton de paiement natif (#place_order)
+	 * ============================================================ */
+	#place_order {
+		min-block-size: 44px;
+	}
+
+	#place_order:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+
+	#place_order[aria-busy="true"] {
+		opacity: 0.7;
+		cursor: progress;
+	}
+
+	/* ============================================================
+	 * Thankyou — blocs de confirmation différenciés (abo / physique)
+	 * (le socle .checkout-thankyou* est dans woo.css)
+	 * ============================================================ */
+	.checkout-thankyou__next {
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-6);
+		margin-block-start: var(--spacing-8);
+	}
+
+	.checkout-thankyou__block {
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		padding: var(--spacing-6);
+		text-align: center;
+	}
+
+	.checkout-thankyou__block--subscription {
+		border-color: var(--color-accent);
+		background: var(--color-bg-elevated);
+	}
+
+	.checkout-thankyou__block-title {
+		font-size: var(--font-size-xl);
+		margin: 0 0 var(--spacing-2);
+	}
+
+	.checkout-thankyou__block-text {
+		color: var(--color-fg-muted);
+		margin: 0 0 var(--spacing-4);
+	}
+
+	/* La validation d'erreurs côté client (résumé + message de champ) a été
+	 * retirée : WooCommerce gère seul la validation et son affichage (évite les
+	 * messages d'erreur en double). Styles .checkout__error-summary /
+	 * .checkout__field-error supprimés en conséquence. */
+}
+
+/* ============================================================
+ * #place_order — bouton de paiement aligné sur le primaire du DS.
+ *
+ * HORS @layer volontairement : WooCommerce style `.button.alt` en règle
+ * NON-layered, qui bat toute règle layered quelle que soit la spécificité
+ * (CSS Cascade L5). Un sélecteur #id non-layered (spécificité 1,0,0) passe
+ * devant `.button.alt` (0,2,0) → on neutralise le violet WC par l'accent 180°C.
+ * Les états (:disabled / [aria-busy]) restent gérés dans @layer.
+ * ============================================================ */
+#place_order,
+#place_order.button,
+#place_order.button.alt {
+	background-color: var(--color-accent);
+	color: var(--color-on-accent);
+	border: 1px solid var(--color-accent);
+	border-radius: var(--radius-md);
+
+	/* Typo alignée sur le primaire du DS (.btn) — Oswald, pas la police WC. */
+	font-family: var(--font-display);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-semibold);
+	letter-spacing: 0.02em;
+	line-height: 1;
+}
+
+#place_order.button:hover:not(:disabled),
+#place_order.button.alt:hover:not(:disabled),
+#place_order:hover:not(:disabled) {
+	/* Assombrit légèrement l'accent — pas de couleur hardcodée. */
+	background-color: var(--color-accent);
+	filter: brightness(0.92);
+}
+
+/* ============================================================
+ * Largeur du container checkout — pleine largeur.
+ *
+ * Le checkout est rendu dans `.entry-content` (max-width 65ch ≈ 720px,
+ * non-layered) du template singular.php. On neutralise ce plafond UNIQUEMENT
+ * sur les pages checkout (body.woocommerce-checkout) pour que le tunnel occupe
+ * 100 % du container, sans toucher au `.entry-content` éditorial global. Hors
+ * @layer + sélecteur `body.…` (0,2,0) pour battre `.entry-content` (0,1,0)
+ * non-layered.
+ * ============================================================ */
+body.woocommerce-checkout .entry-content {
+	max-width: none;
+}
+
+/* ============================================================
+ * Mobile — gouttières latérales réduites (~8px).
+ *
+ * Le tunnel est imbriqué `.site-main.site-container` (var(--container-pad))
+ * › `.entry-content` (var(--container-gutter)) › `.checkout-page`
+ * (var(--spacing-4)) : les paddings s'additionnent (~48px de chaque côté sur
+ * mobile). On ne garde qu'une seule gouttière de --space-2xs portée par le
+ * `<main>`, et on annule les paddings internes. Hors @layer + préfixe `body.…`
+ * pour battre les règles non-layered de `.entry-content` (single.css) et
+ * layered de `.checkout-page` (ci-dessus).
+ * ============================================================ */
+@media (max-width: 767px) {
+	body.woocommerce-checkout main.site-container {
+		padding-inline: var(--space-2xs);
+	}
+
+	body.woocommerce-checkout .entry-content,
+	body.woocommerce-checkout .checkout-page {
+		padding-inline: 0;
+	}
+}
+
+/* Les titres de section du tunnel (h2 « Votre commande », « Vos informations »…)
+ * n'ont pas besoin du rythme éditorial : on annule la marge haute héritée de
+ * `.entry-content h2` (single.css). Même calibrage de spécificité que la règle
+ * ci-dessus (hors @layer, sélecteur `body.…`). */
+body.woocommerce-checkout .entry-content h2 {
+	margin-top: 0;
+}
+
+/* ============================================================
+ * Messages natifs WooCommerce — design system
+ *
+ * Le look « notice » DS (.woocommerce-info / -message / -error) est désormais
+ * GLOBAL : posé hors @layer dans components/woo.css (préfixe `body`, valable
+ * panier / checkout / compte / boutique…). On ne garde ici que le réglage
+ * propre au checkout.
+ * ============================================================ */
+
+/* « Aucun moyen de paiement disponible » : <li> dans la liste des moyens de
+ * paiement → on neutralise la marge de liste résiduelle. */
+.checkout-page .wc_payment_methods li.woocommerce-info {
+	margin-inline: 0;
+}
+
+/* ============================================================
+ * Formulaire de connexion checkout (.woocommerce-form-login) — design system.
+ *
+ * HORS @layer + spécificité calibrée pour battre les styles WC qui restent
+ * chargés sur le checkout :
+ *   - champs : WC core .woocommerce form .form-row .input-text (0,3,1) ;
+ *   - bouton : woo.css secondaire body .woocommerce button.button:not(.alt) (0,3,2).
+ *
+ * Pour les champs on privilégie le MAPPING des custom props WC
+ * (--wc-form-*) — c'est la règle native WC qui les lit, donc aucune bataille
+ * de spécificité sur fond/bordure/rayon/couleur (même pattern que la card
+ * .checkout et le calculateur de port dans woo.css). On ne pose des règles
+ * directes que pour le gabarit (44px), le focus et le bouton.
+ * ============================================================ */
+.checkout-page .woocommerce-form-login {
+	padding: var(--spacing-6);
+	background-color: var(--color-bg-elevated);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-lg);
+	font-family: var(--font-body);
+	font-size: var(--font-size-sm);
+	color: var(--color-fg);
+
+	/* Champs WC theme-aware : la règle native .input-text lit ces variables. */
+	--wc-form-color-background: var(--color-bg);
+	--wc-form-color-text: var(--color-fg);
+	--wc-form-border-color: var(--color-border);
+	--wc-form-border-width: 1px;
+	--wc-form-border-radius: var(--radius-md);
+}
+
+/* Rangées : neutralise les flottants WC (form-row-first/last) → empilement
+ * propre avec gap DS. */
+.checkout-page .woocommerce-form-login .form-row {
+	float: none;
+	inline-size: 100%;
+	margin: 0 0 var(--spacing-4);
+	padding: 0;
+}
+
+.checkout-page .woocommerce-form-login label {
+	display: block;
+	margin-block-end: var(--spacing-1);
+	font-size: var(--font-size-sm);
+	color: var(--color-fg);
+}
+
+/* Gabarit des champs (fond/bordure/rayon viennent des --wc-form-* ci-dessus).
+ * Spécificité (0,4,1) > WC core (0,3,1) pour le padding et le min-height. */
+body .checkout-page .woocommerce-form-login .form-row .input-text {
+	box-sizing: border-box;
+	inline-size: 100%;
+	min-block-size: 44px;
+	padding: var(--spacing-2) var(--spacing-3);
+	font-size: var(--font-size-base);
+}
+
+.checkout-page .woocommerce-form-login .input-text::placeholder {
+	color: var(--color-fg-muted);
+	opacity: 1;
+}
+
+body .checkout-page .woocommerce-form-login .form-row .input-text:focus {
+	outline: 2px solid var(--color-accent);
+	outline-offset: 1px;
+}
+
+/* « Se souvenir de moi » : alignement case + libellé. */
+.checkout-page .woocommerce-form-login .woocommerce-form-login__rememberme {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--spacing-2);
+	font-size: var(--font-size-sm);
+	color: var(--color-fg-muted);
+}
+
+/* CTA « Se connecter » : bouton primaire DS (accent). Spécificité (0,4,2) >
+ * woo.css .button:not(.alt) (0,3,2) et WC core. */
+body.woocommerce-checkout .woocommerce-form-login button.button.woocommerce-form-login__submit {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-block-size: 44px;
+	margin-block-start: var(--spacing-3);
+	padding: var(--spacing-2) var(--spacing-6);
+	background-color: var(--color-accent);
+	color: var(--color-on-accent);
+	border: 1px solid var(--color-accent);
+	border-radius: var(--radius-md);
+	font-family: var(--font-display);
+	font-weight: var(--font-weight-semibold);
+	cursor: pointer;
+	transition: filter var(--transition-fast, 0.15s ease);
+}
+
+body.woocommerce-checkout .woocommerce-form-login button.button.woocommerce-form-login__submit:hover,
+body.woocommerce-checkout .woocommerce-form-login button.button.woocommerce-form-login__submit:focus-visible {
+	background-color: var(--color-accent);
+	color: var(--color-on-accent);
+	filter: brightness(0.92);
+}
+
+/* Lien « Mot de passe oublié ? ». */
+.checkout-page .woocommerce-form-login .lost_password a {
+	color: var(--color-accent);
+	text-decoration: underline;
+	text-underline-offset: 0.2em;
+	font-size: var(--font-size-sm);
+}
+
+/* ============================================================
+ * Champs validés : neutralise la bordure verte WC core.
+ *
+ * WC core (non-layered) pose `border-color: var(--wc-green)` sur
+ * `.woocommerce form .form-row.woocommerce-validated input.input-text` (0,4,2)
+ * et `... select` (0,3,2). On reste HORS @layer (sinon WC core, non-layered,
+ * l'emporte) et on calibre la spécificité (préfixe `body`) pour repasser la
+ * bordure sur le token DS neutre.
+ * ============================================================ */
+body .woocommerce form .form-row.woocommerce-validated input.input-text,
+body .woocommerce form .form-row.woocommerce-validated select {
+	border-color: var(--color-border);
+}
+
+/* ============================================================
+ * Récap commande — graisses ≤ 400 (override WooCommerce core).
+ *
+ * WC core pose `.woocommerce table.shop_table th { font-weight: 700 }` en
+ * règle NON-layered : elle bat donc TOUTE règle @layer, quelle que soit la
+ * spécificité (la couche perd toujours face au non-layered). C'est pourquoi
+ * les graisses définies plus haut dans @layer components ne s'appliquaient
+ * pas. On repasse ici HORS @layer, avec une spécificité supérieure à WC
+ * (préfixe `body` + 3 classes de la <table> : 0,3,2 > 0,2,2), pour rétablir
+ * la hiérarchie. Plafond de graisse du tableau : 400 ; titres de section à 350.
+ * Les montants (<td><strong>) ne sont pas des <th> → inchangés.
+ * ============================================================ */
+body .woocommerce .checkout-review._180c-order-review th {
+	font-weight: 400;
+}
+
+body .woocommerce .checkout-review._180c-order-review ._180c-order-review__head th,
+body .woocommerce .checkout-review._180c-order-review ._180c-order-review__pay-head th {
+	font-weight: 350;
+}
+
+/* ============================================================
+ * Masque l'option « cadeau » (WooCommerce Subscriptions Gifting).
+ *
+ * Le plugin injecte sous chaque ligne d'abonnement un bloc
+ * `.wcsg_add_recipient_fields_container` = case à cocher + label
+ * « Je souhaite offrir cet abonnement » + champ e-mail destinataire.
+ * On masque tout le bloc sur la page commande. HORS @layer + préfixe
+ * `body` pour passer devant l'éventuel CSS (non-layered) du plugin.
+ * ============================================================ */
+body.woocommerce-checkout .wcsg_add_recipient_fields_container {
+	display: none;
+}
+
+/* ============================================================
+ * Sélecteur Pays (select2 / selectWoo) — design system.
+ *
+ * WooCommerce rehausse le <select> Pays/État en widget select2 et charge sa
+ * feuille `select2.css` (NON-layered). On habille le widget aux tokens DS
+ * (mêmes valeurs que `select.input` de forms.css), HORS @layer + préfixe
+ * `body.woocommerce-checkout` pour battre les règles select2 par défaut
+ * (`.select2-container--default …` = 0,2/3,0). Le panneau déroulant est
+ * injecté en fin de <body> (qui porte toujours la classe woocommerce-checkout)
+ * → on le stylise ici également.
+ * ============================================================ */
+
+/* Boîte fermée (single) — gabarit, bordure, chevron DS en background. */
+body.woocommerce-checkout .select2-container--default .select2-selection--single {
+	box-sizing: border-box;
+	display: flex;
+	align-items: center;
+	height: 44px;
+	padding-inline: var(--spacing-3) var(--spacing-8);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	background-color: var(--color-bg-elevated);
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236E6E6E' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right var(--spacing-3) center;
+	background-size: 16px;
+}
+
+/* Texte de l'option sélectionnée. */
+body.woocommerce-checkout .select2-container--default .select2-selection--single .select2-selection__rendered {
+	padding: 0;
+	color: var(--color-fg);
+	font-family: var(--font-body);
+	font-size: var(--font-size-base);
+	line-height: 1.4;
+}
+
+body.woocommerce-checkout .select2-container--default .select2-selection--single .select2-selection__placeholder {
+	color: var(--color-fg-muted);
+}
+
+/* Flèche native masquée (remplacée par le chevron DS en background). */
+body.woocommerce-checkout .select2-container--default .select2-selection--single .select2-selection__arrow {
+	display: none;
+}
+
+/* État focus / ouvert : bordure + outline accent (comme les inputs DS). */
+body.woocommerce-checkout .select2-container--default.select2-container--focus .select2-selection--single,
+body.woocommerce-checkout .select2-container--default.select2-container--open .select2-selection--single {
+	border-color: var(--color-accent);
+	outline: 2px solid var(--color-accent);
+	outline-offset: 1px;
+}
+
+/* Panneau déroulant. */
+body.woocommerce-checkout .select2-dropdown {
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	background-color: var(--color-bg-elevated);
+	color: var(--color-fg);
+}
+
+/* Champ de recherche dans le dropdown. */
+body.woocommerce-checkout .select2-search--dropdown .select2-search__field {
+	box-sizing: border-box;
+	min-height: 40px;
+	padding: var(--spacing-2) var(--spacing-3);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	background-color: var(--color-bg);
+	color: var(--color-fg);
+	font-family: var(--font-body);
+	font-size: var(--font-size-base);
+}
+
+body.woocommerce-checkout .select2-search--dropdown .select2-search__field:focus {
+	outline: 2px solid var(--color-accent);
+	outline-offset: 1px;
+}
+
+/* Options de la liste. */
+body.woocommerce-checkout .select2-results__option {
+	padding: var(--spacing-2) var(--spacing-3);
+	color: var(--color-fg);
+	font-family: var(--font-body);
+	font-size: var(--font-size-base);
+}
+
+/* Option survolée / parcourue au clavier → accent DS. */
+body.woocommerce-checkout .select2-container--default .select2-results__option--highlighted[aria-selected],
+body.woocommerce-checkout .select2-container--default .select2-results__option--highlighted {
+	background-color: var(--color-accent);
+	color: var(--color-on-accent);
+}
+
+/* Option déjà sélectionnée (non survolée). */
+body.woocommerce-checkout .select2-container--default .select2-results__option[aria-selected="true"]:not(.select2-results__option--highlighted) {
+	background-color: var(--color-bg);
+	color: var(--color-fg);
+}
+
+/* ============================================================
+ * Checkboxes du tunnel — design system.
+ *
+ * Habille toutes les cases natives du checkout : CGV (#terms), livraison
+ * alternative (#ship-to-different-address-checkbox), opt-in newsletter
+ * (#_180c_newsletter_optin), création de compte (#createaccount) et
+ * « Se souvenir de moi » du login. La case Stripe « Enregistrer mes
+ * informations » vit dans une iframe → hors d'atteinte (comme les champs
+ * carte), non concernée.
+ *
+ * HORS @layer volontairement : WooCommerce core pose
+ * `.input-checkbox{display:inline;margin:-2px 8px 0 0}` en règle NON-layered
+ * (spécificité 0,1,0) qui bat TOUTE règle @layer quelle que soit la
+ * spécificité (CSS Cascade L5). On reste donc hors couche, avec le préfixe
+ * `body.woocommerce-checkout .checkout-page` (≫ 0,1,0) — même pattern que le
+ * login, #place_order et select2 plus haut. Custom via `appearance: none` :
+ * case carrée aux tokens DS, coche en clip-path. Tokens theme-aware → CLAIR
+ * et SOMBRE hérités sans règle dédiée.
+ * ============================================================ */
+
+/* Label cliquable : case + libellé alignés, neutralise le line-height: 2 de
+ * WC core sur les form-row label.
+ *
+ * PAS de `gap` ici : le gap flex écarterait CHAQUE enfant inline du label, or la
+ * case CGV se termine par `…générales</span>&nbsp;<abbr class="required">*</abbr>`
+ * → l'astérisque (et le &nbsp;, item flex anonyme) seraient détachés du texte.
+ * L'écart case ↔ libellé est donc porté par une marge sur la case (ci-dessous),
+ * ce qui laisse le texte et son astérisque se suivre naturellement. */
+body.woocommerce-checkout .checkout-page label.checkbox,
+body.woocommerce-checkout .checkout-page .woocommerce-form__label-for-checkbox,
+body.woocommerce-checkout .checkout-page .woocommerce-form-login__rememberme {
+	display: flex;
+	align-items: flex-start;
+	line-height: var(--line-height-normal);
+	cursor: pointer;
+}
+
+/* La case elle-même : carré DS, fond élevé, bordure neutre, coche centrée. */
+body.woocommerce-checkout .checkout-page input[type="checkbox"] {
+	appearance: none;
+	-webkit-appearance: none;
+	flex: 0 0 auto;
+	display: inline-grid;
+	place-content: center;
+	box-sizing: border-box;
+	inline-size: 1.15rem;
+	block-size: 1.15rem;
+	/* Alignement optique avec la première ligne du libellé ; la marge de droite
+	 * remplace l'ancien `gap` du label (écart case ↔ libellé). */
+	margin: 0.15em var(--spacing-2) 0 0;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-sm);
+	background-color: var(--color-bg-elevated);
+	cursor: pointer;
+	transition:
+		border-color var(--transition-fast),
+		background-color var(--transition-fast);
+}
+
+/* Coche : tracée en clip-path, mise à l'échelle au cochage (transition douce). */
+body.woocommerce-checkout .checkout-page input[type="checkbox"]::before {
+	content: "";
+	inline-size: 0.7rem;
+	block-size: 0.7rem;
+	transform: scale(0);
+	transition: transform var(--transition-fast);
+	background-color: var(--color-on-accent);
+	clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+
+body.woocommerce-checkout .checkout-page input[type="checkbox"]:checked {
+	background-color: var(--color-accent);
+	border-color: var(--color-accent);
+}
+
+body.woocommerce-checkout .checkout-page input[type="checkbox"]:checked::before {
+	transform: scale(1);
+}
+
+body.woocommerce-checkout .checkout-page input[type="checkbox"]:focus-visible {
+	outline: 2px solid var(--color-accent);
+	outline-offset: 2px;
+}
+
+/* Cible tactile ≥ 24px : portée par le label (case + libellé cliquables),
+ * la respiration verticale vient du padding-block. */
+body.woocommerce-checkout .checkout-page label.checkbox,
+body.woocommerce-checkout .checkout-page .woocommerce-form__label-for-checkbox {
+	padding-block: var(--spacing-1);
+}
+
+/* Case CGV uniquement (`:has(#terms)`). Son libellé se termine par un astérisque
+ * obligatoire inline : `…générales</span>&nbsp;<abbr class="required">*</abbr>`.
+ * En flex, le texte et l'astérisque sont des items SÉPARÉS → dès que le libellé
+ * passe sur deux lignes, l'astérisque (item flex, aligné en haut) se retrouve à
+ * droite de la 1re ligne, détaché de « générales » (2e ligne). On sort donc
+ * cette case du flex : la case passe en position absolue et le texte redevient
+ * un flux inline normal (l'astérisque colle alors au dernier mot, quel que soit
+ * le nombre de lignes). Le padding dégage la place de la case ; `#terms` est un
+ * ID natif WooCommerce (mono-mot, kebab-valide). */
+body.woocommerce-checkout .checkout-page label.checkbox:has( input#terms ) {
+	display: block;
+	position: relative;
+	padding-inline-start: calc( 1.15rem + var(--spacing-2) );
+}
+
+body.woocommerce-checkout .checkout-page label.checkbox:has( input#terms ) input#terms {
+	position: absolute;
+	inset-inline-start: 0;
+	inset-block-start: calc( var(--spacing-1) + 0.15em );
+	margin: 0;
+}
+
+/* ============================================================
+ * Bloc paiement — accordéon design system (cohérent /abonnement/).
+ *
+ * Chaque méthode (`li.wc_payment_method` = `.checkout-payment__item`) est un
+ * item d'accordéon : en-tête cliquable (le `<label>` natif) avec radio + intitulé
+ * à gauche, logo + chevron à droite ; `.payment_box` = panneau.
+ *
+ * HORS @layer + préfixe `#payment` / `body.woocommerce-checkout` : WooCommerce
+ * core stylise `#payment ul.payment_methods …` et `#payment div.payment_box …`
+ * en règles NON-layered avec un ID (spécificité ≥ 1,1,1) — toute règle @layer y
+ * perdrait. On calibre donc la spécificité au-dessus de WC core, comme le reste
+ * de ce fichier (login, select2, checkboxes, #place_order).
+ *
+ * RÈGLE DURE : on ne pose JAMAIS `display` sur `.payment_box`. Son ouverture/
+ * fermeture reste pilotée par le JS WooCommerce (slideUp/slideDown au `change`
+ * du radio). Le thème ne fait que refléter l'état (chevron + aria-expanded).
+ * ============================================================ */
+
+/* Retrait du fond teinté violet WC core sur le conteneur `#payment`
+ * (`.woocommerce-checkout #payment { background: rgba(129,110,153,.14) }`) : le
+ * bloc paiement s'intègre à la card DS, sans pastille de fond. Le `border-radius`
+ * WC est laissé tel quel. `body.…` (1,2,0) > WC core (1,1,0). */
+body.woocommerce-checkout #payment {
+	background-color: transparent;
+}
+
+/* Liste : neutralise padding/bordure/list-style WC core, empilement en gap DS. */
+body.woocommerce-checkout #payment ul.payment_methods.checkout-payment__methods {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-3);
+	padding: 0;
+	margin: 0;
+	border: 0;
+	list-style: none;
+}
+
+/* Item = boîte bordée (accordéon). flex-wrap : radio + en-tête sur la 1re ligne,
+ * `.payment_box` rejeté en pleine largeur sur la ligne suivante (flex-basis 100%).
+ * line-height neutralisé (WC core pose `li{line-height:2}`). */
+body.woocommerce-checkout #payment ul.payment_methods li.checkout-payment__item {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	column-gap: var(--spacing-3);
+	margin: 0;
+	padding-inline: var(--spacing-4);
+	line-height: var(--line-height-normal);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	background: var(--color-bg);
+	transition:
+		border-color var(--transition-fast),
+		background-color var(--transition-fast);
+}
+
+/* État sélectionné : bordure accent seule (pas de fond — l'item reste sur le
+ * fond DS neutre). `:has(:checked)` suit le radio natif — aucune classe JS. */
+body.woocommerce-checkout #payment ul.payment_methods li.checkout-payment__item:has( input.input-radio:checked ) {
+	border-color: var(--color-accent);
+}
+
+/* Radio natif masqué visuellement (visually-hidden) — SURTOUT PAS display:none :
+ * il doit rester coché/focusable et déclencher le slide WC. Le `label[for]`
+ * (.checkout-payment__header) est le déclencheur ; la sélection est signalée par
+ * la bordure accent de l'item ci-dessus. */
+body.woocommerce-checkout #payment ul.payment_methods li.checkout-payment__item input.input-radio {
+	position: absolute;
+	inline-size: 1px;
+	block-size: 1px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+/* Focus clavier : le radio étant invisible, l'anneau de focus est porté par
+ * l'item (cible visible du déclencheur). */
+body.woocommerce-checkout #payment ul.payment_methods li.checkout-payment__item:has( input.input-radio:focus-visible ) {
+	outline: 2px solid var(--color-accent);
+	outline-offset: 2px;
+}
+
+/* En-tête cliquable : occupe le reste de la 1re ligne ; intitulé poussé à gauche,
+ * logo + chevron tassés à droite. Cible tactile ≥ 44px via padding-block. */
+body.woocommerce-checkout #payment ul.payment_methods li.checkout-payment__item .checkout-payment__header {
+	flex: 1 1 auto;
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-3);
+	min-block-size: 44px;
+	padding-block: var(--spacing-3);
+	margin: 0;
+	cursor: pointer;
+	color: var(--color-fg);
+	/* Typo portée par l'EN-TÊTE (pas seulement par .checkout-payment__title) :
+	 * sous Optimized Checkout, Stripe remplace le contenu du <label> par le seul
+	 * texte du titre (sans notre span) — le label doit donc porter lui-même la
+	 * typo DS pour que « Carte bancaire » s'aligne sur « PayPal » (Oswald). */
+	font-family: var(--font-display);
+	font-size: var(--font-size-base);
+	font-weight: var(--font-weight-medium);
+	letter-spacing: 0.01em;
+}
+
+body.woocommerce-checkout #payment ul.payment_methods li.checkout-payment__item .checkout-payment__title {
+	flex: 1 1 auto;
+	font-family: var(--font-display);
+	font-size: var(--font-size-base);
+	font-weight: var(--font-weight-medium);
+	letter-spacing: 0.01em;
+}
+
+/* Logo : monochrome theme-aware (currentColor) aligné à droite. Recolore aussi
+ * une éventuelle image de marque injectée par la passerelle (placeholder avant
+ * substitution Phase 4 par un SVG inline), en neutralisant le float WC core. */
+body.woocommerce-checkout #payment ul.payment_methods li.checkout-payment__item .checkout-payment__logo {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	gap: var(--spacing-2);
+	color: var(--color-fg);
+}
+
+body.woocommerce-checkout #payment ul.payment_methods li.checkout-payment__item .checkout-payment__logo svg {
+	display: block;
+	block-size: 1.5rem;
+	inline-size: auto;
+	fill: currentColor;
+}
+
+body.woocommerce-checkout #payment ul.payment_methods li.checkout-payment__item .checkout-payment__logo img {
+	float: none;
+	margin: 0;
+	max-block-size: 1.5rem;
+	inline-size: auto;
+}
+
+/* Logos Stripe (carte) : Visa + Mastercard + American Express, rendus dans le
+ * vrai span `.checkout-payment__logo` (via get_icon, voir inc/checkout.php). Plus
+ * de hack `::after` : l'Optimized Checkout étant désactivé, Stripe ne réécrit
+ * plus notre <label> → notre markup (titre + logos + chevron) survit. Le SVG
+ * AMEX est un wordmark large (viewBox 780×500) ; on plafonne donc sa largeur
+ * pour qu'il ne domine pas Visa/Mastercard à côté. */
+body.woocommerce-checkout #payment ul.payment_methods li.checkout-payment__item .checkout-payment__logo svg[role="img"]:last-child {
+	max-inline-size: 3.25rem;
+}
+
+/* Chevron masqué (demande UI). Le radio reste le contrôle réel et WC pilote
+ * toujours l'ouverture du panneau ; on retire seulement l'affordance visuelle. */
+body.woocommerce-checkout #payment ul.payment_methods li.checkout-payment__item .checkout-payment__chevron {
+	display: none;
+}
+
+/* Panneau : full-bleed dans l'item (rejet ligne suivante), fond/triangle WC core
+ * neutralisés. On ne touche PAS à `display` (WC seul). */
+body.woocommerce-checkout #payment ul.payment_methods li.checkout-payment__item div.payment_box.checkout-payment__box {
+	flex: 1 1 100%;
+	box-sizing: border-box;
+	margin: 0 calc(-1 * var(--spacing-4));
+	padding: var(--spacing-3) var(--spacing-4) var(--spacing-4);
+	border-radius: 0;
+	background: transparent;
+	color: var(--color-fg);
+	font-size: var(--font-size-sm);
+	line-height: 1.5;
+	box-shadow: none;
+}
+
+/* Supprime le triangle (::before) que WC core dessine au-dessus du payment_box. */
+body.woocommerce-checkout #payment ul.payment_methods li.checkout-payment__item div.payment_box.checkout-payment__box::before {
+	display: none;
+}
+
+/* Neutralise les bordures violettes WC core sur les champs internes au box
+ * (ex. PayPal) → tokens DS. Les champs carte Stripe vivent dans une iframe,
+ * stylés via l'API Appearance (Phase 5), hors d'atteinte de cette règle. */
+body.woocommerce-checkout #payment ul.payment_methods li.checkout-payment__item div.payment_box.checkout-payment__box input.input-text,
+body.woocommerce-checkout #payment ul.payment_methods li.checkout-payment__item div.payment_box.checkout-payment__box textarea {
+	border-color: var(--color-border);
+}
+
+/* ============================================================
+ * Stripe Elements — intégration du champ carte (Phase 5 / point 7).
+ *
+ * L'UPE lit `#billing_first_name` pour générer la règle `.Input` (le champ
+ * carte). Si ce champ ressort avec un fond NON opaque au moment du clone,
+ * Stripe retombe sur le fond de son thème `night` par défaut (#30313d, bleu
+ * ardoise) → le champ carte apparaît bleu foncé, désaccordé de la page.
+ *
+ * On épingle donc explicitement un fond DS OPAQUE (+ bordure) sur ce champ
+ * source, avec une spécificité ID qui bat WC core : le champ carte Stripe prend
+ * alors le même fond / la même bordure / le même rayon (Phase 5) que les inputs
+ * de la page → rendu « label / input » intégré. `colorBackground` (conteneur de
+ * l'Element) reste lu sur le fond de page (dernier `backgroundSelector` opaque).
+ *
+ * LIMITES (déjà documentées, cf. bloc .checkout) : figé au chargement (toggle
+ * clair/sombre = reload) ; `colorPrimary` (focus interne) / `colorDanger` non
+ * dérivés → défauts Stripe ; le header interne `p-AccordionButton` du Payment
+ * Element n'est pas atteignable (iframe cross-origin) ni filtrable proprement
+ * (réglage admin Stripe : limiter les méthodes UPE à la carte).
+ * ============================================================ */
+/* stylelint-disable-next-line selector-id-pattern -- ID natif WooCommerce (champ source lu par Stripe). */
+body.woocommerce-checkout form.checkout #billing_first_name {
+	background-color: var(--color-bg);
+	border-color: var(--color-border);
+}

@@ -1,0 +1,47 @@
+/**
+ * @font-face — fonts variables 180°C.
+ *
+ * Les fichiers sont stockés dans src/fonts/ et leurs URL sont résolues par
+ * Vite au build : le bundler les copie dans dist/assets/[name]-[hash].[ext] et
+ * réécrit ces déclarations pour pointer vers les fichiers hashés.
+ *
+ * Variable fonts → font-weight range (200..700, 400..900). Le navigateur
+ * interpole les graisses intermédiaires. WOFF2 est servi en premier (~40-65 %
+ * plus léger que le .ttf), avec fallback "truetype" pour les rares navigateurs
+ * sans support WOFF2. Le preload (inc/enqueue.php) cible automatiquement le
+ * WOFF2 quand il est présent dans dist/assets.
+ *
+ * font-display: swap → utilise le fallback système immédiatement et permute
+ * vers la font custom une fois chargée. Évite le FOIT (texte invisible).
+ *
+ * NOTE : ce fichier doit être importé EN PREMIER dans main.css, avant
+ * Tailwind et les composants, pour que les @font-face soient enregistrés
+ * tôt dans la cascade.
+ */
+
+@font-face {
+  font-family: "Oswald";
+  src: url("../fonts/Oswald-VariableFont_wght.woff2") format("woff2"),
+       url("../fonts/Oswald-VariableFont_wght.ttf") format("truetype");
+  font-weight: 200 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Playfair Display";
+  src: url("../fonts/PlayfairDisplay-VariableFont_wght.woff2") format("woff2"),
+       url("../fonts/PlayfairDisplay-VariableFont_wght.ttf") format("truetype");
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Playfair Display";
+  src: url("../fonts/PlayfairDisplay-Italic-VariableFont_wght.woff2") format("woff2"),
+       url("../fonts/PlayfairDisplay-Italic-VariableFont_wght.ttf") format("truetype");
+  font-weight: 400 900;
+  font-style: italic;
+  font-display: swap;
+}

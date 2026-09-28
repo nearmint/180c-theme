@@ -1,0 +1,74 @@
+/*
+ * Home module — recipes_rail
+ *
+ * Variant of articles_rail for the `recipe` CPT. Reuses the shared
+ * .rail-180c grid/scroll-snap and the .card-180c base. Adds only
+ * the recipe-specific variant overrides:
+ *   - taller portrait media (4:5)
+ *   - meta block (time + difficulty pill)
+ */
+
+@layer components {
+  /* Pas de padding-block ici : le rythme vertical inter-modules est porté
+   * une seule fois par le gap de `.home-modules` (cf. _base.css). recipes_rail
+   * n'a pas de surface/fond → ajouter du padding-block dupliquait le gap. */
+
+  .card-180c--recipe .card-180c__media {
+    aspect-ratio: 4 / 5;
+  }
+
+  .card-180c--recipe .card-180c__title {
+    font-family: var(--font-body);
+    font-size: var(--text-lg);
+  }
+
+  .card-180c__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-block-start: var(--space-2xs);
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    letter-spacing: 0.04em;
+    color: var(--color-fg-muted);
+  }
+
+  .card-180c__time {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3xs);
+  }
+
+  .card-180c__time svg {
+    flex: 0 0 auto;
+    color: var(--color-fg-muted);
+  }
+
+  .card-180c__difficulty {
+    display: inline-block;
+    padding-inline: var(--space-xs);
+    padding-block: 2px;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-bg-elevated);
+    color: var(--color-fg);
+    font-weight: var(--font-weight-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .card-180c__difficulty--facile {
+    background-color: color-mix(in srgb, var(--color-success) 18%, transparent);
+    color: var(--color-success);
+  }
+
+  .card-180c__difficulty--moyen {
+    background-color: color-mix(in srgb, var(--color-warning) 18%, transparent);
+    color: var(--color-warning);
+  }
+
+  .card-180c__difficulty--difficile {
+    background-color: color-mix(in srgb, var(--color-danger) 18%, transparent);
+    color: var(--color-danger);
+  }
+}

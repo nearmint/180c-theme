@@ -1,0 +1,212 @@
+<?xml version="1.0"?>
+<ruleset name="180c-theme">
+    <description>WordPress Coding Standards for 180c-theme</description>
+
+    <file>./inc</file>
+    <!--
+        Pas de ./bin : l'outillage one-shot a été supprimé par f90ea89.
+        PHPCS s'arrête en erreur (exit 3) dès qu'un <file> pointe sur un chemin
+        absent — le lint ne scanne alors AUCUN fichier. Même défaut que ./templates,
+        déjà corrigé par a2c70bc : ne réintroduire un <file> que s'il existe.
+    -->
+    <file>./mu-plugins</file>
+    <file>./parts</file>
+    <file>./functions.php</file>
+    <file>./index.php</file>
+    <file>./singular.php</file>
+    <file>./single-recipe.php</file>
+    <file>./archive-recipe.php</file>
+    <file>./front-page.php</file>
+    <file>./404.php</file>
+    <file>./search.php</file>
+    <file>./header.php</file>
+    <file>./footer.php</file>
+    <!-- Templates racine — couverture élargie (audit C3 / CH-08). -->
+    <file>./single.php</file>
+    <file>./archive.php</file>
+    <file>./author.php</file>
+    <file>./attachment.php</file>
+    <file>./woocommerce.php</file>
+    <file>./page-abonnement.php</file>
+    <file>./page-aide.php</file>
+    <file>./page-contact.php</file>
+    <file>./page-newsletter.php</file>
+    <file>./template-about.php</file>
+    <file>./template-design-system.php</file>
+    <file>./template-home.php</file>
+    <file>./template-mon-carnet.php</file>
+
+    <exclude-pattern>*/dist/*</exclude-pattern>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <!-- Bibliothèque tierce vendored : ne pas reformater (Parsedown). -->
+    <exclude-pattern>*/inc/lib/*</exclude-pattern>
+    <exclude-pattern>*/acf-json/*</exclude-pattern>
+    <exclude-pattern>*/languages/*</exclude-pattern>
+
+    <arg value="sp"/>
+    <arg name="basepath" value="."/>
+    <arg name="parallel" value="8"/>
+    <arg name="extensions" value="php"/>
+
+    <rule ref="WordPress-Core"/>
+    <rule ref="WordPress-Docs"/>
+    <rule ref="WordPress-Extra"/>
+
+    <!--
+        Nommage : la convention du projet fait foi (CLAUDE.md § Conventions).
+        Fonctions et constantes en _180c_ / _180C_, hooks custom dans l'espace
+        « 180c/ » (ex. do_action('180c/favorite_added', ...)). WPCS sanctionnait
+        les deux formes ; on lui décrit la convention au lieu de renommer
+        121 occurrences pour satisfaire un outil.
+    -->
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+        <properties>
+            <property name="prefixes" type="array">
+                <element value="_180c"/>
+                <element value="_180C"/>
+                <!-- Namespace des hooks. Voir la neutralisation ci-dessous. -->
+                <element value="180c"/>
+            </property>
+        </properties>
+    </rule>
+
+    <!--
+        « 180c » commence par un chiffre : PHP l'interdit comme préfixe de
+        fonction ou de constante, et WPCS le refuse à ce titre (8 x
+        InvalidPrefixPassed). Mais un nom de hook est une chaîne, pas un
+        identifiant : la contrainte ne s'y applique pas, et WPCS accepte de
+        s'en servir pour les hooks une fois l'objection écartée.
+        On neutralise donc sa protestation, sans toucher aux préfixes
+        _180c / _180C qui, eux, restent vérifiés normalement.
+    -->
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals.InvalidPrefixPassed">
+        <severity>0</severity>
+    </rule>
+
+    <!-- « / » est un séparateur de mots légitime : c'est le namespace des hooks. -->
+    <rule ref="WordPress.NamingConventions.ValidHookName">
+        <properties>
+            <property name="additionalWordDelimiters" value="/"/>
+        </properties>
+    </rule>
+
+    <!--
+        NonPrefixedVariableFound sur les TEMPLATES uniquement (675 occurrences,
+        soit deux tiers du bruit total).
+
+        Le sniff protège l'espace global : une variable posée à la racine d'un
+        fichier PHP peut écraser celle d'un autre. Dans un template WordPress,
+        elle n'a pas cette portée — get_template_part() et render_callback
+        incluent le fichier dans une fonction, $ingredients y est une locale.
+        Préfixer $_180c_ingredients dans du markup rendrait les templates
+        illisibles pour se prémunir d'un risque qui n'existe pas là.
+
+        Exclusion du SEUL code d'erreur, et sur les seuls chemins de templates :
+        le sniff continue de couvrir inc/ (services, REST, hooks), où le risque
+        est réel.
+
+        search.php et author.php sont volontairement absents de la liste : leurs
+        homonymes inc/search.php et inc/author.php seraient exclus du même coup
+        (les motifs matchent le nom de fichier, pas la racine). Ils n'ont aucune
+        occurrence aujourd'hui ; le jour où l'un en aura, ce sera une décision
+        prise, pas un masquage hérité.
+    -->
+    <!-- Fichiers `*.asset.php` des blocs : le nom est IMPOSÉ par le cœur, qui
+         cherche `<nom-du-script>.asset.php` à côté du script pour en lire les
+         dépendances. Le renommer en `index-asset.php` comme l'exige le sniff
+         couperait le mécanisme : le script serait enregistré sans dépendance et
+         s'exécuterait avant `wp.blocks`, donc le bloc ne s'enregistrerait
+         jamais côté éditeur. -->
+    <rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
+        <exclude-pattern>*/inc/blocks/*/*.asset.php</exclude-pattern>
+    </rule>
+
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound">
+        <exclude-pattern>*/parts/*</exclude-pattern>
+        <exclude-pattern>*/inc/blocks/*/render.php</exclude-pattern>
+        <!--
+            Pas de */inc/auth/views/* : ces vues sont renvoyées par le filtre
+            template_include (inc/auth/password-reset.php:48) et WordPress les
+            inclut au niveau global (wp-blog-header.php:19 puis
+            template-loader.php:132). Leurs variables SONT des globales — le
+            sniff a raison. L'exclusion posée en 2fe8a00 les rangeait avec les
+            templates à portée fonction : prémisse fausse, corrigée ici.
+        -->
+        <!-- Templates racine (hors search.php / author.php, cf. ci-dessus). -->
+        <exclude-pattern>*/404.php</exclude-pattern>
+        <exclude-pattern>*/archive.php</exclude-pattern>
+        <exclude-pattern>*/archive-recipe.php</exclude-pattern>
+        <exclude-pattern>*/attachment.php</exclude-pattern>
+        <exclude-pattern>*/footer.php</exclude-pattern>
+        <exclude-pattern>*/front-page.php</exclude-pattern>
+        <exclude-pattern>*/header.php</exclude-pattern>
+        <exclude-pattern>*/index.php</exclude-pattern>
+        <exclude-pattern>*/page-abonnement.php</exclude-pattern>
+        <exclude-pattern>*/page-aide.php</exclude-pattern>
+        <exclude-pattern>*/page-contact.php</exclude-pattern>
+        <exclude-pattern>*/page-newsletter.php</exclude-pattern>
+        <exclude-pattern>*/single.php</exclude-pattern>
+        <exclude-pattern>*/single-recipe.php</exclude-pattern>
+        <exclude-pattern>*/singular.php</exclude-pattern>
+        <exclude-pattern>*/template-about.php</exclude-pattern>
+        <exclude-pattern>*/template-design-system.php</exclude-pattern>
+        <exclude-pattern>*/template-home.php</exclude-pattern>
+        <exclude-pattern>*/template-mon-carnet.php</exclude-pattern>
+        <exclude-pattern>*/woocommerce.php</exclude-pattern>
+    </rule>
+
+    <!--
+        GlobalVariablesOverride sur les templates à PORTÉE FONCTION uniquement.
+
+        Le sniff a raison sur le fond : écrire $post au niveau global écrase la
+        globale de WordPress. Encore faut-il que le fichier s'exécute en portée
+        globale. Trois mécanismes cohabitent ici, vérifiés dans le core :
+
+        1. get_template_part() -> load_template() -> le fichier est inclus DANS
+           une fonction (wp-includes/template.php). Les variables y sont des
+           locales... SAUF les onze que load_template globalise explicitement :
+           $posts, $post, $wp_did_header, $wp_query, $wp_rewrite, $wpdb,
+           $wp_version, $wp, $id, $comment, $user_ID (template.php:783).
+        2. block.json « render » -> le core inclut render.php dans une closure
+           sans aucun global (wp-includes/blocks.php:569-571). Portée fonction
+           pure, sans exception.
+        3. template_include -> include au niveau global (wp-blog-header.php:19
+           puis template-loader.php:132). VRAIE portée globale : les templates
+           racine et les vues renvoyées par ce filtre ne sont PAS exclus.
+
+        parts/account/favoris.php est délibérément absent de la liste : il assigne
+        $post, l'une des onze. L'écrasement y est réel — après ce partial, la
+        globale $post pointe sur la dernière recette favorite et non sur le
+        contenu de la requête, sans wp_reset_postdata(). C'est un vrai défaut,
+        pas un faux positif : il reste visible et part en lot de code.
+    -->
+    <rule ref="WordPress.WP.GlobalVariablesOverride.Prohibited">
+        <!-- Portée fonction pure (closure du core, aucun global). -->
+        <exclude-pattern>*/inc/blocks/*/render.php</exclude-pattern>
+        <!-- Portée fonction via load_template ; aucune des onze globalisées. -->
+        <exclude-pattern>*/parts/modules/*</exclude-pattern>
+        <exclude-pattern>*/parts/auth/*</exclude-pattern>
+        <exclude-pattern>*/parts/header/*</exclude-pattern>
+        <exclude-pattern>*/parts/article-card.php</exclude-pattern>
+        <exclude-pattern>*/parts/article-paywall.php</exclude-pattern>
+        <!-- parts/account/ fichier par fichier : favoris.php doit rester couvert. -->
+        <exclude-pattern>*/parts/account/abonnement.php</exclude-pattern>
+        <exclude-pattern>*/parts/account/commandes.php</exclude-pattern>
+        <exclude-pattern>*/parts/account/dashboard.php</exclude-pattern>
+        <exclude-pattern>*/parts/account/factures.php</exclude-pattern>
+        <exclude-pattern>*/parts/account/sidebar.php</exclude-pattern>
+    </rule>
+
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array">
+                <element value="180c"/>
+            </property>
+        </properties>
+    </rule>
+
+    <config name="testVersion" value="8.3-"/>
+    <rule ref="PHPCompatibility"/>
+    <rule ref="PHPCompatibilityWP"/>
+</ruleset>

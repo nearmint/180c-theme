@@ -1,0 +1,1629 @@
+/**
+ * Mon Compte — page single-page (sidebar 4 cards + 6 sections ancrées).
+ *
+ * BEM strict :
+ *   .my-account
+ *     .my-account__sidebar
+ *       .my-account__mobile-trigger
+ *       .my-account-card--profile / --nav / --support / --logout
+ *       .my-account__mobile-panels (wrap nav + support + logout, replié en mobile)
+ *     .my-account__content
+ *       .my-account-section (6 fois, dont une --critical pour #gerer)
+ *
+ * Light / dark : tout via tokens --color-* qui basculent en amont (main.css).
+ * Une seule couleur hardcodée : le foreground du badge "Abonné" (#1a1a1a)
+ * pour garantir le contraste WCAG AA sur fond accent en dark mode — cf
+ * --my-account-badge-fg, scope local au composant.
+ */
+
+/* ============================================================
+ * Override .entry-content sur les pages WC My Account.
+ *
+ * Le thème impose .entry-content { max-width: 65ch } unlayered dans
+ * main.css:197 (texte editorial long). Sur /mon-compte/ ça écrase la
+ * sidebar et le content en colonne ultra-étroite.
+ *
+ * Cet override est volontairement UNLAYERED (hors @layer components) avec
+ * spécificité 0-2-1 via body.woocommerce-account pour battre la règle
+ * source sans !important, et reste scope strict à la classe WC pour
+ * éviter toute fuite sur articles / recettes / autres singles.
+ *
+ * `main.site-container` (main.css) porte DÉJÀ max-width + padding-inline ;
+ * ré-appliquer ici créait un double inset latéral qui bridait le contenu
+ * compte. On neutralise donc max-width / padding-inline (tout en battant
+ * toujours le `.entry-content { max-width: 65ch }` éditorial) pour que le
+ * contenu occupe 100 % de la largeur du conteneur global.
+ * ============================================================ */
+body.woocommerce-account .entry-content,
+body.woocommerce-account article > .entry-content {
+  max-width: none;
+  width: 100%;
+  margin-inline: 0;
+  padding-inline: 0;
+}
+
+/* ============================================================
+ * Hide WP page title on /mon-compte/ — visually only.
+ *
+ * Le titre de page ("Mon compte") est deplace dans la card profil
+ * sidebar via .my-account-card__eyebrow. On masque le rendu visuel
+ * mais on conserve le markup pour SEO + a11y (lecteur d'ecran).
+ * Pattern .sr-only standard (cf main.css), scope strict aux pages
+ * WC My Account via body.woocommerce-account.
+ * ============================================================ */
+body.woocommerce-account .entry-header,
+body.woocommerce-account .entry-title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================================
+ * Surcharges UNLAYERED des endpoints WC (edit-account, payment-methods,
+ * edit-address).
+ *
+ * Ces éléments entrent en collision avec des règles NON-layered que
+ * `@layer components` ne peut pas battre (un layer perd toujours face au
+ * non-layered, quelle que soit la spécificité) :
+ *   - WooCommerce core : largeur `.MyAccount-content` (width:68%), fond gris
+ *     des boutons `.woocommerce .button` ;
+ *   - règle éditoriale `.entry-content a` (couleur accent + underline).
+ * On sort donc du layer et on monte la spécificité (scope
+ * body.woocommerce-account [+ .my-account-section]) pour gagner proprement
+ * sans !important, en restant strictement borné aux pages compte.
+ * ============================================================ */
+
+/* Contenu pleine largeur : bat le width:68% de WooCommerce core. */
+body.woocommerce-account .woocommerce-MyAccount-content {
+  width: 100%;
+  float: none;
+}
+
+/* Lien retour : sans underline ni uppercase, couleur muette → accent au
+   survol. Bat `.entry-content a` (couleur + décoration). */
+body.woocommerce-account .account-back-link {
+  color: var(--color-fg-muted);
+  text-decoration: none;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+body.woocommerce-account .account-back-link:hover,
+body.woocommerce-account .account-back-link:focus-visible {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+/* Liens sidebar/services compte : couleur fg par défaut (blanc en dark) au
+   lieu du jaune accent. La règle éditoriale `.entry-content a` (non-layered,
+   couleur accent) l'emportait sur le défaut layered de `.my-account-card__link` ;
+   on repasse hors layer avec une spécificité supérieure pour gagner proprement.
+   Accent conservé au survol et à l'état actif (intention design). */
+body.woocommerce-account .my-account-card__link {
+  color: var(--color-fg);
+}
+
+body.woocommerce-account .my-account-card__link:hover,
+body.woocommerce-account .my-account-card__link:focus-visible {
+  color: var(--color-accent);
+}
+
+body.woocommerce-account .my-account-card--nav .my-account-card__link.is-active,
+body.woocommerce-account .my-account-card--nav .my-account-card__link[aria-current="true"] {
+  color: var(--color-accent);
+}
+
+/* Bouton primaire (« Enregistrer », « Ajouter un moyen de paiement ») :
+   jaune accent + texte sombre lisible, sans uppercase.
+
+   Conflit CSS résolu ici : le bouton WC porte la classe `.button` SANS `.alt`,
+   donc la règle secondaire de woo.css
+   `body .woocommerce button.button:not(.alt)` (hors layer, spécificité 0-3-2)
+   lui imposait un fond gris élevé, et battait notre ancienne règle (0-3-1).
+   On qualifie le sélecteur par `.button` pour monter à (0-4-1) > (0-3-2),
+   et `:hover/:focus` à (0-5-1) > la variante hover de woo.css (0-4-2). */
+body.woocommerce-account .my-account-section .my-account-actions__btn--primary,
+body.woocommerce-account .my-account-section .button.my-account-actions__btn--primary,
+body.woocommerce-account ._180c-account-alert .my-account-actions__btn--primary,
+body.woocommerce-account ._180c-account-alert .button.my-account-actions__btn--primary {
+  background-color: var(--color-accent);
+  border: 1px solid var(--color-accent);
+  color: var(--my-account-on-accent, #1a1a1a);
+  /* Typographie DS : WC core impose, hors layer, `font-weight:700` + un
+     border-radius/padding à lui (sélecteur `:where(...) .woocommerce button.button`,
+     0-2-1) et laisse hériter la police body (serif). On réapplique donc ici la
+     chrome DS — Oswald, semibold, casse normale, radius/letter-spacing tokens —
+     pour que le bouton « Enregistrer » respecte le design system. */
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: none;
+  /* Texte toujours noir et JAMAIS souligné : bat la règle éditoriale non
+     layered `.entry-content a` (accent + underline) qui s'applique sinon aux
+     boutons rendus en <a> (Se réabonner, paiement), notamment dans l'alerte
+     hors `.my-account-section`. */
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+}
+
+body.woocommerce-account .my-account-section .my-account-actions__btn--primary:hover,
+body.woocommerce-account .my-account-section .my-account-actions__btn--primary:focus-visible,
+body.woocommerce-account .my-account-section .button.my-account-actions__btn--primary:hover,
+body.woocommerce-account .my-account-section .button.my-account-actions__btn--primary:focus-visible,
+body.woocommerce-account ._180c-account-alert .my-account-actions__btn--primary:hover,
+body.woocommerce-account ._180c-account-alert .my-account-actions__btn--primary:focus-visible,
+body.woocommerce-account ._180c-account-alert .button.my-account-actions__btn--primary:hover,
+body.woocommerce-account ._180c-account-alert .button.my-account-actions__btn--primary:focus-visible {
+  background-color: color-mix(in srgb, var(--color-accent) 88%, #000);
+  border-color: color-mix(in srgb, var(--color-accent) 88%, #000);
+  color: var(--my-account-on-accent, #1a1a1a);
+  text-decoration: none;
+  filter: none;
+}
+
+/* Ligne pause/réactivation du bloc #gerer : phrase Oswald à gauche + lien accent
+   aligné à droite. Hors layer + body.woocommerce-account pour battre la règle
+   éditoriale non-layered `.entry-content a` (couleur accent + underline). */
+body.woocommerce-account .my-account-pause-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-sm) var(--space-md);
+  margin-top: var(--space-md);
+}
+
+body.woocommerce-account .my-account-pause-row__text {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  color: var(--color-fg);
+}
+
+body.woocommerce-account .my-account-pause-row__link {
+  margin-left: auto;
+  color: var(--color-accent);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+body.woocommerce-account .my-account-pause-row__link:hover,
+body.woocommerce-account .my-account-pause-row__link:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Liens « Modifier » des champs (#informations) : la règle éditoriale
+   `.entry-content a` (accent + underline) battait `.my-account-field__action`
+   (layered) → liens soulignés au mauvais accent. Override hors layer pour
+   rétablir la couleur accent-text et retirer le soulignement. */
+body.woocommerce-account .my-account-field__action {
+  color: var(--color-accent-text);
+  text-decoration: none;
+}
+
+body.woocommerce-account .my-account-field__action:hover,
+body.woocommerce-account .my-account-field__action:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Liens du bloc « Nous contacter » (#nous-contacter) : même piège que
+   `.my-account-field__action` ci-dessus. `.entry-content a` (unlayered,
+   `color: var(--color-accent)`) bat la règle layered du composant — le lien
+   sortait donc en #FFAE3A, soit 1,77:1 sur le fond clair, très en dessous du
+   seuil AA. Vérifié au CSSOM : c'est bien `.entry-content a` qui gagnait.
+   Override hors layer pour rétablir `--color-accent-text`, ocre en clair
+   (5,93:1) et jaune en sombre (10,45:1). Le `text-decoration` doit être ici
+   lui aussi : `.entry-content a` impose `underline` avec la même spécificité
+   supérieure. */
+body.woocommerce-account .my-account-contact__link {
+  color: var(--color-accent-text);
+  text-decoration: none;
+}
+
+/* Le soulignement revient au survol et au focus — c'est ce que fait déjà
+   `.my-account-field__action`, et c'est ce qui garde l'affordance du lien une
+   fois le trait retiré au repos. Hors layer comme la règle ci-dessus : sinon
+   `.entry-content a:hover` (0-2-1) reprendrait la main. */
+body.woocommerce-account .my-account-contact__link:hover,
+body.woocommerce-account .my-account-contact__link:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Retrait de liste. `.entry-content ul` (single.css, `padding-left:
+   var(--spacing-6)`) est plus spécifique que `.my-account-contact` — 0-1-1
+   contre 0-1-0, dans le même layer — et décalait donc la liste de 24px vers la
+   droite : mesuré au navigateur, le texte des lignes commençait à 475px quand
+   le titre « Nous contacter » commençait à 451px. Override hors layer pour
+   réaligner le contenu sur le titre, comme les autres modules du tableau de
+   bord. */
+body.woocommerce-account .my-account-contact {
+  padding-inline-start: 0;
+  margin-inline-start: 0;
+}
+
+/* Liens de sortie (« Se désabonner », « Supprimer mon compte ») — hors module
+   #gerer. Deux gestes de même nature, donc même classe : le conteneur ne sert
+   qu'à les séparer proprement quand les deux sont présents. */
+body.woocommerce-account .my-account-exit-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+}
+
+/* Lien « Se désabonner » — hors module #gerer, pleine teinte (blanc en mode
+   sombre), non souligné. Hors layer + spécificité body pour battre
+   `.entry-content a`. */
+body.woocommerce-account .my-account-unsub-link {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--color-fg);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+
+body.woocommerce-account .my-account-unsub-link:hover,
+body.woocommerce-account .my-account-unsub-link:focus-visible {
+  color: var(--color-accent);
+}
+
+/* Champs natifs WooCommerce (inputs / select / textarea).
+ * La règle WC core `.woocommerce form .form-row .input-text` (0-3-1) bat nos
+ * styles ; plutôt que de surenchérir en spécificité, on ALIMENTE les variables
+ * que cette règle consomme déjà (--wc-form-*). Un seul point d'entrée règle
+ * le fond/texte/bordure de TOUS les champs WC, en clair comme en sombre,
+ * sans !important ni lutte de cascade. */
+body.woocommerce-account {
+  --wc-form-color-background: var(--color-bg-elevated);
+  --wc-form-color-text: var(--color-fg);
+  --wc-form-border-color: var(--color-border);
+  --wc-form-border-width: 1px;
+  --wc-form-border-radius: var(--radius-md);
+}
+
+/* État focus : les variables ci-dessus ne couvrent pas le :focus. Spécificité
+   0-4-1 pour battre la bordure WC core (0-3-1). */
+body.woocommerce-account .my-account-form .input-text:focus,
+body.woocommerce-account .my-account-form select:focus,
+body.woocommerce-account .my-account-form textarea:focus {
+  outline: 0;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 25%, transparent);
+}
+
+/* Champ « Nom affiché » (edit-account) masqué à la demande : la ligne est
+   retirée visuellement tout en restant soumise (cf. commentaire du template).
+   Hors layer + scope body pour battre l'affichage natif WC de la .form-row. */
+body.woocommerce-account .my-account-form .my-account-form__row--hidden {
+  display: none;
+}
+
+/* Icônes natives des champs (autofill « contacts » du champ e-mail, etc.) en
+   blanc (mode sombre).
+
+   Cause racine : la page ne déclare JAMAIS `color-scheme` (seules des
+   media-queries `prefers-color-scheme` repeignent les tokens). Le navigateur
+   suppose donc un thème clair et dessine en NOIR les contrôles natifs qu'il
+   pose dans les inputs — invisibles sur le fond sombre du formulaire.
+
+   Correctif canonique : déclarer `color-scheme: dark` sur les inputs dès que le
+   thème est sombre (auto via prefers-color-scheme, ou forcé via
+   [data-theme="dark"]). Le navigateur rend alors ces icônes en clair (blanc).
+   En thème clair, aucune déclaration → rendu clair natif (icônes sombres
+   lisibles), donc rien à réinitialiser. (L'œil afficher/masquer le mot de passe
+   est, lui, traité plus bas : ce n'est pas un contrôle natif mais une
+   background-image WC.) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) body.woocommerce-account .my-account-form input {
+    color-scheme: dark;
+  }
+}
+
+[data-theme="dark"] body.woocommerce-account .my-account-form input {
+  color-scheme: dark;
+}
+
+/* Icône œil « afficher / masquer le mot de passe » (toggle WC) en blanc.
+   WooCommerce injecte cette icône (.show-password-input::before) sous forme de
+   background-image SVG au fill figé #111111 — donc NON pilotable par `color` et
+   quasi invisible sur le formulaire sombre. On l'éclaircit via un filtre
+   (brightness(0) invert(1) = blanc pur), uniquement en thème sombre ; en thème
+   clair le SVG sombre natif reste lisible. Spécificité 0-3-2 (hors layer) >
+   la règle WC `.woocommerce-page form .show-password-input::before` (0-2-2).
+   Couvre les deux états (œil ouvert `.display-password` et fermé). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) body.woocommerce-account .my-account-form .show-password-input::before {
+    filter: brightness(0) invert(1);
+  }
+}
+
+[data-theme="dark"] body.woocommerce-account .my-account-form .show-password-input::before {
+  filter: brightness(0) invert(1);
+}
+
+/* Module WC Subscriptions « Mettre à jour l'adresse … pour tous les
+   renouvellements futurs de mes abonnements actifs » (edit-address) masqué à la
+   demande. La case reste dans le DOM, cochée par défaut (filtre
+   wcs_update_all_subscriptions_addresses_checked = true), donc le comportement
+   serveur — propager l'adresse à tous les abonnements — est préservé. */
+/* stylelint-disable-next-line selector-id-pattern -- ID généré par WC Subscriptions. */
+body.woocommerce-account .my-account-form--address #update_all_subscriptions_addresses_field {
+  display: none;
+}
+
+/* Adresses facturation / livraison (view-order) sur 100 % de largeur.
+   Conflit CSS résolu ici : woocommerce-layout.css applique, HORS layer,
+   `.woocommerce .col2-set .col-1 { float:left; width:48% }` (et `.col-2`
+   float:right) — spécificité 0-2-1 qui battait notre grille layered. On
+   neutralise le flottement et on force 100 % via un sélecteur hors layer à
+   0-4-1 > 0-2-1. Les colonnes s'empilent alors sur toute la largeur. */
+body.woocommerce-account .my-account-section--order .col2-set .col-1,
+body.woocommerce-account .my-account-section--order .col2-set .col-2,
+body.woocommerce-account .my-account-section--order .woocommerce-column--billing-address,
+body.woocommerce-account .my-account-section--order .woocommerce-column--shipping-address {
+  float: none;
+  width: 100%;
+}
+
+/* ============================================================
+ * Alerte d'abonnement en tête de page (statuts pending / cancelled /
+ * expired) : encart promu AU-DESSUS de « Vos informations » avec bordure
+ * accent, pour attirer l'attention sur une action requise.
+ *
+ * UNLAYERED (hors @layer components) + body.woocommerce-account : WordPress /
+ * WooCommerce core émet des règles hors layer (titres, paragraphes) qui
+ * battraient un encart layered quelle que soit la spécificité. On reste donc
+ * dans la couche cascade gagnante.
+ * ============================================================ */
+body.woocommerce-account ._180c-account-alert {
+  margin: 0 0 var(--space-lg);
+  padding: var(--space-md) var(--space-lg);
+  border: 2px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-elevated);
+}
+
+body.woocommerce-account ._180c-account-alert__title {
+  margin: 0 0 var(--space-2xs);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.02em;
+  color: var(--color-fg);
+}
+
+body.woocommerce-account ._180c-account-alert__text {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  color: var(--color-fg);
+}
+
+body.woocommerce-account ._180c-account-alert .my-account-actions {
+  margin-top: var(--space-md);
+}
+
+@layer components {
+
+  /* ============================================================
+   * Reset wrapper WooCommerce — la nav native ayant ete retiree
+   * (cf inc/woo/account-menu.php), .woocommerce-MyAccount-content
+   * doit occuper toute la largeur et ne plus flotter.
+   * ============================================================ */
+  .woocommerce-account .woocommerce-MyAccount-content {
+    width: 100%;
+    float: none;
+  }
+
+  /* ============================================================
+   * Layout racine
+   * ============================================================ */
+  .my-account {
+    /* Variables locales : hauteur du header sticky reference, et
+     * couleur du texte badge "Abonne" (cf comment intro). */
+    --my-account-header-h: 80px;
+    /* Foreground des boutons primaires (bg accent) : sombre FIXE, indépendant
+     * du thème — garantit le contraste WCAG AA en dark mode (où --color-fg
+     * deviendrait quasi-blanc sur le jaune accent). Même logique que le badge
+     * "Abonné" (--my-account-badge-fg). */
+    --my-account-on-accent: #1a1a1a;
+
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+    width: 100%;
+    /* Pas de margin-block-START : supprime le gap au-dessus de la 1re section
+       (#informations) — le rythme INTER-sections reste porté par
+       .my-account__content { gap }. On conserve une marge basse avant le
+       footer / fil d'Ariane. */
+    margin-block: 0 var(--space-md);
+    margin-inline: 0;
+    padding-inline: 0;
+  }
+
+  @media (min-width: 1024px) {
+    .my-account {
+      grid-template-columns: 300px 1fr;
+      gap: var(--space-xl);
+      margin-block: 0 var(--space-lg);
+      align-items: start;
+    }
+  }
+
+  /* ============================================================
+   * Sidebar
+   * ============================================================ */
+  .my-account__sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  @media (min-width: 1024px) {
+    .my-account__sidebar {
+      position: sticky;
+      top: calc(var(--wp-admin-bar-height, 0px) + var(--my-account-header-h) + var(--space-md));
+      align-self: start;
+      /* Scroll interne CONDITIONNEL : ne s'active que si la sidebar dépasse
+         réellement la hauteur dispo → bas accessible au scroll, sans scrollbar
+         parasite sur les pages courtes. `dvh` gère la barre d'URL mobile. */
+      max-height: calc(100dvh - var(--wp-admin-bar-height, 0px) - var(--my-account-header-h) - var(--space-md));
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: none; /* Firefox */
+      z-index: 0;
+    }
+
+    .my-account__sidebar::-webkit-scrollbar {
+      display: none; /* WebKit */
+    }
+  }
+
+  /* ============================================================
+   * Mobile trigger (accordion replie en < lg)
+   * ============================================================ */
+  .my-account__mobile-trigger {
+    appearance: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg);
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition:
+      background-color var(--transition-base),
+      border-color var(--transition-base);
+  }
+
+  .my-account__mobile-trigger::after {
+    content: "▾";
+    font-size: var(--text-base);
+    margin-left: var(--space-sm);
+    transition: transform var(--transition-base);
+  }
+
+  .my-account__mobile-trigger[aria-expanded="true"]::after {
+    transform: rotate(180deg);
+  }
+
+  .my-account__mobile-trigger:hover {
+    background: var(--color-bg);
+    border-color: var(--color-fg-muted);
+  }
+
+  @media (min-width: 1024px) {
+    .my-account__mobile-trigger {
+      display: none;
+    }
+  }
+
+  /* ============================================================
+   * Mobile panels (wrap nav + support + logout)
+   * - Toujours visibles en >= lg (dans la sidebar, en flux).
+   * - En < lg, masqués en flux : le tap sur .my-account__mobile-trigger les
+   *   ouvre en bottom-sheet (account-menu-toggle.js + bottom-sheet.js), où
+   *   `.bottom-sheet__overlay .bottom-sheet__panel` (spécificité 0,2,0) prend
+   *   le relais de l'affichage. Ne PAS remonter la spécificité du
+   *   `display: none` ci-dessous sans ajuster bottom-sheet.css : ce fichier
+   *   est chargé après main.css (bundle commerce.css), il gagnerait alors la
+   *   cascade et la feuille s'ouvrirait vide.
+   * ============================================================ */
+  .my-account__mobile-panels {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  @media (max-width: 1023.98px) {
+    .my-account__mobile-panels {
+      display: none;
+    }
+  }
+
+  /* ============================================================
+   * Card base
+   * ============================================================ */
+  .my-account-card {
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    padding: var(--space-md);
+  }
+
+  /* ============================================================
+   * Card — Profil
+   * ============================================================ */
+  .my-account-card--profile {
+    /* Foreground constante locale : badge "Abonne" doit rester lisible
+     * sur fond accent quel que soit le theme. cf docblock en tete. */
+    --my-account-badge-fg: #1a1a1a;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2xs);
+  }
+
+  .my-account-card__eyebrow {
+    margin: 0 0 var(--space-2xs);
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .my-account-card--profile .my-account-card__badge {
+    align-self: flex-start;
+    padding: var(--space-2xs) var(--space-xs);
+    background: var(--color-accent);
+    color: var(--my-account-badge-fg);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-bold);
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .my-account-card__name {
+    margin: var(--space-2xs) 0 0;
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-accent);
+    line-height: 1.2;
+  }
+
+  .my-account-card__subscriber-number {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    color: var(--color-fg-muted);
+    letter-spacing: 0.03em;
+  }
+
+  /* ============================================================
+   * Link-list cards (nav, support, logout) — markup partage
+   *   .my-account-card.my-account-card--{nav,support,logout}
+   *     > ul.my-account-card__list
+   *         > li > a.my-account-card__link
+   *
+   * Visuel identique sur les trois (font, taille, casse, alignement,
+   * hover bg). Seul .my-account-card--nav active le state actif (border
+   * gauche accent + semibold) declenche Etape 5 JS via .is-active ou
+   * aria-current="true".
+   *
+   * Padding des cards repasse a 0 ; les liens portent leur propre padding
+   * pour que la border-bottom (divider) s'etende edge-to-edge.
+   * ============================================================ */
+  .my-account-card--nav,
+  .my-account-card--support,
+  .my-account-card--logout {
+    padding: 0;
+  }
+
+  .my-account-card__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    padding-left: 0!important;
+  }
+
+  .my-account-card__list > li {
+    margin: 0;
+  }
+
+  .my-account-card__link {
+    display: block;
+    width: 100%;
+    padding: var(--space-sm) var(--space-sm);
+    border-left: 3px solid transparent;
+    border-bottom: 1px solid var(--color-border);
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-fg);
+    text-align: left;
+    text-decoration: none !important;
+    text-transform: none;
+    transition:
+      background-color var(--transition-base),
+      color var(--transition-base),
+      border-color var(--transition-base);
+  }
+
+  .my-account-card__list > li:last-child .my-account-card__link {
+    border-bottom: none;
+  }
+
+  .my-account-card__link:hover,
+  .my-account-card__link:focus-visible {
+    background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  /* Active state — scope nav uniquement.
+   * Border-left passe transparent (3px) -> accent (3px) sans changement
+   * de largeur du box -> aucun shift de texte au passage actif. */
+  .my-account-card--nav .my-account-card__link.is-active,
+  .my-account-card--nav .my-account-card__link[aria-current="true"] {
+    border-left-color: var(--color-accent);
+    color: var(--color-accent);
+    font-weight: var(--font-weight-semibold);
+    background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  }
+
+  /* ============================================================
+   * Content area (5 sections empilees apres trim contact)
+   * Gap aligne sur la sidebar pour rythme visuel uniforme.
+   * ============================================================ */
+  .my-account__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    min-width: 0;
+  }
+
+  /* ============================================================
+   * Lien retour — composant mutualisé des sous-pages natives WC
+   * (edit-account, payment-methods, edit-address). 1er enfant de
+   * .my-account__content. Flèche + libellé, tokens DS uniquement.
+   * ============================================================ */
+  .account-back-link {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: var(--space-2xs);
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg-muted);
+    text-decoration: none;
+    transition: color var(--transition-base);
+  }
+
+  .account-back-link:hover,
+  .account-back-link:focus-visible {
+    color: var(--color-accent);
+  }
+
+  .account-back-link__icon {
+    font-size: var(--text-base);
+    line-height: 1;
+    transition: transform var(--transition-base);
+  }
+
+  .account-back-link:hover .account-back-link__icon,
+  .account-back-link:focus-visible .account-back-link__icon {
+    transform: translateX(-3px);
+  }
+
+  /* ============================================================
+   * Section
+   * ============================================================ */
+  .my-account-section {
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    padding: var(--space-lg);
+    /* Compense la sidebar sticky lors d'un scroll vers une ancre. */
+    scroll-margin-top: calc(var(--wp-admin-bar-height, 0px) + var(--my-account-header-h, 80px) + var(--space-md));
+  }
+
+  /* Module mis en avant (ex. « Votre abonnement digital » pour un visiteur sans
+     abonnement) : bordure accent autour du bloc. */
+  .my-account-section--cta {
+    border-color: var(--color-accent);
+  }
+
+  .my-account-section__header {
+    padding-bottom: var(--space-sm);
+    margin-bottom: var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .my-account-section__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-fg);
+    line-height: 1.15;
+    letter-spacing: 0.01em;
+    margin-top: 0!important;
+  }
+
+  .my-account-section__lead {
+    margin: 0 0 var(--space-md);
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    color: var(--color-fg-muted);
+    letter-spacing: 0.02em;
+  }
+
+  .my-account-section__action {
+    display: inline-block;
+    margin-top: var(--space-md);
+    padding: var(--space-2xs) 0;
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-accent);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .my-account-section__action:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* ============================================================
+   * Section --critical (#gerer)
+   * Neutralisee visuellement : meme card surface que les autres sections.
+   * La criticite est portee par le wording (lead + label bouton danger)
+   * et par la variante --danger sur le bouton lui-meme.
+   * Modifier conservee pour pouvoir reintroduire une distinction visuelle
+   * plus tard sans toucher au template.
+   * ============================================================ */
+  .my-account-section--critical {
+    /* identique a .my-account-section pour l'instant */
+  }
+
+  /* ============================================================
+   * Fields (#informations, #abonnement)
+   * Grille 2 colonnes : valeur a gauche (label + value empiles), action ferre droite.
+   * ============================================================ */
+  .my-account-fields {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+  }
+
+  .my-account-field {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--space-md);
+    padding-block: var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .my-account-field:last-child {
+    border-bottom: none;
+  }
+
+  .my-account-field__label {
+    grid-column: 1 / 2;
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-fg-muted);
+  }
+
+  .my-account-field__value {
+    grid-column: 1 / 2;
+    margin: var(--space-3xs) 0 0;
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    color: var(--color-fg);
+    word-break: break-word;
+  }
+
+  .my-account-field__action {
+    grid-column: 2 / 3;
+    grid-row: 1 / span 2;
+    align-self: center;
+    /* Cible tactile ≥ 44px (WCAG 2.5.8 / 2.5.5) — le padding seul laissait
+     * un lien d'environ 22px de haut (target-size, A5). */
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: var(--space-2xs) 0;
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-accent-text);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .my-account-field__action:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* ============================================================
+   * Subscription status pill
+   * ============================================================ */
+  .my-account-status {
+    display: inline-block;
+    padding: var(--space-3xs) var(--space-2xs);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-fg);
+  }
+
+  .my-account-status--on-hold {
+    color: var(--color-fg-muted);
+  }
+
+  .my-account-status--cancelled,
+  .my-account-status--expired {
+    color: var(--color-danger);
+    border-color: var(--color-danger);
+  }
+
+  /* ============================================================
+   * Opt-in newsletter (#abonnement) et opt-in push (#notifications)
+   * Surtitre + titre à gauche, switch jaune ferré droite.
+   *
+   * PAS de border-top : `.my-account-section__header` pose déjà un filet
+   * (border-bottom) juste au-dessus. Dans #notifications, où l'opt-in est le
+   * seul contenu de sa section, les deux se retrouvaient à quelques pixels
+   * l'un de l'autre — double trait. La séparation est portée par l'espace.
+   * ============================================================ */
+  .my-account-optin {
+    margin-top: var(--space-md);
+    padding-top: var(--space-md);
+  }
+
+  .my-account-optin__control {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    cursor: pointer;
+  }
+
+  .my-account-optin__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+    min-width: 0;
+  }
+
+  .my-account-optin__eyebrow {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-fg-muted);
+  }
+
+  .my-account-optin__title {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    color: var(--color-fg);
+    line-height: 1.3;
+  }
+
+  /* ------------------------------------------------------------
+   * Switch jaune — input masqué (accessible, role=switch) + piste
+   * visuelle pilotée par l'état :checked du sibling.
+   * ------------------------------------------------------------ */
+  .my-account-switch__input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .my-account-switch {
+    position: relative;
+    flex: 0 0 auto;
+    display: inline-block;
+    width: 48px;
+    height: 28px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    transition: background-color var(--transition-fast),
+                border-color var(--transition-fast);
+  }
+
+  .my-account-switch__thumb {
+    position: absolute;
+    top: 50%;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    background: var(--color-fg-muted);
+    border-radius: 50%;
+    transform: translateY(-50%);
+    transition: transform var(--transition-fast),
+                background-color var(--transition-fast);
+  }
+
+  .my-account-switch__input:checked ~ .my-account-switch {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .my-account-switch__input:checked ~ .my-account-switch .my-account-switch__thumb {
+    background: #1a1a1a;
+    transform: translate(20px, -50%);
+  }
+
+  .my-account-switch__input:focus-visible ~ .my-account-switch {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .my-account-switch__input:disabled ~ .my-account-switch {
+    opacity: 0.6;
+  }
+
+  .my-account-optin__feedback {
+    margin: var(--space-xs) 0 0;
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-fg-muted);
+  }
+
+  .my-account-optin__feedback--error {
+    color: var(--color-danger);
+  }
+
+  /* ============================================================
+   * Empty state generique
+   * ============================================================ */
+  .my-account-empty {
+    margin: 0;
+    padding: var(--space-md);
+    background: var(--color-bg);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    color: var(--color-fg-muted);
+    text-align: center;
+  }
+
+  /* ============================================================
+   * Address (#livraison)
+   * ============================================================ */
+  .my-account-address {
+    font-style: normal;
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    color: var(--color-fg);
+    line-height: 1.6;
+  }
+
+  .my-account-address__line {
+    margin: 0;
+  }
+
+  /* ============================================================
+   * Invoices table (#factures)
+   * Desktop : table classique.
+   * Mobile (< md) : passage en cards empilees via data-label.
+   * ============================================================ */
+  .my-account-invoices {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+  }
+
+  .my-account-invoices__head th {
+    padding: var(--space-sm) var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-fg-muted);
+    text-align: left;
+  }
+
+  .my-account-invoices__cell {
+    padding: var(--space-sm) var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-fg);
+    vertical-align: top;
+  }
+
+  .my-account-invoices__row {
+    transition: background-color var(--transition-base);
+  }
+
+  .my-account-invoices__row:hover {
+    background: var(--color-bg);
+  }
+
+  .my-account-invoices__row:last-child .my-account-invoices__cell {
+    border-bottom: none;
+  }
+
+  .my-account-invoices__link {
+    color: var(--color-accent);
+    font-weight: var(--font-weight-semibold);
+    text-decoration: none;
+  }
+
+  .my-account-invoices__link:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .my-account-invoices__none {
+    color: var(--color-fg-muted);
+  }
+
+  @media (max-width: 767.98px) {
+    .my-account-invoices,
+    .my-account-invoices tbody,
+    .my-account-invoices__head,
+    .my-account-invoices__row,
+    .my-account-invoices__cell {
+      display: block;
+      width: 100%;
+    }
+
+    .my-account-invoices__head {
+      display: none;
+    }
+
+    .my-account-invoices__row {
+      margin-bottom: var(--space-sm);
+      padding: var(--space-sm);
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+    }
+
+    .my-account-invoices__row:last-child {
+      margin-bottom: 0;
+    }
+
+    .my-account-invoices__cell {
+      padding: var(--space-2xs) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .my-account-invoices__cell:last-child {
+      border-bottom: none;
+    }
+
+    .my-account-invoices__cell::before {
+      content: attr(data-label);
+      display: block;
+      margin-bottom: var(--space-3xs);
+      font-family: var(--font-display);
+      font-size: var(--text-xs);
+      font-weight: var(--font-weight-semibold);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-fg-muted);
+    }
+  }
+
+  /* ============================================================
+   * Actions critiques (#gerer)
+   * Boutons style "secondaire outline", danger en variante.
+   * ============================================================ */
+  .my-account-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    margin-top: var(--space-md);
+  }
+
+  .my-account-actions__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition:
+      background-color var(--transition-base),
+      border-color var(--transition-base),
+      color var(--transition-base);
+  }
+
+  .my-account-actions__btn:hover {
+    background: var(--color-bg);
+    border-color: var(--color-fg-muted);
+  }
+
+  .my-account-actions__btn--danger {
+    color: var(--color-danger);
+    border-color: var(--color-danger);
+    text-decoration: none!important;
+  }
+
+  .my-account-actions__btn--danger:hover {
+    background: color-mix(in srgb, var(--color-danger) 8%, transparent);
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+    text-decoration: none;
+  }
+
+  .my-account-actions__btn--primary {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--my-account-on-accent);
+  }
+
+  .my-account-actions__btn--primary:hover {
+    background: color-mix(in srgb, var(--color-accent) 88%, #000);
+    border-color: color-mix(in srgb, var(--color-accent) 88%, #000);
+    color: var(--my-account-on-accent);
+  }
+
+  /* ============================================================
+   * Endpoints WC stylés DS — formulaires (edit-account, add-payment-method)
+   * Le markup WC est conservé ; on style ses classes natives via .my-account-form.
+   * ============================================================ */
+  .my-account-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md) var(--space-lg);
+    margin: 0;
+  }
+
+  .my-account-form .form-row-wide,
+  .my-account-form .my-account-form__fieldset,
+  .my-account-form .my-account-form__actions {
+    grid-column: 1 / -1;
+  }
+
+  /* Les <div class="clear"> servent aux floats WC — inutiles avec le grid. */
+  .my-account-form .clear {
+    display: none;
+  }
+
+  .my-account-form .form-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    margin: 0;
+  }
+
+  .my-account-form label {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg-muted);
+  }
+
+  .my-account-form .woocommerce-Input,
+  .my-account-form input.input-text,
+  .my-account-form textarea,
+  .my-account-form select {
+    width: 100%;
+    min-height: 44px;
+    padding: var(--space-2xs) var(--space-sm);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    color: var(--color-fg);
+    /* Champ « outline » : même surface que la section (--color-bg-elevated),
+       délimité par la bordure — évite le rectangle blanc pur sur la carte. */
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    transition: border-color var(--transition-fast),
+                box-shadow var(--transition-fast);
+  }
+
+  .my-account-form .woocommerce-Input:focus,
+  .my-account-form input.input-text:focus,
+  .my-account-form textarea:focus,
+  .my-account-form select:focus {
+    outline: 0;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 25%, transparent);
+  }
+
+  .my-account-form__fieldset {
+    margin: 0;
+    padding: var(--space-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    display: grid;
+    gap: var(--space-md);
+  }
+
+  .my-account-form__fieldset legend {
+    padding: 0 var(--space-2xs);
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-fg);
+  }
+
+  .my-account-form em {
+    font-size: var(--text-xs);
+    color: var(--color-fg-muted);
+    font-style: italic;
+  }
+
+  @media (max-width: 639px) {
+    .my-account-form {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Formulaire d'ajout de moyen de paiement : pas de grille 2 colonnes. */
+  .my-account-form--payment {
+    display: block;
+  }
+
+  /* Édition d'adresse : les champs sont imbriqués dans
+     .woocommerce-address-fields__field-wrapper (générés par WC), donc la
+     grille 2 colonnes est portée par le wrapper, pas par le <form>. */
+  .my-account-form--address {
+    display: block;
+  }
+
+  .my-account-form--address .woocommerce-address-fields__field-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md) var(--space-lg);
+  }
+
+  .my-account-form--address .form-row-wide {
+    grid-column: 1 / -1;
+  }
+
+  @media (max-width: 639px) {
+    .my-account-form--address .woocommerce-address-fields__field-wrapper {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ============================================================
+   * Endpoints WC — tableau générique DS (payment-methods)
+   * ============================================================ */
+  .my-account-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-fg);
+  }
+
+  .my-account-table th {
+    text-align: left;
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-fg-muted);
+    padding: var(--space-xs) var(--space-sm);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .my-account-table td {
+    padding: var(--space-sm);
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
+  }
+
+  .my-account-table .my-account-actions__btn {
+    min-height: 36px;
+    padding: var(--space-2xs) var(--space-sm);
+    font-size: var(--text-xs);
+  }
+
+  /* Responsive : empilement en cartes < 640px (data-title sur les <td>). */
+  @media (max-width: 639px) {
+    .my-account-table thead {
+      display: none;
+    }
+
+    .my-account-table tr {
+      display: block;
+      margin-bottom: var(--space-md);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-xs) var(--space-sm);
+    }
+
+    .my-account-table td {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--space-md);
+      border-bottom: 0;
+      padding: var(--space-2xs) 0;
+    }
+
+    .my-account-table td::before {
+      content: attr(data-title);
+      font-family: var(--font-display);
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-fg-muted);
+    }
+  }
+
+  /* Liste des passerelles (add-payment-method). */
+  .my-account-form--payment .payment_methods {
+    list-style: none;
+    margin: 0 0 var(--space-md);
+    padding: 0;
+    display: grid;
+    gap: var(--space-sm);
+  }
+
+  .my-account-form--payment .payment_methods li {
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .my-account-form--payment .payment_methods label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    color: var(--color-fg);
+  }
+
+  /* ============================================================
+   * Endpoint view-order — détail commande + adresses + notes (DS)
+   * ============================================================ */
+  .my-account-section__subtitle {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg);
+    margin: var(--space-lg) 0 var(--space-sm);
+  }
+
+  .my-account-section--order .woocommerce-table--order-details {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-fg);
+    margin-block: var(--space-md);
+  }
+
+  .my-account-section--order .woocommerce-table--order-details th,
+  .my-account-section--order .woocommerce-table--order-details td {
+    text-align: left;
+    padding: var(--space-xs) var(--space-sm);
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: top;
+  }
+
+  .my-account-section--order .woocommerce-table--order-details tfoot th {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: var(--text-xs);
+    color: var(--color-fg-muted);
+  }
+
+  .my-account-section--order .woocommerce-table--order-details a {
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  .my-account-section--order .woocommerce-table--order-details a:hover {
+    text-decoration: underline;
+  }
+
+  .my-account-section--order .woocommerce-customer-details .woocommerce-columns--addresses {
+    display: grid;
+    gap: var(--space-md);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Adresses de facturation / livraison : empilées sur 100 % de la largeur
+     (à la demande), quelle que soit la résolution — pas de passage en 2
+     colonnes au-delà de 640px. */
+  .my-account-section--order .woocommerce-customer-details .woocommerce-columns--addresses {
+    grid-template-columns: 1fr;
+  }
+
+  .my-account-section--order .woocommerce-customer-details .woocommerce-column {
+    padding: var(--space-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .my-account-section--order .woocommerce-customer-details h2,
+  .my-account-section--order .woocommerce-column__title {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-fg-muted);
+    margin: 0 0 var(--space-xs);
+  }
+
+  .my-account-section--order address {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    font-style: normal;
+    line-height: var(--line-height-normal);
+    color: var(--color-fg);
+  }
+
+  .my-account-order-notes {
+    list-style: none;
+    margin: 0 0 var(--space-md);
+    padding: 0;
+    display: grid;
+    gap: var(--space-sm);
+  }
+
+  .my-account-order-notes .note {
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .my-account-order-notes .meta {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-fg-muted);
+    margin: 0 0 var(--space-2xs);
+  }
+
+  /* ==========================================================
+   * Bloc « Nous contacter » — lignes texte / lien
+   *
+   * Aucun conteneur propre : la section réutilise `.my-account-section`, qui
+   * porte déjà le fond, le rayon, les espacements ET le `scroll-margin-top`
+   * calé sur le header sticky — indispensable, l'ancre #nous-contacter étant
+   * la cible du lien de la sidebar.
+   *
+   * Les liens sont en `--color-accent-text` et JAMAIS en `--color-accent` :
+   * le premier est ocre en clair (#8A5A00, 5,93:1 sur blanc) et jaune en
+   * sombre (#FFAE3A, 10,45:1 sur #0E0E0E) ; le second donnerait 1,85:1 sur
+   * blanc, très en dessous du seuil AA.
+   * ========================================================== */
+  .my-account-contact {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .my-account-contact__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    padding: var(--space-sm) 0;
+    border-block-end: 1px solid var(--color-border);
+  }
+
+  .my-account-contact__row:last-child {
+    border-block-end: 0;
+    padding-block-end: 0;
+  }
+
+  .my-account-contact__text {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    color: var(--color-fg);
+  }
+
+  .my-account-contact__link {
+    flex: 0 0 auto;
+    /* Oswald, graisse et taille repris de `.my-account-field__action` (les
+       liens « Modifier » de #informations), seul lien d'action Oswald du
+       module. Deux de ses réglages ne sont PAS repris, pour la même raison :
+       sa casse haute et son interlettrage de 0.06em servent des
+       micro-étiquettes d'un mot, alors que ces libellés-ci sont des phrases
+       (« Accédez à notre Centre d'aide »). */
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-accent-text);
+    text-decoration: none;
+  }
+
+  .my-account-contact__link:hover,
+  .my-account-contact__link:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* Sous 640px, le lien passe sous le texte et s'aligne à gauche ; les
+     séparateurs restent, ce sont eux qui distinguent les lignes une fois
+     qu'elles ne sont plus sur un seul rang. */
+  @media (width < 640px) {
+    .my-account-contact__row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-3xs);
+    }
+  }
+}

@@ -1,0 +1,197 @@
+/**
+ * Onglets de la fiche produit (Description / Reportages / Recettes / Infos techniques).
+ *
+ * Markup associé : inc/woo/product-tabs-render.php (_180c_render_product_tabs()).
+ * JS associé     : src/js/modules/product-tabs.js.
+ *
+ * Dégradation no-JS : tous les panneaux sont empilés et visibles, chaque
+ * panneau porte un titre <h2> visible. Quand le JS s'initialise il pose
+ * `data-tabs-ready` sur la racine → les titres de panneaux passent en
+ * sr-only (l'onglet fait office de libellé) et les panneaux inactifs sont
+ * masqués via l'attribut natif [hidden].
+ *
+ * Dark mode : intégral via tokens (var(--color-*)).
+ *
+ * @package 180c-theme
+ */
+
+.product-tabs {
+    /* Tokens locaux — repli si le token global est absent. */
+    --ptabs-accent: var(--color-accent, #ffae3a);
+    --ptabs-fg: var(--color-fg, currentColor);
+    --ptabs-fg-muted: var(--color-fg-muted, color-mix(in srgb, currentColor 60%, transparent));
+    --ptabs-border: var(--color-border, color-mix(in srgb, currentColor 14%, transparent));
+    --ptabs-surface: var(--color-bg-elevated, color-mix(in srgb, currentColor 4%, transparent));
+    --ptabs-font-ui: var(--font-display, "Oswald", sans-serif);
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg, 1.5rem);
+    color: var(--ptabs-fg);
+}
+
+/* Largeur/centrage : aligne le bloc onglets sur le rythme de la fiche
+   produit (la description longue était centrée à ~56rem auparavant). */
+.product-page .product-tabs {
+    width: 100%;
+    max-width: min(100%, 60rem);
+    margin-inline: auto;
+}
+
+/* ---------- Liste d'onglets (tablist) ---------- */
+
+.product-tabs__list {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--space-xs, 0.5rem);
+    overflow-x: auto;
+    border-bottom: 1px solid var(--ptabs-border);
+    /* Masque la scrollbar tout en gardant le scroll tactile. */
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+}
+
+.product-tabs__tab {
+    flex: 0 0 auto;
+    appearance: none;
+    background: none;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    /* Chevauche la bordure du tablist pour un soulignement continu. */
+    margin-bottom: -1px;
+    padding: var(--space-xs, 0.5rem) var(--space-sm, 0.75rem);
+    font-family: var(--ptabs-font-ui);
+    font-size: var(--text-sm, 0.875rem);
+    font-weight: var(--font-weight-medium, 500);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ptabs-fg-muted);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 160ms ease, border-color 160ms ease;
+}
+
+.product-tabs__tab:hover {
+    color: var(--ptabs-fg);
+}
+
+.product-tabs__tab[aria-selected="true"] {
+    color: var(--ptabs-fg);
+    border-bottom-color: var(--ptabs-accent);
+}
+
+.product-tabs__tab:focus-visible {
+    outline: 2px solid var(--ptabs-accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm, 4px);
+}
+
+/* ---------- Panneaux ---------- */
+
+.product-tabs__panel {
+    /* Espace les panneaux empilés en no-JS. */
+    padding-block-start: var(--space-xs, 0.5rem);
+}
+
+/* Sécurité : l'attribut natif [hidden] doit l'emporter même si une
+   surcharge tierce (WC / wp-components) repositionne l'élément. */
+.product-tabs__panel[hidden] {
+    display: none;
+}
+
+.product-tabs__panel:focus-visible {
+    outline: 2px solid var(--ptabs-accent);
+    outline-offset: 4px;
+    border-radius: var(--radius-sm, 4px);
+}
+
+.product-tabs__panel-title {
+    font-family: var(--ptabs-font-ui);
+    font-size: var(--text-lg, 1.125rem);
+    font-weight: var(--font-weight-semibold, 600);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin: 0 0 var(--space-sm, 0.75rem);
+    color: var(--ptabs-fg);
+}
+
+/* JS prêt : l'onglet sélectionné porte déjà le libellé → le titre de
+   panneau devient sr-only (conservé pour l'AT et la structure). */
+.product-tabs[data-tabs-ready] .product-tabs__panel-title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ---------- Contenu Description ---------- */
+
+/* Préserve la mesure « planche magazine » de l'ancienne description longue. */
+.product-tabs__prose.entry-content {
+    max-width: 56rem;
+    margin-inline: auto;
+}
+
+/* ---------- Intro Reportages / Recettes ---------- */
+
+/* Phrase d'introduction atténuée au-dessus de la grille de cartes.
+   Couleur via le token de texte secondaire (dark mode hérité). */
+.product-tabs__intro {
+    margin: 0 0 var(--space-md, 1rem);
+    font-size: var(--text-sm, 0.875rem);
+    color: var(--ptabs-fg-muted);
+}
+
+/* ---------- Grilles Reportages / Recettes ---------- */
+
+.product-tabs__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+    gap: var(--space-md, 1rem);
+}
+
+/* ---------- Table « Informations techniques » ---------- */
+
+.product-tabs__specs {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-body, serif);
+}
+
+.product-tabs__specs-row {
+    border-bottom: 1px solid var(--ptabs-border);
+}
+
+.product-tabs__specs-row:last-child {
+    border-bottom: 0;
+}
+
+.product-tabs__specs-label,
+.product-tabs__specs-value {
+    padding: var(--space-sm, 0.75rem) var(--space-xs, 0.5rem);
+    text-align: left;
+    vertical-align: top;
+    font-size: var(--text-base, 1rem);
+}
+
+.product-tabs__specs-label {
+    width: 40%;
+    font-family: var(--ptabs-font-ui);
+    font-weight: var(--font-weight-medium, 500);
+    color: var(--ptabs-fg-muted);
+}
+
+.product-tabs__specs-value {
+    color: var(--ptabs-fg);
+}
+
+@media (min-width: 480px) {
+    .product-tabs__specs-label {
+        width: 30%;
+    }
+}

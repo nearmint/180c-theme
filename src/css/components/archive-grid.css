@@ -1,0 +1,43 @@
+/**
+ * Grille d'archive partagée — 180°C.
+ *
+ * Utilitaire de mise en page des listes d'archives (catégories, étiquettes,
+ * taxonomies recette/produit, recherche, dates). Mobile-first : 1 → 2 → 4
+ * colonnes. Décision DS : 4 colonnes desktop UNIFORMES sur toutes
+ * les archives — pas de variante 3 cols.
+ *
+ * Calé sur la spec de la grille de la page auteur (
+ * .author-section__grid) pour une cohérence visuelle stricte. Réutilise les
+ * cartes partagées (card-180c--article|recipe|product) comme enfants directs,
+ * ou des <li class="archive-grid__item"> enveloppant chaque carte (semantique
+ * de liste).
+ *
+ * @package 180c
+ */
+
+@layer components {
+  .archive-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  @media (min-width: 640px) {
+    .archive-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .archive-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .archive-grid__item {
+    display: block;
+  }
+}

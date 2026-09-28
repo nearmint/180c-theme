@@ -1,0 +1,30 @@
+{
+    "name": "nearmint/180c-theme",
+    "description": "WordPress theme for 180c.fr v2",
+    "type": "wordpress-theme",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "nearmint",
+            "homepage": "https://github.com/nearmint"
+        }
+    ],
+    "require": {
+        "php": ">=8.3"
+    },
+    "require-dev": {
+        "wp-coding-standards/wpcs": "^3.1",
+        "phpcompatibility/phpcompatibility-wp": "^2.1",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+        "squizlabs/php_codesniffer": "^3.10"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "scripts": {
+        "lint": "phpcs",
+        "lint:fix": "phpcbf"
+    }
+}

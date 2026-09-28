@@ -1,0 +1,132 @@
+/*
+ * Suppression de compte — onglet Mon compte (/mon-compte/supprimer-mon-compte/).
+ *
+ * Bloc BEM `c-account-deletion`. Feuille chargée par le bundle « commerce »,
+ * lui-même enqueue sur les pages Mon compte uniquement (inc/enqueue.php).
+ * Ce bundle arrive APRÈS main.css : à spécificité égale, ce fichier gagne.
+ *
+ * Aucune couleur en dur : tout passe par les tokens du thème, dark mode inclus.
+ */
+
+@reference "../main.css";
+
+.c-account-deletion {
+  max-width: 42rem;
+}
+
+.c-account-deletion__title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  line-height: 1.4;
+  margin-block: 0 var(--space-4);
+}
+
+.c-account-deletion__intro {
+  font-size: var(--text-base);
+  line-height: 1.6;
+  margin-block-end: var(--space-4);
+}
+
+.c-account-deletion__list {
+  list-style: disc outside;
+  margin: 0 0 var(--space-6);
+  padding-inline-start: var(--spacing-6);
+}
+
+.c-account-deletion__item {
+  color: var(--color-fg);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  margin-block-end: var(--space-2);
+}
+
+.c-account-deletion__item:last-child {
+  margin-block-end: 0;
+}
+
+.c-account-deletion__item--strong {
+  font-weight: 600;
+}
+
+.c-account-deletion__link {
+  display: inline-block;
+  margin-inline-start: var(--space-1);
+  text-decoration: underline;
+}
+
+.c-account-deletion__footnote {
+  color: var(--color-fg-muted);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  margin-block-start: var(--space-4);
+}
+
+.c-account-deletion__notice {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  margin-block-end: var(--space-4);
+  padding: var(--space-3);
+}
+
+.c-account-deletion__notice--error {
+  border-color: var(--color-danger);
+}
+
+.c-account-deletion__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+
+
+
+/* Le mot de passe est le pivot de l'écran : on l'écarte franchement du
+   récapitulatif qui le précède, pour qu'il ne se lise pas comme sa suite.
+   Feuille hors @layer : cette règle l'emporte sur `.field` du design system. */
+.c-account-deletion__form .field {
+  margin-block-start: var(--space-6);
+}
+
+.c-account-deletion__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  margin: 0;
+}
+
+
+
+
+
+
+
+.c-account-deletion__actions form {
+  margin: 0;
+}
+
+/* Bouton rendu en <a> (« Annuler », « Refaire une demande »).
+   `.entry-content a` (accent + soulignement) vit dans @layer components avec
+   une spécificité de 0-1-1, contre 0-1-0 pour les variantes `.btn--*` du
+   design system : le lien éditorial gagnait, et le bouton sortait souligné et
+   à la mauvaise couleur. Cette feuille étant HORS @layer, les règles ci-dessous
+   l'emportent quelle que soit la spécificité. Elles ne font que rétablir ce que
+   le design system prévoit déjà — aucune valeur nouvelle, aucun override de
+   `.btn` lui-même. */
+.c-account-deletion a.btn {
+  text-decoration: none;
+}
+
+.c-account-deletion a.btn:hover,
+.c-account-deletion a.btn:focus-visible {
+  text-decoration: none;
+}
+
+.c-account-deletion a.btn--secondary,
+.c-account-deletion a.btn--secondary:hover,
+.c-account-deletion a.btn--secondary:focus-visible {
+  color: var(--color-fg);
+}

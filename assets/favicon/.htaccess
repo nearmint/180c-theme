@@ -1,0 +1,13 @@
+# Type MIME du manifeste web.
+#
+# Sans ça, Apache sert `site.webmanifest` en `application/octet-stream` (son
+# mime.types ne connaît pas forcément l'extension). Les navigateurs le tolèrent,
+# mais l'audit Lighthouse et une partie des validateurs le signalent.
+#
+# `AddType` vient de mod_mime, chargé par défaut : cette directive ne peut pas
+# provoquer de 500 si le module manquait, elle serait simplement ignorée.
+# Fichier inerte sous nginx (environnement local) — le contrôle se fait en
+# production.
+<IfModule mod_mime.c>
+	AddType application/manifest+json .webmanifest
+</IfModule>

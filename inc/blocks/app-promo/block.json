@@ -1,0 +1,44 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "180c/app-promo",
+  "title": "Promo application",
+  "category": "180c",
+  "icon": "smartphone",
+  "description": "Bloc de promotion des applications iOS et Android. Caché si cookie dismissed_app_banner=1.",
+  "keywords": ["app", "mobile", "ios", "android", "store"],
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "align": ["wide", "full"]
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "default": "Cuisinez avec l'app 180°C"
+    },
+    "description": {
+      "type": "string",
+      "default": ""
+    },
+    "features": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "ios_url": {
+      "type": "string",
+      "default": ""
+    },
+    "android_url": {
+      "type": "string",
+      "default": ""
+    },
+    "image_url": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "render": "file:./render.php",
+  "style": "file:./style.css"
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "180c/recipes-slider",
+  "title": "Slider de recettes",
+  "category": "180c",
+  "icon": "images-alt2",
+  "description": "Les dernières recettes publiées, une en vedette à la fois : photo, chapô et frise de pagination numérotée.",
+  "keywords": ["recettes", "slider", "carrousel", "recipes"],
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "align": ["wide", "full"]
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "default": ""
+    },
+    "count": {
+      "type": "number",
+      "default": 6
+    }
+  },
+  "render": "file:./render.php"
+}

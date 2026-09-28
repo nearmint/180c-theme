@@ -1,0 +1,228 @@
+/*
+ * Home rails — shared shell
+ *
+ * Markup emitted by _180c_render_rail() (inc/home-modules.php) and consumed by
+ * articles_rail / recipes_rail / products_rail. Holds:
+ *   - the rail head (title + optional "Voir tout" link)
+ *   - the scrollable track (grid on desktop / scroll-snap on mobile)
+ *   - the desktop arrow nav (revealed by rail.js only when the track overflows)
+ *   - the skeleton shimmer reserving media space until the lazy image paints
+ *
+ * Card base styles (.card-180c) still live in articles-rail.css.
+ */
+
+@layer components {
+  /* Rythme inter-sections porté par .home-modules (gap) — pas de
+   * padding-block ici (évite le double espacement gap + padding). */
+  .rail-180c {
+    position: relative;
+  }
+
+  /* -------------------------
+   * Head — title + view-all
+   * ------------------------- */
+  .rail-180c__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-md);
+    margin-block-end: var(--space-lg);
+  }
+
+  .rail-180c__title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    line-height: var(--line-height-tight);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg);
+    margin: 0;
+  }
+
+  .rail-180c__view-all {
+    flex: 0 0 auto;
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-accent-text);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .rail-180c__view-all:hover {
+    text-decoration: underline;
+  }
+
+  .rail-180c__view-all:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* -------------------------
+   * Track — scroll latéral unifié (tous breakpoints) + peek
+   *
+   * Une seule ligne, scroll horizontal avec snap à tous les breakpoints. La
+   * largeur d'item fluide (calc 100%/N − gap) fait apparaître ~1,2 / 2,2 / 3,2
+   * cartes selon le viewport ; la carte suivante est partiellement visible
+   * (peek = indice de défilement). Les flèches desktop sont révélées par
+   * rail.js dès que la piste déborde (≥1024px), sans modif JS.
+   *
+   * N (cartes visibles) et le gap sont pilotés par les custom properties
+   * --rail-visible / --rail-gap, héritées par .rail-180c__item.
+   * ------------------------- */
+  .rail-180c__track {
+    --rail-gap: var(--space-md);
+    --rail-visible: 1.2;
+
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: var(--rail-gap);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline-start: 0;
+    scrollbar-width: none; /* Firefox */
+    -webkit-overflow-scrolling: touch;
+    /* Respiration de fin de piste pour dégager le dernier item au scroll max. */
+    padding-block-end: var(--space-2xs);
+  }
+
+  .rail-180c__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .rail-180c__track:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+  }
+
+  .rail-180c__item {
+    flex: 0 0 auto;
+    /* itemW ≈ 100%/N − gap : N cartes pleines + amorce de la suivante (peek). */
+    width: calc(100% / var(--rail-visible) - var(--rail-gap));
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+
+  @media (min-width: 768px) {
+    .rail-180c__track {
+      --rail-gap: var(--space-lg);
+      --rail-visible: 2.2;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .rail-180c__track {
+      --rail-visible: 3.2;
+    }
+  }
+
+  /* -------------------------
+   * Arrow nav — desktop only, revealed by rail.js on overflow
+   * ------------------------- */
+  .rail-180c__nav {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .rail-180c--has-nav .rail-180c__nav {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--space-xs);
+      margin-block-start: var(--space-md);
+    }
+  }
+
+  .rail-180c__arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background-color: var(--color-bg);
+    color: var(--color-fg);
+    cursor: pointer;
+    transition: border-color var(--transition-base),
+                background-color var(--transition-base),
+                opacity var(--transition-base);
+  }
+
+  .rail-180c__arrow:hover:not(:disabled) {
+    border-color: var(--color-accent);
+  }
+
+  .rail-180c__arrow:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  /* -------------------------
+   * Skeleton shimmer (home modules only)
+   *
+   * Le ratio du média est déjà réservé sur .card-180c__media
+   * (home/articles-rail.css) et son fond `--cream` sert de placeholder —
+   * on n'ajoute ici que la bande de shimmer. rail.js pose .is-loaded dès
+   * que l'image est peinte. (category_tiles n'a plus de visuel.)
+   *
+   * PERF — l'animation porte sur `transform` d'un pseudo-élément, PAS sur
+   * `background-position` du conteneur. background-position n'est pas
+   * compositable : il forçait un repaint main-thread à chaque frame, sur
+   * toutes les cartes de la page (23 éléments relevés par PageSpeed), et en
+   * boucle infinie puisque les images lazy hors écran ne se chargent jamais
+   * — donc jamais de .is-loaded pour arrêter l'animation. Ce repaint
+   * permanent concurrençait la peinture du hero LCP. `transform` tourne sur
+   * le compositeur et le navigateur le throttle hors écran.
+   * ------------------------- */
+  .home-module .card-180c__media {
+    position: relative;
+  }
+
+  .home-module .card-180c__media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: linear-gradient(
+      100deg,
+      transparent 30%,
+      color-mix(in srgb, var(--cream) 55%, var(--color-bg)) 50%,
+      transparent 70%
+    );
+    animation: rail-skeleton 1.4s ease-in-out infinite;
+  }
+
+  /* Le shimmer reste DERRIÈRE l'image, comme lorsqu'il était un
+   * background-image du conteneur. `.is-loaded` (posée par rail.js) ne sert
+   * donc qu'à stopper l'animation : si le JS ne s'exécute pas, l'image peinte
+   * recouvre la bande et rien ne transparaît. La correction visuelle ne
+   * dépend d'aucun script. */
+  .home-module .card-180c__image {
+    position: relative;
+    z-index: 1;
+  }
+
+  .home-module .card-180c__media.is-loaded::after {
+    content: none;
+  }
+
+  @keyframes rail-skeleton {
+    from {
+      transform: translateX(-100%);
+    }
+
+    to {
+      transform: translateX(100%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .home-module .card-180c__media::after {
+      animation: none;
+    }
+  }
+}

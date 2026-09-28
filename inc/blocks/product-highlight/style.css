@@ -1,0 +1,92 @@
+/* Block: 180c/product-highlight
+ *
+ * Mise en avant d'un produit dans le corps d'un article : image non croppée
+ * (ratio naturel préservé) + titre + prix + CTA. Empilé en mobile, image et
+ * contenu côte à côte ≥ 640px. Tokens design system (pas de couleurs en dur).
+ */
+
+.block-180c-product-highlight {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin-block: var(--space-xl);
+  padding: var(--space-lg);
+  background-color: var(--color-bg-elevated, var(--color-bg));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.block-180c-product-highlight--placeholder {
+  display: block;
+  padding: var(--space-lg);
+  border: 2px dashed var(--color-border);
+  color: var(--color-fg-muted);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+}
+
+.block-180c-product-highlight__media {
+  display: block;
+  flex: 0 0 auto;
+}
+
+/* Image non croppée : largeur fluide, hauteur naturelle (pas d'object-fit
+ * cover qui rognerait la couverture du livre / de la revue). */
+.block-180c-product-highlight__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+}
+
+.block-180c-product-highlight__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  align-items: flex-start;
+}
+
+.block-180c-product-highlight__title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  line-height: 1.2;
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+}
+
+.block-180c-product-highlight__title-link {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.block-180c-product-highlight__title-link:hover,
+.block-180c-product-highlight__title-link:focus-visible {
+  color: var(--color-accent);
+}
+
+.block-180c-product-highlight__price {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  color: var(--ink);
+}
+
+.block-180c-product-highlight__cta {
+  min-height: 44px;
+  margin-top: var(--space-2xs);
+}
+
+@media (min-width: 640px) {
+  .block-180c-product-highlight {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .block-180c-product-highlight__media {
+    width: 40%;
+    max-width: 16rem;
+  }
+
+  .block-180c-product-highlight__body {
+    flex: 1 1 auto;
+  }
+}

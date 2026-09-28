@@ -1,0 +1,106 @@
+{
+    "key": "group_help_page",
+    "title": "Centre d'aide",
+    "fields": [
+        {
+            "key": "field_help_sections",
+            "label": "Sections",
+            "name": "help_sections",
+            "type": "repeater",
+            "instructions": "Sections thématiques de la FAQ. Ordre = ordre d'affichage sur la page.",
+            "required": 1,
+            "min": 1,
+            "max": 0,
+            "layout": "block",
+            "button_label": "Ajouter une section",
+            "sub_fields": [
+                {
+                    "key": "field_help_section_id",
+                    "label": "Identifiant de section",
+                    "name": "section_id",
+                    "type": "text",
+                    "instructions": "kebab-case, unique. Utilisé pour l'ancre URL et le data-attribute. Ex : code-promo",
+                    "required": 1,
+                    "wrapper": {"width": "30"}
+                },
+                {
+                    "key": "field_help_section_title",
+                    "label": "Titre de section",
+                    "name": "section_title",
+                    "type": "text",
+                    "required": 1,
+                    "wrapper": {"width": "70"}
+                },
+                {
+                    "key": "field_help_section_questions",
+                    "label": "Questions",
+                    "name": "section_questions",
+                    "type": "repeater",
+                    "required": 1,
+                    "min": 1,
+                    "max": 0,
+                    "layout": "block",
+                    "button_label": "Ajouter une question",
+                    "sub_fields": [
+                        {
+                            "key": "field_help_question_slug",
+                            "label": "Slug d'ancrage",
+                            "name": "question_slug",
+                            "type": "text",
+                            "instructions": "Unique au global. Ex : code-promo-utilisation. Sera utilisé pour /centre-daide/#code-promo-utilisation",
+                            "required": 1,
+                            "wrapper": {"width": "40"}
+                        },
+                        {
+                            "key": "field_help_question_title",
+                            "label": "Question",
+                            "name": "question_title",
+                            "type": "text",
+                            "required": 1,
+                            "wrapper": {"width": "60"}
+                        },
+                        {
+                            "key": "field_help_question_answer",
+                            "label": "Réponse",
+                            "name": "question_answer",
+                            "type": "wysiwyg",
+                            "required": 1,
+                            "tabs": "visual",
+                            "toolbar": "basic",
+                            "media_upload": 0,
+                            "delay": 0
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "field_help_cta_text",
+            "label": "Texte du bloc de contact",
+            "name": "help_cta_text",
+            "type": "text",
+            "instructions": "Phrase affichée sous « Une question sans réponse ? », au-dessus du bouton « Nous contacter ». Laisser le champ VIDE pour ne rien afficher du tout.",
+            "required": 0,
+            "default_value": "Notre équipe vous répond sous 48 heures ouvrées.",
+            "maxlength": 160
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "page_template",
+                "operator": "==",
+                "value": "page-aide.php"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "Structure FAQ du Centre d'aide",
+    "modified": 1787961600
+}

@@ -1,0 +1,175 @@
+/**
+ * Cards 180°C.
+ *
+ * .card — base
+ * .card-recipe — recette (image 4:3)
+ * .card-article — article éditorial (image 16:9)
+ * .card-product — numéro ou livre (image 3:4, format couverture magazine)
+ *
+ * TODO Phase 3 : ajuster les spacings et la taille de typo des cards selon
+ * les maquettes définitives des rails recipe/article/product.
+ */
+
+@layer components {
+  /* -------------------------
+   * Base card
+   * ------------------------- */
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius-lg);
+    background-color: var(--color-bg-elevated);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: transform var(--transition-fast),
+                box-shadow var(--transition-fast);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .card:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* Zone de contenu textuel de la card */
+  .card__body {
+    padding: var(--spacing-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    flex: 1;
+  }
+
+  /* Image wrapper — impose le ratio via aspect-ratio */
+  .card__media {
+    overflow: hidden;
+    background-color: var(--color-border);
+  }
+
+  .card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    /* Transition subtile sur hover card */
+    transition: transform var(--transition-slow);
+  }
+
+  .card:hover .card__media img {
+    transform: scale(1.03);
+  }
+
+  /* Titre de la card */
+  .card__title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-snug);
+    color: var(--color-fg);
+    /* Clamp texte sur 3 lignes max */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+  }
+
+  /* Métadonnées (durée, catégorie, date…) */
+  .card__meta {
+    font-family: var(--font-display);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-regular);
+    color: var(--color-fg-muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* Extrait / description courte */
+  .card__excerpt {
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    color: var(--color-fg-muted);
+    line-height: var(--line-height-normal);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+
+  /* Badge paywall (affiché sur les cards de recettes verrouillées) */
+  .card__badge {
+    position: absolute;
+    top: var(--spacing-2);
+    right: var(--spacing-2);
+    background-color: var(--color-accent);
+    color: var(--color-on-accent);
+    font-family: var(--font-display);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    padding: 2px var(--spacing-2);
+    border-radius: var(--radius-pill);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.4;
+    pointer-events: none;
+  }
+
+  /* -------------------------
+   * Recette (4:3)
+   * TODO Phase 3 : vérifier le ratio avec le service d'images ACF.
+   * ------------------------- */
+  .card-recipe .card__media {
+    aspect-ratio: 4 / 3;
+  }
+
+  /* Indicateur difficulté recette */
+  .card-recipe .card__difficulty {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    font-family: var(--font-display);
+    font-size: var(--font-size-xs);
+    color: var(--color-fg-muted);
+  }
+
+  /* -------------------------
+   * Article (16:9)
+   * ------------------------- */
+  .card-article .card__media {
+    aspect-ratio: 16 / 9;
+  }
+
+  /* -------------------------
+   * Produit — numéro magazine / livre (3:4, portrait)
+   * ------------------------- */
+  .card-product .card__media {
+    aspect-ratio: 3 / 4;
+  }
+
+  /* Couverture mag : ombre portée pour effet physique */
+  .card-product .card__media img {
+    box-shadow: 4px 4px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Prix produit */
+  .card-product .card__price {
+    font-family: var(--font-display);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-fg);
+  }
+
+  .card-product .card__price--original {
+    text-decoration: line-through;
+    color: var(--color-fg-muted);
+    font-weight: var(--font-weight-regular);
+    font-size: var(--font-size-sm);
+  }
+}

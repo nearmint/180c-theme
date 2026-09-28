@@ -1,0 +1,22 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "acf/coordonnees-lieu",
+  "title": "Coordonnées du lieu",
+  "category": "180c",
+  "icon": "location-alt",
+  "description": "Coordonnées d'un lieu (restaurant, hôtel, producteur…) en fin d'article : nom, adresse, téléphones, email, site, réseaux. Génère le JSON-LD du lieu, rattaché à l'article. Insérable plusieurs fois.",
+  "keywords": ["coordonnées", "lieu", "adresse", "contact", "restaurant", "hôtel"],
+  "textdomain": "180c",
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "align": false,
+    "multiple": true
+  },
+  "acf": {
+    "mode": "preview",
+    "renderTemplate": "render.php"
+  },
+  "style": "file:./style.css"
+}

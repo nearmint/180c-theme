@@ -1,0 +1,194 @@
+/**
+ * Embed YouTube — façade + modale (blocs-gutenberg-ds v2).
+ *
+ * Façade : rendue côté PHP (inc/blocks/youtube-facade.php) en remplacement de
+ * l'embed front. Vignette de couverture (radius DS) + léger filtre d'opacité
+ * noir (hover) + bouton play custom JAUNE (accent DS). L'iframe n'est chargée
+ * qu'au clic, dans une modale unique (src/js/youtube-modal.js).
+ *
+ * Front uniquement (importé par main.css ; l'éditeur garde l'embed natif).
+ * Le filtre d'opacité concerne UNIQUEMENT la façade YouTube — jamais les
+ * photos de contenu (contrainte éditoriale).
+ */
+
+/* ============================================================
+ * Façade
+ * ============================================================ */
+.yt-facade {
+	margin-block: 1.5em;
+}
+
+.yt-facade__btn {
+	position: relative;
+	display: block;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	overflow: hidden;
+	border-radius: var(--radius-md, 8px);
+	cursor: pointer;
+	background: #000;
+	text-decoration: none;
+}
+
+.yt-facade__thumb {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+/* Léger filtre d'opacité noir AFFICHÉ PAR DÉFAUT, qui disparaît au hover/focus
+   (révèle la vignette nette à l'approche). */
+.yt-facade__scrim {
+	position: absolute;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.5);
+	transition: background-color var(--transition-base, 250ms ease);
+	pointer-events: none;
+}
+
+.yt-facade__btn:hover .yt-facade__scrim,
+.yt-facade__btn:focus-visible .yt-facade__scrim {
+	background: rgba(0, 0, 0, 0);
+}
+
+.yt-facade__btn:focus-visible {
+	outline: 2px solid var(--color-accent, #ffae3a);
+	outline-offset: 3px;
+}
+
+/* Bouton play custom — triangle JAUNE dans un cercle bordé jaune (aucun noir)
+   + libellé « Lire la vidéo » jaune en très petit dessous. */
+.yt-facade__play {
+	position: absolute;
+	inset: 0;
+	margin: auto;
+	width: max-content;
+	height: max-content;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--space-2xs, 8px);
+	pointer-events: none;
+}
+
+.yt-facade__play-circle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 72px;
+	height: 72px;
+	border: 3px solid var(--color-accent, #ffae3a);
+	border-radius: var(--radius-pill, 999px);
+	color: var(--color-accent, #ffae3a);
+	filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.55));
+	transition: transform var(--transition-base, 250ms ease);
+}
+
+.yt-facade__play-circle svg {
+	width: 34px;
+	height: 34px;
+	/* Centrage OPTIQUE du triangle dans le cercle (le play penche à droite). */
+	margin-inline-start: 5px;
+}
+
+.yt-facade__play-label {
+	font-family: var(--font-display, "Oswald", sans-serif);
+	font-size: var(--text-xs, 0.75rem);
+	font-weight: var(--font-weight-semibold, 600);
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--color-accent, #ffae3a);
+	text-shadow: 0 1px 4px rgba(0, 0, 0, 0.65);
+}
+
+.yt-facade__btn:hover .yt-facade__play-circle,
+.yt-facade__btn:focus-visible .yt-facade__play-circle {
+	transform: scale(1.08);
+}
+
+/* Repli sans JS : iframe responsive standard. */
+.yt-facade__noscript {
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	height: auto;
+	border: 0;
+	border-radius: var(--radius-md, 8px);
+}
+
+/* ============================================================
+ * Modale (unique, réutilisée pour tous les embeds de la page)
+ * ============================================================ */
+.yt-modal {
+	position: fixed;
+	inset: 0;
+	z-index: var(--z-modal, 200);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: var(--space-md, 24px);
+	background: rgba(0, 0, 0, 0.8);
+}
+
+.yt-modal[hidden] {
+	display: none;
+}
+
+.yt-modal__dialog {
+	position: relative;
+	width: min(92vw, 1100px);
+	aspect-ratio: 16 / 9;
+	max-height: 85vh;
+	background: #000;
+	border-radius: var(--radius-lg, 16px);
+	overflow: hidden;
+	box-shadow: var(--shadow-lg, 0 12px 32px rgba(0, 0, 0, 0.12));
+}
+
+.yt-modal__iframe {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	border: 0;
+}
+
+/* Bouton fermeture — rond sombre, coin haut-droit du viewport. */
+.yt-modal__close {
+	position: absolute;
+	top: var(--space-md, 24px);
+	right: var(--space-md, 24px);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.75rem;
+	height: 2.75rem;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.12);
+	color: #fff;
+	cursor: pointer;
+	transition: background-color var(--transition-fast, 150ms ease);
+}
+
+.yt-modal__close:hover,
+.yt-modal__close:focus-visible {
+	background: rgba(255, 255, 255, 0.25);
+}
+
+.yt-modal__close:focus-visible {
+	outline: 2px solid var(--color-accent, #ffae3a);
+	outline-offset: 2px;
+}
+
+.yt-modal__close svg {
+	width: 1.25rem;
+	height: 1.25rem;
+	display: block;
+}
+
+/* Verrou scroll <html> pendant l'ouverture. */
+html.yt-modal-lock {
+	overflow: hidden;
+}

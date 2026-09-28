@@ -1,0 +1,181 @@
+/**
+ * Composant — Bouton favori « Mon carnet » (.favorite-button).
+ *
+ * Bouton réel (jamais lien) partagé entre deux surfaces :
+ *   - --card   : overlay coin haut-droit du visuel d'une recipe-card.
+ *   - --single : zone d'actions sous le hero d'une fiche recette (avec label).
+ *
+ * L'état favori ne repose PAS sur la couleur seule : deux icônes cœur de FORME
+ * distincte (outline ↔ plein) sont permutées selon `aria-pressed`, garantissant
+ * la perception de l'état même sans distinction chromatique (WCAG 1.4.1).
+ *
+ * Tokens DS uniquement — aucune valeur en dur. Cible tactile ≥ 44×44 px.
+ *
+ * @package 180c
+ */
+
+@layer components {
+  /* Contextes de positionnement de l'overlay favori : carte + média du hero. */
+  .card-180c,
+  .hero-180c__media {
+    position: relative;
+  }
+
+  .favorite-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2xs);
+    min-width: 44px;
+    min-height: 44px;
+    margin: 0;
+    padding: var(--space-2xs);
+    border: 0;
+    background: transparent;
+    color: var(--color-fg);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    line-height: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    transition:
+      color var(--transition-fast),
+      background-color var(--transition-fast),
+      transform var(--transition-fast);
+  }
+
+  .favorite-button:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .favorite-button:active {
+    transform: scale(0.92);
+  }
+
+  /* Visiteur non connecté : le bouton « Ajouter à mon carnet » est désactivé
+     (réservé aux abonnés / session requise). On supprime tout feedback au clic
+     — l'enfoncement scale(0.92) laisserait croire à une action possible. */
+  body:not(.logged-in) .favorite-button--single:active,
+  .favorite-button--single:disabled:active,
+  .favorite-button--single.is-disabled:active {
+    transform: none;
+  }
+
+  /* Chargement async : on bloque les clics et on neutralise le curseur. */
+  .favorite-button[aria-busy="true"] {
+    opacity: 0.55;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  /* Désactivé (réservé aux abonnés) : même curseur que le bouton Imprimer. */
+  .favorite-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  /* ---- Icônes cœur : permutation outline ↔ plein ---- */
+  .favorite-button__icon {
+    display: inline-flex;
+    width: 24px;
+    height: 24px;
+  }
+
+  .favorite-button__heart {
+    width: 24px;
+    height: 24px;
+  }
+
+  .favorite-button__heart--filled {
+    display: none;
+  }
+
+  .favorite-button[aria-pressed="true"] {
+    color: var(--color-accent);
+  }
+
+  .favorite-button[aria-pressed="true"] .favorite-button__heart--outline {
+    display: none;
+  }
+
+  .favorite-button[aria-pressed="true"] .favorite-button__heart--filled {
+    display: inline-flex;
+  }
+
+  /* ---- Variante overlay carte ---- */
+  .favorite-button--card {
+    position: absolute;
+    top: var(--space-2xs);
+    right: var(--space-2xs);
+    z-index: 2;
+    color: var(--color-bg);
+    background-color: color-mix(in srgb, var(--color-fg) 55%, transparent);
+    backdrop-filter: blur(2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .favorite-button--card:hover {
+    background-color: color-mix(in srgb, var(--color-fg) 70%, transparent);
+  }
+
+  /* Halo accentué quand actif pour conserver le contraste AA sur tout visuel. */
+  .favorite-button--card[aria-pressed="true"] {
+    color: var(--color-accent);
+    background-color: color-mix(in srgb, var(--color-fg) 65%, transparent);
+  }
+
+  /* ---- Variante fiche recette (label visible) ---- */
+  .favorite-button--single {
+    gap: var(--space-2xs);
+    padding-inline: var(--space-sm);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    color: var(--color-fg);
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  .favorite-button--single:hover {
+    border-color: var(--color-accent);
+  }
+
+  /* Utilisateur non connecté : le bouton carnet est désactivé → pas
+     d'affordance d'interaction au survol (on neutralise la bordure accent).
+     `body.logged-in` est posé par body_class() côté WordPress. */
+  body:not(.logged-in) .favorite-button--single:hover {
+    border-color: var(--color-border);
+  }
+
+  .favorite-button--single[aria-pressed="true"] {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .favorite-button__label {
+    line-height: 1.2;
+  }
+
+  /* ---- Statut accessible (annoncé, visuellement masqué) ---- */
+  .favorite-button__status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .favorite-button,
+    .favorite-button:active {
+      transition: none;
+      transform: none;
+    }
+  }
+}

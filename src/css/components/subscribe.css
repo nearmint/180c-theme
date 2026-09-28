@@ -1,0 +1,597 @@
+/**
+ * Page Abonnement — layout 2 colonnes, offres en accordéons,
+ * carousel de bénéfices, badges de paiement et mini-FAQ.
+ *
+ * Markup : page-abonnement.php + template-parts/subscribe/*.
+ * JS : src/js/modules/subscribe.js.
+ *
+ * Les accordéons réutilisent le composant du Centre d'aide (classes
+ * .centre-aide__*). On redéclare ici les tokens locaux --help-* sur la racine
+ * .subscribe afin que les règles héritées de help.css se résolvent hors de la
+ * page Aide.
+ *
+ * @package 180c-theme
+ */
+
+.subscribe {
+	/* Pont de tokens pour l'accordéon réutilisé (cf. help.css). */
+	--help-accent: var(--color-accent, #ffae3a);
+	--help-text: var(--color-fg, currentColor);
+	--help-text-muted: var(--color-fg-muted, color-mix(in srgb, currentColor 65%, transparent));
+	--help-border: var(--color-border, color-mix(in srgb, currentColor 12%, transparent));
+	--help-surface: var(--color-bg-elevated, color-mix(in srgb, currentColor 4%, transparent));
+	--help-font-display: var(--font-display, "Oswald", sans-serif);
+	--help-font-body: var(--font-body, "Playfair Display", serif);
+	--help-radius: var(--radius-md, 8px);
+	--help-transition: 280ms cubic-bezier(0.4, 0, 0.2, 1);
+	--help-header-offset: var(--header-height, 80px);
+
+	color: var(--color-fg, currentColor);
+	/* Tête resserrée : top réduit pour remonter le carousel au-dessus de la
+	   ligne de flottaison sur un maximum de viewports. */
+	padding-block: var(--space-6, 24px) clamp(2rem, 4vw, 4rem);
+}
+
+.subscribe__inner {
+	display: flex;
+	flex-direction: column;
+	gap: clamp(1.25rem, 3vw, 2rem);
+}
+
+/* ---------- Titre (H1 éditorial → token fluid) ---------- */
+
+.subscribe__title {
+	font-family: var(--font-display, "Oswald", sans-serif);
+	font-weight: var(--font-weight-semibold, 600);
+	font-size: var(--text-3xl);
+	line-height: 1.1;
+	letter-spacing: -0.01em;
+	margin: 0;
+}
+
+/* ---------- Layout 2 colonnes ---------- */
+
+.subscribe__layout {
+	display: grid;
+	gap: clamp(1.5rem, 4vw, 3rem);
+	align-items: start;
+}
+
+@media (min-width: 768px) {
+	.subscribe__layout {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	}
+}
+
+.subscribe__empty {
+	font-family: var(--font-body, serif);
+	color: var(--color-fg-muted, currentColor);
+}
+
+/* ---------- Offres (carte d'accordéon, override de .centre-aide__item) ---------- */
+
+.subscribe__offers {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3, 12px);
+}
+
+.subscribe-offer {
+	border: 1px solid var(--color-border, color-mix(in srgb, currentColor 14%, transparent));
+	border-radius: var(--radius-lg, 16px);
+	padding-inline: clamp(1rem, 2.5vw, 1.5rem);
+	background: var(--color-bg-elevated, transparent);
+	transition: border-color var(--help-transition);
+}
+
+.subscribe-offer--featured {
+	border-color: var(--color-accent, #ffae3a);
+	border-width: 2px;
+}
+
+.subscribe-offer__heading {
+	margin: 0;
+}
+
+.subscribe-offer__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.25rem 0.75rem;
+}
+
+.subscribe-offer__titles {
+	display: flex;
+	flex-direction: column;
+	gap: 0.1rem;
+	min-width: 0;
+}
+
+.subscribe-offer__title {
+	font-family: var(--font-display, "Oswald", sans-serif);
+	font-weight: var(--font-weight-semibold, 600);
+	font-size: var(--text-lg);
+	letter-spacing: 0.01em;
+	line-height: 1.1;
+}
+
+.subscribe-offer__subtitle {
+	font-family: var(--font-body, serif);
+	font-size: var(--text-sm);
+	color: var(--color-fg-muted, currentColor);
+}
+
+.subscribe-offer__price {
+	margin-left: auto;
+	font-family: var(--font-display, "Oswald", sans-serif);
+	font-weight: var(--font-weight-semibold, 600);
+	font-size: var(--text-lg);
+	white-space: nowrap;
+}
+
+/* Chevron bas affiché uniquement sur les cards repliées (état fermé) ;
+   masqué dès l'ouverture. Pas de rotation. L'état reste annoncé par
+   aria-expanded ; le toggle se fait au clic sur tout l'en-tête. */
+.subscribe-offer__chevron {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	color: inherit;
+}
+
+.subscribe-offer__trigger[aria-expanded="true"] .subscribe-offer__chevron {
+	display: none;
+}
+
+.subscribe-offer__body {
+	max-width: none;
+}
+
+.subscribe-offer__desc {
+	font-family: var(--font-body, serif);
+	font-size: var(--text-base);
+	line-height: 1.6;
+	margin-bottom: var(--space-md, 24px);
+}
+
+.subscribe-offer__desc > :first-child {
+	margin-top: 0;
+}
+
+/* Liste de bénéfices : les puces rondes sont remplacées par une coche (tick)
+   jaune accent. Scopé à la description d'offre — pas de fuite ailleurs. La
+   coche est rendue via un masque SVG coloré au token --color-accent (aucune
+   couleur en dur, conforme à la discipline tokens). */
+.subscribe-offer__desc ul {
+	list-style: none;
+	padding-inline-start: 0;
+	margin: 0;
+}
+
+.subscribe-offer__desc ul li {
+	position: relative;
+	padding-inline-start: 1.75em;
+}
+
+.subscribe-offer__desc ul li::before {
+	content: "";
+	position: absolute;
+	inset-inline-start: 0;
+	inset-block-start: 0.2em;
+	inline-size: 1.1em;
+	block-size: 1.1em;
+	background-color: var(--color-accent);
+	-webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center / contain no-repeat;
+	mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.subscribe-offer__desc ol {
+	list-style: decimal;
+	padding-inline-start: 1.25em;
+	margin: 0;
+}
+
+.subscribe-offer__desc li {
+	margin-top: 0.25em;
+}
+
+/* CTA = vrai lien d'ajout au panier. */
+
+/* Sélecteur sur le parent .subscribe-offer__body : surclasse la règle
+   `.centre-aide__answer-inner a` héritée de help.css (qui colorait le lien
+   en accent → libellé invisible sur fond accent) et retire le soulignement. */
+.subscribe-offer__body .subscribe-offer__cta {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+	width: 100%;
+	min-height: 44px;
+	padding: 0.85rem 1.5rem;
+	font-family: var(--font-display, "Oswald", sans-serif);
+	font-weight: var(--font-weight-medium, 500);
+	font-size: var(--text-base);
+	letter-spacing: 0.04em;
+	text-decoration: none;
+	color: var(--color-on-accent, #14110f);
+	background: var(--color-accent, #ffae3a);
+	border-radius: var(--help-radius);
+	transition: transform var(--help-transition), filter var(--help-transition);
+}
+
+.subscribe-offer__body .subscribe-offer__cta:hover,
+.subscribe-offer__body .subscribe-offer__cta:focus-visible {
+	color: var(--color-on-accent, #14110f);
+	transform: translateY(-1px);
+	filter: brightness(1.05);
+}
+
+.subscribe-offer__body .subscribe-offer__cta:focus-visible {
+	outline: 2px solid var(--color-accent, #ffae3a);
+	outline-offset: 3px;
+}
+
+/* ---------- Badges de paiement ---------- */
+
+/* Ligne de paiement centrée. Tout l'ensemble (cadenas, texte, bordures,
+   logos) hérite d'un gris monochrome adaptatif via currentColor = couleur de
+   texte secondaire (bascule clair/sombre selon le thème). */
+.subscribe-payment {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem 1rem;
+	margin-top: var(--space-sm, 16px);
+	color: var(--color-fg-muted, color-mix(in srgb, currentColor 65%, transparent));
+}
+
+.subscribe-payment__secure {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	margin: 0;
+	font-family: var(--font-display, "Oswald", sans-serif);
+	font-size: var(--text-xs);
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: inherit;
+}
+
+.subscribe-payment__icon {
+	flex: 0 0 auto;
+	color: inherit;
+}
+
+.subscribe-payment__methods {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.subscribe-payment__method {
+	display: inline-flex;
+	align-items: center;
+	padding: 3px 6px;
+	background: transparent;
+	border: 1px solid color-mix(in srgb, currentColor 45%, transparent);
+	border-radius: var(--radius-sm, 4px);
+}
+
+/* Logos inlinés : neutralisés en gris adaptatif via fill: currentColor. */
+.subscribe-payment__logo {
+	display: inline-flex;
+	color: inherit;
+}
+
+.subscribe-payment__logo svg {
+	display: block;
+	width: auto;
+	height: 20px;
+	fill: currentColor;
+}
+
+/* ---------- Colonne média / carousel ---------- */
+
+.subscribe__media {
+	position: sticky;
+	top: calc(var(--header-height, 80px) + 1rem);
+	min-width: 0;
+}
+
+@media (max-width: 767px) {
+	.subscribe__media {
+		position: static;
+	}
+}
+
+.subscribe-carousel {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+}
+
+.subscribe-carousel__track {
+	display: flex;
+	gap: var(--space-sm, 16px);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+	-webkit-overflow-scrolling: touch;
+	scrollbar-width: none;
+	border-radius: var(--radius-lg, 16px);
+}
+
+.subscribe-carousel__track::-webkit-scrollbar {
+	display: none;
+}
+
+.subscribe-carousel__track:focus-visible {
+	outline: 2px solid var(--color-accent, #ffae3a);
+	outline-offset: 3px;
+}
+
+.subscribe-carousel__slide {
+	flex: 0 0 100%;
+	scroll-snap-align: start;
+}
+
+.subscribe-carousel__figure {
+	position: relative;
+	margin: 0;
+}
+
+/* Image non croppée : ratio préservé, jamais rognée. */
+.subscribe-carousel__img {
+	display: block;
+	width: 100%;
+	height: auto;
+	max-height: 70vh;
+	object-fit: contain;
+	border-radius: var(--radius-lg, 16px);
+}
+
+/* Voile dégradé bas pour la lisibilité de la légende ET des contrôles. */
+.subscribe-carousel__figure::after {
+	content: "";
+	position: absolute;
+	inset-inline: 0;
+	bottom: 0;
+	height: 45%;
+	background: linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0));
+	border-radius: 0 0 var(--radius-lg, 16px) var(--radius-lg, 16px);
+	pointer-events: none;
+}
+
+/* Légende par image, alignée à gauche, sur l'image. */
+.subscribe-carousel__caption {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	z-index: 2;
+	max-width: 62%;
+	margin: 0;
+	padding: 0 1rem 1.1rem;
+	color: #fff;
+	font-family: var(--font-display, "Oswald", sans-serif);
+	font-size: var(--text-lg);
+	line-height: 1.35;
+	text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+}
+
+/* Contrôles flèche · compteur · flèche : masqués en mobile (la pagination passe
+ * par les nav-dots) ; en desktop, en sur-impression bas-droite de l'image, sur
+ * la même ligne que la légende ACF (bas-gauche). Cf. media query plus bas. */
+.subscribe-carousel__controls {
+	display: none;
+	align-items: center;
+	gap: var(--space-sm, 16px);
+}
+
+/* Flèches : style « sur photo » (overlay desktop uniquement). */
+.subscribe-carousel__arrow {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	color: #fff;
+	background: rgba(0, 0, 0, 0.4);
+	border: 1px solid rgba(255, 255, 255, 0.6);
+	border-radius: var(--radius-pill, 999px);
+	cursor: pointer;
+	backdrop-filter: blur(2px);
+	transition: border-color var(--help-transition), color var(--help-transition), background-color var(--help-transition), opacity var(--help-transition);
+}
+
+.subscribe-carousel__arrow:hover:not(:disabled),
+.subscribe-carousel__arrow:focus-visible:not(:disabled) {
+	color: var(--color-accent, #ffae3a);
+	border-color: var(--color-accent, #ffae3a);
+}
+
+.subscribe-carousel__arrow:focus-visible {
+	outline: 2px solid #fff;
+	outline-offset: 2px;
+}
+
+.subscribe-carousel__arrow:disabled {
+	opacity: 0.4;
+	cursor: default;
+}
+
+.subscribe-carousel__counter {
+	margin: 0;
+	font-family: var(--font-display, "Oswald", sans-serif);
+	font-size: var(--text-sm);
+	letter-spacing: 0.04em;
+	color: #fff;
+	text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+	font-variant-numeric: tabular-nums;
+}
+
+/* Nav-dots : pagination mobile, centrée sous la piste (masquée en desktop). */
+.subscribe-carousel__dots {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 0.25rem;
+	margin-block-start: 0.75rem;
+}
+
+/* Cible tactile ≥ 24px (WCAG 2.2) ; la puce visible est rendue via ::before. */
+.subscribe-carousel__dot {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+}
+
+.subscribe-carousel__dot::before {
+	content: "";
+	display: block;
+	width: 8px;
+	height: 8px;
+	border-radius: var(--radius-pill, 999px);
+	background: color-mix(in srgb, var(--color-fg) 28%, transparent);
+	transition: background-color var(--help-transition), transform var(--help-transition);
+}
+
+.subscribe-carousel__dot--active::before {
+	background: var(--color-accent, #ffae3a);
+	transform: scale(1.25);
+}
+
+.subscribe-carousel__dot:focus-visible {
+	outline: 2px solid var(--color-accent, #ffae3a);
+	outline-offset: 2px;
+	border-radius: var(--radius-pill, 999px);
+}
+
+@media (min-width: 768px) {
+	/* Contrôles en sur-impression bas-droite de l'image, sur la même ligne que
+	 * la légende ACF (bas-gauche). Le scrim de lisibilité est porté par
+	 * .subscribe-carousel__figure::after (dégradé bas de chaque visuel). */
+	.subscribe-carousel__controls {
+		display: flex;
+		position: absolute;
+		right: clamp(1rem, 2.5vw, 1.5rem);
+		bottom: 1.1rem;
+		z-index: 3;
+	}
+
+	/* Pagination à points réservée au mobile. */
+	.subscribe-carousel__dots {
+		display: none;
+	}
+}
+
+/* ---------- Bandeau « déjà abonné » (pleine largeur, sous le H1) ---------- */
+
+.subscribe-banner {
+	width: 100%;
+	padding: var(--space-4, 16px) clamp(1rem, 3vw, 1.5rem);
+	background: color-mix(in srgb, currentColor 9%, transparent);
+	border-radius: var(--radius-md, 8px);
+	text-align: center;
+}
+
+.subscribe-banner__text {
+	margin: 0;
+	font-family: var(--font-body, serif);
+	font-size: var(--text-base);
+	line-height: 1.5;
+	color: var(--color-fg, currentColor);
+}
+
+.subscribe-banner__text strong {
+	font-weight: var(--font-weight-semibold, 600);
+}
+
+/* CTA contextuel du bandeau (paiement en attente / en pause) : centré sous le
+   texte. Bannière déjà centrée → on aligne simplement le bouton. */
+.subscribe-banner__action {
+	display: flex;
+	justify-content: center;
+	margin-top: var(--space-3, 12px);
+}
+
+/* ---------- Mini-FAQ ---------- */
+
+/* Section pleine largeur (largeur du container des deux colonnes) : le trait
+   de séparation s'étend donc sur toute la largeur. Le CONTENU du module reste
+   centré via max-width + margin auto sur le titre, la liste et le CTA. */
+.subscribe-faq {
+	width: 100%;
+	border-top: 1px solid var(--color-border, color-mix(in srgb, currentColor 12%, transparent));
+	padding-top: clamp(1.5rem, 4vw, 2.5rem);
+	text-align: center;
+}
+
+.subscribe-faq__title {
+	font-family: var(--font-display, "Oswald", sans-serif);
+	font-weight: var(--font-weight-semibold, 600);
+	font-size: var(--text-2xl);
+	letter-spacing: -0.005em;
+	margin: 0 0 var(--space-lg, 32px);
+}
+
+/* Liste centrée comme bloc, mais texte des questions aligné à gauche. */
+.subscribe-faq__list {
+	margin: 0 auto var(--space-lg, 32px);
+	max-width: 70ch;
+	text-align: left;
+}
+
+.subscribe-faq__cta {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 44px;
+	padding: 0.75rem 1.5rem;
+	font-family: var(--font-display, "Oswald", sans-serif);
+	font-weight: var(--font-weight-semibold, 600);
+	font-size: var(--text-sm);
+	letter-spacing: 0.03em;
+	text-decoration: none;
+	color: var(--color-fg, currentColor);
+	border: 1px solid var(--color-border, color-mix(in srgb, currentColor 22%, transparent));
+	border-radius: var(--help-radius);
+	transition: border-color var(--help-transition), color var(--help-transition);
+}
+
+.subscribe-faq__cta:hover,
+.subscribe-faq__cta:focus-visible {
+	color: var(--color-accent, #ffae3a);
+	border-color: var(--color-accent, #ffae3a);
+}
+
+.subscribe-faq__cta:focus-visible {
+	outline: 2px solid var(--color-accent, #ffae3a);
+	outline-offset: 3px;
+}
+
+/* ---------- Réduction des animations ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+	.subscribe *,
+	.subscribe *::before,
+	.subscribe *::after {
+		transition-duration: 0.01ms !important;
+		animation-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}

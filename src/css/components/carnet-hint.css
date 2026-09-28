@@ -1,0 +1,242 @@
+/**
+ * Composant — Popover « carnet » (.carnet-hint).
+ *
+ * Touch-point de promotion de l'abonnement greffé sur le bouton favori
+ * « Ajouter à mon carnet », rendu UNIQUEMENT pour les visiteurs non connectés
+ * par _180c_render_favorite_button() (inc/favorites.php).
+ *
+ * Le wrapper n'altère jamais le bouton qu'il enveloppe : il ne fait qu'ouvrir
+ * un panneau flottant au survol (desktop) ou au tap (tactile, boutons
+ * désactivés seulement). Le comportement au clic d'un bouton actif — surface
+ * « card » : redirection vers /connexion/ — est strictement préservé.
+ *
+ * UN SEUL panneau, identique partout : même largeur, même titre, même texte,
+ * même CTA. Les modifiers ne pilotent que l'ANCRAGE, seule chose qui diffère
+ * réellement d'une surface à l'autre :
+ *   - --card   : encarté DANS la carte, sous le bouton overlay. Sa borne est la
+ *                carte (`.card-180c` est en `overflow: hidden`), pas le viewport.
+ *   - --single : flottant sous le bouton libellé, borné par le viewport, avec
+ *                bascule à droite / vers le haut quand la place manque.
+ *   - --locked : le bouton enveloppé est désactivé (curseur + réponse au tap).
+ *
+ * Tokens DS uniquement — aucune valeur en dur hors épaisseurs de bordure.
+ * Échelle typo FIXE (chrome / UI), conformément à la discipline de tokens.
+ *
+ * @package 180c
+ */
+
+@layer components {
+  /* ----------------------------------------------------------------
+   * Wrapper
+   *
+   * Le wrapper n'introduit AUCUNE boîte visible et ne doit pas peser sur la
+   * mise en page des conteneurs qu'il rejoint (rangée d'actions en flex sur
+   * la fiche recette, bloc de carte en flux normal).
+   * ---------------------------------------------------------------- */
+  .carnet-hint {
+    position: relative;
+  }
+
+  /* Surface « single » : le wrapper prend la place que le bouton occupait
+     comme item flex de .share-actions__inner / .recipes-slider__actions. */
+  .carnet-hint--single {
+    display: inline-flex;
+  }
+
+  /* Surface « card » : le bouton ET le panneau sont en position absolue, donc
+     le wrapper n'a aucun contenu en flux. `display: block` évite la line-box
+     (et donc les quelques pixels de hauteur) qu'un span inline générerait
+     dans .card-180c / .hero-180c. `position: static` laisse le bouton
+     s'ancrer sur son conteneur d'origine — son placement est inchangé. */
+  .carnet-hint--card {
+    display: block;
+    position: static;
+  }
+
+  /* Un <button disabled> n'émet aucun événement de souris et n'en laisse pas
+     remonter : sans cela, ni le survol ni le tap n'atteindraient le wrapper.
+     Portée volontairement restreinte aux boutons SOUS un .carnet-hint — le
+     bouton désactivé d'une recette premium (lecteur connecté non abonné) n'est
+     jamais enveloppé et conserve son curseur `not-allowed` natif. */
+  .carnet-hint .favorite-button:disabled {
+    pointer-events: none;
+  }
+
+  /* Le curseur `not-allowed` du bouton désactivé est repris par le wrapper,
+     qui reçoit désormais les événements à sa place. Le modifier --locked est
+     posé par PHP : il marque les wrappers dont le bouton est désactivé, donc
+     ceux qui répondent AUSSI au tap (cf. carnet-hint.js). */
+  .carnet-hint--locked {
+    cursor: not-allowed;
+  }
+
+  .carnet-hint:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-pill);
+  }
+
+  /* ----------------------------------------------------------------
+   * Panneau
+   * ---------------------------------------------------------------- */
+  .carnet-hint__panel {
+    display: none;
+    flex-direction: column;
+    gap: var(--space-3xs);
+    position: absolute;
+    z-index: 5;
+    /* Largeur UNIQUE, quel que soit le gabarit : le panneau est un seul et même
+       module. Seul l'ancrage change (cf. plus bas). */
+    width: 232px;
+    padding: var(--space-sm);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-bg);
+    box-shadow: var(--shadow-md);
+    cursor: auto;
+    text-align: start;
+  }
+
+  .carnet-hint__panel.is-open {
+    display: flex;
+  }
+
+  /* Pont invisible qui comble l'écart bouton → panneau. Sans lui, traverser
+     ces 8 px fait sortir le pointeur du wrapper : `mouseleave` referme le
+     panneau avant qu'il soit atteignable. La gouttière vaut `--space-2xs`
+     dans les deux gabarits, d'où une règle unique. */
+  .carnet-hint__panel::before {
+    content: "";
+    position: absolute;
+    inset-block-end: 100%;
+    inset-inline: 0;
+    height: var(--space-2xs);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .carnet-hint__panel.is-open {
+      animation: carnet-hint-in var(--transition-fast) both;
+    }
+  }
+
+  @keyframes carnet-hint-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Gabarit « single » : sous le bouton, aligné à gauche. Le panneau flotte
+     dans le flux, sa seule borne est le viewport. */
+  .carnet-hint--single .carnet-hint__panel {
+    top: calc(100% + var(--space-2xs));
+    inset-inline-start: 0;
+    max-width: calc(100vw - var(--space-lg));
+  }
+
+  /* Ancrage à droite, posé par carnet-hint.js quand l'ancrage à gauche ferait
+     sortir le panneau de la zone visible (bouton près du bord droit, écran
+     étroit). */
+  .carnet-hint--single .carnet-hint__panel.is-flipped-x {
+    inset-inline-start: auto;
+    inset-inline-end: 0;
+  }
+
+  /* Ouverture VERS LE HAUT, posée par carnet-hint.js quand la place manque en
+     dessous. Cas de référence : le slider recettes, dont le viewport est un
+     scroller en `overflow-y: hidden` — un panneau ouvert vers le bas y était
+     coupé net. Le pont passe du haut vers le bas du panneau avec lui. */
+  .carnet-hint--single .carnet-hint__panel.is-flipped-y {
+    top: auto;
+    bottom: calc(100% + var(--space-2xs));
+  }
+
+  .carnet-hint--single .carnet-hint__panel.is-flipped-y::before {
+    inset-block-end: auto;
+    inset-block-start: 100%;
+  }
+
+  /* Gabarit « card » : encarté DANS la carte, sous le bouton overlay et aligné
+     sur son bord droit. Sa borne n'est pas le viewport mais la carte elle-même,
+     qui est en `overflow: hidden` et rognerait un panneau plus large qu'elle
+     (variantes --sm en rail). Le décalage vertical reprend l'offset du bouton
+     (--space-2xs), sa hauteur (44px) puis la gouttière. */
+  .carnet-hint--card .carnet-hint__panel {
+    top: calc(var(--space-2xs) + 44px + var(--space-2xs));
+    inset-inline-end: var(--space-2xs);
+    max-width: calc(100% - var(--space-sm));
+  }
+
+  /* ----------------------------------------------------------------
+   * Contenu
+   * ---------------------------------------------------------------- */
+  .carnet-hint__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-snug);
+    color: var(--color-fg);
+  }
+
+  .carnet-hint__desc {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    line-height: var(--line-height-normal);
+    color: var(--color-fg-muted);
+  }
+
+  /* Le CTA hérite de .btn.btn--primary ; on ne force ici que la pleine largeur
+     (cible tactile sur tout le panneau) et le détachement du texte au-dessus —
+     la gouttière du panneau, serrée pour le couple titre/description, serait
+     trop courte entre la description et le bouton. */
+  .carnet-hint__cta {
+    width: 100%;
+    margin-block-start: var(--space-2xs);
+  }
+
+  /* ----------------------------------------------------------------
+   * Fermeture explicite — sur TOUS les appareils
+   *
+   * La croix était masquée (`display: none`) hors `(hover: none)`, au motif
+   * qu'au pointeur le `mouseleave` suffit. Mais `display: none` retire aussi
+   * l'élément de l'ordre de tabulation : un utilisateur au clavier — qui n'a
+   * pas de `mouseleave` — n'avait donc AUCUN moyen de fermer le panneau depuis
+   * son contenu. Elle est désormais toujours rendue et toujours focusable.
+   * ---------------------------------------------------------------- */
+  .carnet-hint__close {
+    display: inline-flex;
+    position: absolute;
+    top: var(--space-3xs);
+    inset-inline-end: var(--space-3xs);
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-fg-muted);
+    font-size: var(--text-md);
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .carnet-hint__close:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+    border-radius: var(--radius-md);
+  }
+
+  /* Réserve la gouttière de la croix pour que le titre ne passe pas dessous.
+     Inconditionnel depuis que la croix l'est. */
+  .carnet-hint__title {
+    padding-inline-end: var(--space-lg);
+  }
+}

@@ -1,0 +1,96 @@
+/*
+ * Composant partagé — publication-xl
+ *
+ * Featured book/issue product. Two-column layout desktop: cover on
+ * the left (book aspect 2/3), content block on the right (title,
+ * excerpt, price, CTA). Stacks vertically below --breakpoint-md.
+ *
+ * Markup émis par _180c_render_publication_xl() (inc/blocks/_helpers.php),
+ * consommé par la fiche Design System (template-parts/ds/components/). Le
+ * module home « Dernière publication » (last_publication) a été retiré
+ * (itération 2026-06) ; ces styles restent pour le composant partagé.
+ */
+
+@layer components {
+  .publication-xl {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .publication-xl {
+      grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+    }
+  }
+
+  .publication-xl__media {
+    display: block;
+  }
+
+  .publication-xl__media a {
+    display: block;
+  }
+
+  .publication-xl__cover {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    object-position: center;
+    max-height: 600px;
+    display: block;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .publication-xl__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .publication-xl__title {
+    font-family: var(--font-display);
+    font-size: var(--text-4xl);
+    line-height: var(--line-height-tight);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-fg);
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .publication-xl__title a {
+    color: inherit;
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .publication-xl__title a:hover {
+    color: var(--color-accent);
+  }
+
+  .publication-xl__excerpt {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: var(--line-height-relaxed);
+    color: var(--color-fg);
+    margin: 0;
+    max-width: 50ch;
+  }
+
+  .publication-xl__price {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg);
+  }
+
+  .publication-xl__price .woocommerce-Price-amount {
+    font-family: inherit;
+  }
+
+  .publication-xl__cta {
+    align-self: flex-start;
+  }
+}

@@ -1,0 +1,69 @@
+/*
+ * Breadcrumb — fil d'Ariane réutilisable.
+ *
+ * Composant BEM générique : séparateurs chevron (›, décoratifs aria-hidden),
+ * dernier item = page courante non cliquable (aria-current="page").
+ * Chrome / UI → échelle typographique UI (--text-sm), pas les tokens fluides
+ * éditoriaux. Lisible clair + sombre (tokens sémantiques).
+ */
+
+@layer components {
+  .breadcrumb {
+    /* Filet pleine largeur viewport (le nav est rendu hors .site-container,
+       seul .breadcrumb__inner contraint le contenu). Marge par défaut au-dessus
+       du filet pour le détacher du contenu précédent. */
+    margin-block-start: var(--space-xl);
+    padding-block: var(--space-md);
+    border-block-start: 1px solid var(--color-border);
+    font-size: var(--text-sm);
+    color: var(--color-fg-muted);
+  }
+
+  .breadcrumb__inner {
+    display: flex;
+    /* Mobile : toujours sur une seule ligne, scroll latéral si trop long
+       (pas de retour à la ligne). Le wrap est restauré à partir de md. */
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: var(--space-2xs);
+    overflow-x: auto;
+    /* Masque la scrollbar (Firefox + WebKit) tout en gardant le scroll. */
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .breadcrumb__inner::-webkit-scrollbar {
+    display: none;
+  }
+
+  .breadcrumb__item {
+    color: var(--color-fg-muted);
+    text-decoration: none;
+    /* Chaque item reste insécable pour garantir la ligne unique. */
+    white-space: nowrap;
+  }
+
+  @media (min-width: 768px) {
+    .breadcrumb__inner {
+      flex-wrap: wrap;
+      overflow-x: visible;
+    }
+  }
+
+  a.breadcrumb__item:hover,
+  a.breadcrumb__item:focus-visible {
+    color: var(--color-accent);
+    text-decoration: underline;
+  }
+
+  .breadcrumb__item[aria-current="page"] {
+    color: var(--color-fg);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .breadcrumb__sep {
+    color: var(--color-fg-muted);
+    opacity: 0.6;
+    user-select: none;
+  }
+}

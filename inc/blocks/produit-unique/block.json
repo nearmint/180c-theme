@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "acf/produit-unique",
+  "title": "Produit unique",
+  "category": "180c",
+  "icon": "products",
+  "description": "Affiche une carte produit WooCommerce sélectionnée, centrée et à largeur contrainte, à insérer dans le flux d'un article. Les styles sont fournis par le bundle CSS principal (src/css/components/blocks-produits.css).",
+  "keywords": ["produit", "boutique", "carte", "woo", "card"],
+  "textdomain": "180c",
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "align": false,
+    "multiple": true
+  },
+  "acf": {
+    "mode": "preview",
+    "renderTemplate": "render.php"
+  }
+}

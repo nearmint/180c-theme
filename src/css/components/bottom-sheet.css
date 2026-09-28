@@ -1,0 +1,169 @@
+/**
+ * Bottom sheet générique (mobile) — feuille basse modale.
+ *
+ * Habillage réutilisable, piloté par `src/js/modules/bottom-sheet.js`. À
+ * l'ouverture, le JS déplace un panneau existant dans un overlay ajouté à
+ * <body> (portal), enrobe son contenu (`.bottom-sheet__body`), injecte un
+ * en-tête (poignée + titre + fermeture) et, en option, un pied d'actions.
+ *
+ * Structure produite :
+ *   .bottom-sheet__overlay            (fixed plein écran, fond assombri, flex-end)
+ *     .bottom-sheet__panel            (carte basse ancrée en bas, en flux)
+ *       .bottom-sheet__head           (poignée ::before + titre + fermeture)
+ *       .bottom-sheet__body           (contenu d'origine, zone défilante)
+ *       [pied optionnel]              (ex. .bottom-sheet__foot des filtres)
+ *
+ * Le panneau vit EN FLUX dans l'overlay (position: relative + justify-content:
+ * flex-end) : on évite l'algorithme de position absolue (top:auto + height:auto
+ * = position statique) qui désancrait la feuille.
+ *
+ * CASCADE — le sélecteur du panneau est volontairement DESCENDANT
+ * (`.bottom-sheet__overlay .bottom-sheet__panel`, spécificité 0,2,0). Les
+ * composants qui fournissent les panneaux les masquent en mobile avec un
+ * sélecteur de classe simple (ex. `.my-account__mobile-panels { display: none }`
+ * en < 1024px) : à spécificité égale, c'est l'ordre d'import qui tranchait, et
+ * my-account.css a depuis migré dans le bundle `commerce.css`, chargé APRÈS
+ * main.css — la feuille s'ouvrait alors sur un panneau `display: none` (overlay
+ * noir vide, effet « rien au clic »). Le sélecteur descendant rend le résultat
+ * indépendant de l'ordre des feuilles.
+ *
+ * Consommateurs : filtres recettes (recipe-filters-sheet.js) et menu compte
+ * mobile (account-menu-toggle.js).
+ */
+
+@layer components {
+  .bottom-sheet__overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-modal);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    background-color: rgb(0 0 0 / 55%);
+    animation: bottom-sheet-fade 180ms ease both;
+  }
+
+  .bottom-sheet__overlay .bottom-sheet__panel {
+    /* En flux dans l'overlay ; on neutralise d'éventuels offsets hérités du
+       contexte d'origine du panneau (ex. popover absolu des filtres). */
+    position: relative;
+    inset: auto;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    max-height: 85vh;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    box-shadow: var(--shadow-lg);
+    background-color: var(--color-bg-elevated);
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    animation: bottom-sheet-up 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .bottom-sheet__head {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    padding: var(--space-md) var(--space-md) var(--space-sm);
+    border-bottom: 1px solid var(--color-border);
+    background-color: var(--color-bg-elevated);
+  }
+
+  /* Poignée de préhension. */
+  .bottom-sheet__head::before {
+    content: "";
+    position: absolute;
+    top: var(--space-2xs);
+    left: 50%;
+    width: 36px;
+    height: 4px;
+    transform: translateX(-50%);
+    border-radius: var(--radius-pill);
+    background-color: var(--color-border);
+  }
+
+  .bottom-sheet__title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg);
+  }
+
+  .bottom-sheet__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin: calc(-1 * var(--space-2xs));
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-fg-muted);
+    cursor: pointer;
+  }
+
+  .bottom-sheet__close:hover,
+  .bottom-sheet__close:focus-visible {
+    color: var(--color-fg);
+    background-color: var(--color-bg);
+  }
+
+  .bottom-sheet__body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: var(--space-md);
+    overflow-y: auto;
+    padding: var(--space-md);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Pied d'actions optionnel (ex. « Effacer » / « Voir les résultats »). */
+  .bottom-sheet__foot {
+    display: flex;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-bg-elevated);
+  }
+
+  /* Verrou de scroll du body pendant l'ouverture de la feuille. */
+  body.bottom-sheet-lock {
+    overflow: hidden;
+  }
+
+  @keyframes bottom-sheet-fade {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes bottom-sheet-up {
+    from {
+      transform: translateY(100%);
+    }
+
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bottom-sheet__overlay,
+    .bottom-sheet__panel {
+      animation: none;
+    }
+  }
+}

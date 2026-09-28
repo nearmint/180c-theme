@@ -1,0 +1,94 @@
+/**
+ * Mon carnet de recettes — barre filtres/recherche + grille filtrée client-side.
+ *
+ * Réutilise le MÊME module de filtres que l'archive « Toutes les recettes »
+ * (`.recipe-filters--explore`, recipe.css) : champ de recherche + dropdowns
+ * multi-select. Ce fichier n'ajoute que le compteur live, l'état « aucun
+ * résultat » et l'en-tête « Recettes » (boutons d'action). Le toggle JS vit
+ * dans `mon-carnet-filters.js`.
+ *
+ * Markup émis par `_180c_render_mon_carnet()` (inc/favorites.php) :
+ *   form.recipe-filters.recipe-filters--explore.recipe-filters--carnet[data-carnet-filters]
+ *     .recipe-filters__bar > .recipe-filters__group--search > input.recipe-filters__search[data-carnet-search]
+ *     .recipe-filters__dropdown[data-carnet-dropdown] > … > input.recipe-filters__checkbox[data-carnet-filter]
+ *   p.mon-carnet__count[data-carnet-count]
+ *   ul.recipes-grid > li.recipes-grid__item[data-carnet-item]
+ *   .mon-carnet__noresults[data-carnet-noresults]
+ */
+
+@layer components {
+  /* Home « Recettes » (template-home.php) : H1 + lien « Mon carnet » sur le même
+     rail, action alignée à droite. Le bar est neutre pour les autres homes
+     (Gazette/Boutique) où il n'enveloppe que le H1. */
+  .gazette-header__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3) var(--spacing-4);
+  }
+
+  /* Bouton d'action de l'en-tête d'archive (« Mon carnet de recettes » sur
+     /toutes-les-recettes/). L'en-tête « Recettes » (template-home.php) n'a plus
+     d'action inline : ses accès vivent désormais dans la nav sticky révélée au
+     scroll (.recipes-stickynav, recipes-stickynav.css). */
+  .archive-header__action {
+    flex-shrink: 0;
+    white-space: nowrap;
+    /* Fond gris pour faire ressortir le CTA par rapport au ghost transparent. */
+    background-color: var(--color-bg-elevated);
+    border-color: var(--color-border);
+  }
+
+  .archive-header__action:hover {
+    background-color: var(--color-border);
+    border-color: var(--color-fg-muted);
+  }
+
+  /* Mobile : les CTA d'en-tête d'archive/carnet sont masqués (les accès restent
+     dans le menu latéral), et scopés pour ne masquer que le bon bouton :
+       - .mon-carnet            → « Toutes les recettes »
+       - .recipe-archive--explore → « Mon carnet de recettes »
+     Chaque page ne portant qu'un seul .archive-header__action, le scope évite
+     tout effet croisé entre les deux surfaces. */
+  @media (max-width: 639px) {
+    .mon-carnet .archive-header__action,
+    .recipe-archive--explore .archive-header__action {
+      display: none;
+    }
+  }
+
+  /* Bouton « Tout effacer » de la barre de filtres du carnet = <button> :
+     neutraliser les défauts UA tout en réutilisant l'apparence de
+     .recipe-filters__link (archive). */
+  button.recipe-filters__link {
+    background-color: transparent;
+    cursor: pointer;
+    font-family: var(--font-display);
+  }
+
+  /* Compteur de résultats (live region). */
+  .mon-carnet__count {
+    font-family: var(--font-display);
+    font-size: var(--font-size-sm);
+    color: var(--color-fg-muted);
+    margin: 0 0 var(--spacing-4);
+  }
+
+  /* État « aucun résultat » du filtrage client (masqué tant qu'il reste des cartes). */
+  .mon-carnet__noresults {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-4);
+    padding-block: var(--spacing-12);
+    text-align: center;
+  }
+
+  .mon-carnet__noresults-msg {
+    font-family: var(--font-body);
+    font-size: var(--font-size-lg);
+    color: var(--color-fg-muted);
+    margin: 0;
+  }
+}

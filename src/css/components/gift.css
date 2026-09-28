@@ -1,0 +1,427 @@
+/**
+ * « Offrir un abonnement » — module accordéon (page Abonnement) + formulaire
+ * cadeau (page autonome et module).
+ *
+ * Markup : template-parts/gift/gift-form.php, page-offrir-un-abonnement.php,
+ * bloc accordéon de page-abonnement.php.
+ * JS : src/js/modules/gift.js.
+ *
+ * Tokens du design system avec repli inline (robuste hors contexte). Discipline
+ * typographique : h1 éditorial en token fluid, titres d'UI en tokens fixes.
+ *
+ * @package 180c-theme
+ */
+
+.gift {
+	--gift-accent: var(--color-accent, #ffae3a);
+	--gift-text: var(--color-fg, currentColor);
+	--gift-text-muted: var(--color-fg-muted, color-mix(in srgb, currentColor 65%, transparent));
+	--gift-border: var(--color-border, color-mix(in srgb, currentColor 14%, transparent));
+	--gift-surface: var(--color-bg-elevated, color-mix(in srgb, currentColor 4%, transparent));
+	--gift-radius: var(--radius-md, 8px);
+	--gift-transition: 280ms cubic-bezier(0.4, 0, 0.2, 1);
+
+	color: var(--color-fg, currentColor);
+}
+
+/* ---------- Page autonome ---------- */
+
+.gift--page {
+	padding-block: clamp(2rem, 5vw, 4rem);
+}
+
+.gift__inner {
+	display: flex;
+	flex-direction: column;
+	gap: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.gift__intro {
+	max-width: 42rem;
+}
+
+.gift__title {
+	/* H1 éditorial → token fluid. */
+	font-family: var(--font-display, "Oswald", sans-serif);
+	font-weight: var(--font-weight-semibold, 600);
+	font-size: var(--text-3xl);
+	line-height: 1.1;
+	letter-spacing: -0.01em;
+	margin: 0 0 var(--space-3, 0.75rem);
+}
+
+.gift__lead {
+	font-family: var(--font-body, "Playfair Display", serif);
+	color: var(--gift-text-muted);
+	line-height: 1.6;
+	margin: 0;
+}
+
+.gift__panel {
+	max-width: 38rem;
+	width: 100%;
+}
+
+/* ---------- Module accordéon (page Abonnement) ---------- */
+
+.gift__module {
+	--gift-accent: var(--color-accent, #ffae3a);
+	/* --gift-text est defini ici aussi : le module accordeon est rendu hors
+	   de tout ancetre `.gift` (page-abonnement.php), il n'heritait donc pas
+	   du bloc de tokens du haut de fichier. */
+	--gift-text: var(--color-fg, currentColor);
+	--gift-text-muted: var(--color-fg-muted, color-mix(in srgb, currentColor 65%, transparent));
+	--gift-border: var(--color-border, color-mix(in srgb, currentColor 14%, transparent));
+	--gift-surface: var(--color-bg-elevated, color-mix(in srgb, currentColor 4%, transparent));
+	--gift-radius: var(--radius-md, 8px);
+	--gift-transition: 280ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gift__item {
+	border: 1px solid var(--gift-border);
+	border-radius: var(--gift-radius);
+	background: var(--gift-surface);
+	overflow: hidden;
+}
+
+.gift__heading {
+	margin: 0;
+	font-size: inherit;
+}
+
+.gift__trigger {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-3, 0.75rem);
+	width: 100%;
+	padding: clamp(0.875rem, 2.5vw, 1.25rem);
+	background: none;
+	border: 0;
+	cursor: pointer;
+	text-align: left;
+	color: inherit;
+	font: inherit;
+}
+
+/* En-tête aligné sur celui des offres : titre + sous-titre à gauche, prix
+   poussé à droite (mirror de .subscribe-offer__head). flex:1 pour que le prix
+   se cale au bord, le chevron restant géré par .gift__trigger. */
+.gift__head {
+	flex: 1 1 auto;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.25rem 0.75rem;
+	min-width: 0;
+}
+
+.gift__titles {
+	display: flex;
+	flex-direction: column;
+	gap: 0.1rem;
+	min-width: 0;
+}
+
+.gift__module-title {
+	/* Titre d'UI → token fixe. */
+	font-family: var(--font-display, "Oswald", sans-serif);
+	font-size: var(--text-lg);
+	font-weight: var(--font-weight-semibold, 600);
+}
+
+.gift__chevron {
+	flex: none;
+	display: inline-flex;
+	color: var(--gift-text-muted);
+	transition: transform var(--gift-transition);
+}
+
+.gift__trigger[aria-expanded="true"] .gift__chevron {
+	transform: rotate(180deg);
+}
+
+.gift__trigger:focus-visible {
+	outline: 2px solid var(--gift-accent);
+	outline-offset: -2px;
+}
+
+.gift__answer {
+	height: 0;
+	overflow: hidden;
+	transition: height var(--gift-transition);
+}
+
+.gift__body {
+	padding: 0 clamp(0.875rem, 2.5vw, 1.25rem) clamp(1rem, 3vw, 1.5rem);
+}
+
+/* ---------- Étapes numérotées (module accordéon) ---------- */
+
+.gift__steps {
+	list-style: none;
+	margin: 0 0 var(--space-4, 1rem);
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3, 0.75rem);
+}
+
+.gift__step {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+}
+
+.gift__step-number {
+	flex: none;
+	font-family: var(--font-display, "Oswald", sans-serif);
+	font-size: var(--text-xl);
+	font-weight: var(--font-weight-bold, 700);
+	line-height: 1.1;
+	color: var(--gift-accent);
+	font-variant-numeric: tabular-nums;
+}
+
+.gift__step-text {
+	/* Corps lisible en couleur PLEINE (--gift-text) : ces trois étapes sont
+	   le mode d'emploi du cadeau, pas une mention secondaire. Le gris
+	   --gift-text-muted les faisait passer au second plan. */
+	font-family: var(--font-body, serif);
+	font-size: var(--text-sm);
+	line-height: 1.5;
+	color: var(--gift-text);
+}
+
+/* ---------- CTA (mirror de .subscribe-offer__cta) ---------- */
+
+.gift__cta {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+	width: 100%;
+	min-height: 44px;
+	padding: 0.85rem 1.5rem;
+	font-family: var(--font-display, "Oswald", sans-serif);
+	font-weight: var(--font-weight-medium, 500);
+	font-size: var(--text-base);
+	letter-spacing: 0.04em;
+	text-decoration: none;
+	color: var(--color-on-accent, #14110f);
+	background: var(--gift-accent);
+	border-radius: var(--gift-radius);
+	transition: transform var(--gift-transition), filter var(--gift-transition);
+}
+
+.gift__cta:hover,
+.gift__cta:focus-visible {
+	color: var(--color-on-accent, #14110f);
+	transform: translateY(-1px);
+	filter: brightness(1.05);
+}
+
+.gift__cta:focus-visible {
+	outline: 2px solid var(--gift-accent);
+	outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.gift__cta {
+		transition: none;
+	}
+}
+
+/* ---------- Formulaire ---------- */
+
+.gift__form {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-4, 1rem);
+}
+
+.gift__field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.gift__field--when {
+	gap: 0.6rem;
+}
+
+.gift__label {
+	font-family: var(--font-display, "Oswald", sans-serif);
+	font-size: var(--text-sm);
+	font-weight: var(--font-weight-medium, 500);
+	color: var(--gift-text-muted);
+}
+
+.gift__label--date {
+	margin-top: 0.5rem;
+}
+
+.gift__input {
+	width: 100%;
+	min-height: 44px;
+	padding-inline: var(--space-3, 0.75rem);
+	padding-block: var(--space-2, 0.5rem);
+	border: 1px solid var(--gift-border);
+	border-radius: var(--gift-radius);
+	background: var(--color-bg, transparent);
+	color: var(--gift-text);
+	font-family: var(--font-body, "Playfair Display", serif);
+	font-size: var(--text-base);
+	appearance: none;
+	transition: border-color var(--gift-transition);
+}
+
+.gift__textarea {
+	min-height: 5.5rem;
+	resize: vertical;
+}
+
+.gift__input:focus-visible {
+	outline: none;
+	border-color: var(--gift-accent);
+	box-shadow: 0 0 0 2px color-mix(in srgb, var(--gift-accent) 35%, transparent);
+}
+
+.gift__input[aria-invalid="true"] {
+	border-color: var(--color-danger, #d33);
+}
+
+.gift__hint {
+	font-size: var(--text-xs);
+	color: var(--gift-text-muted);
+	margin: 0;
+}
+
+.gift__error {
+	font-size: var(--text-xs);
+	color: var(--color-danger, #d33);
+	margin: 0;
+}
+
+.gift__checkbox {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--spacing-2, 0.5rem);
+	font-size: var(--text-sm);
+	cursor: pointer;
+}
+
+/* Case custom DS — alignée sur le tunnel /commande/ : carré aux tokens,
+ * coche tracée en clip-path, fond accent au cochage. Tokens theme-aware →
+ * clair et sombre hérités sans règle dédiée. */
+.gift__checkbox input[type="checkbox"] {
+	appearance: none;
+	-webkit-appearance: none;
+	flex: 0 0 auto;
+	display: inline-grid;
+	place-content: center;
+	box-sizing: border-box;
+	inline-size: 1.15rem;
+	block-size: 1.15rem;
+	margin: 0;
+	border: 1px solid var(--gift-border);
+	border-radius: var(--radius-sm, 4px);
+	background-color: var(--gift-surface);
+	cursor: pointer;
+	transition:
+		border-color var(--gift-transition),
+		background-color var(--gift-transition);
+}
+
+.gift__checkbox input[type="checkbox"]::before {
+	content: "";
+	inline-size: 0.7rem;
+	block-size: 0.7rem;
+	transform: scale(0);
+	transition: transform var(--gift-transition);
+	background-color: var(--color-on-accent, #fff);
+	clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+
+.gift__checkbox input[type="checkbox"]:checked {
+	background-color: var(--gift-accent);
+	border-color: var(--gift-accent);
+}
+
+.gift__checkbox input[type="checkbox"]:checked::before {
+	transform: scale(1);
+}
+
+.gift__checkbox input[type="checkbox"]:focus-visible {
+	outline: 2px solid var(--gift-accent);
+	outline-offset: 2px;
+}
+
+.gift__date {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+}
+
+.gift__rgpd {
+	font-size: var(--text-xs);
+	line-height: 1.5;
+	color: var(--gift-text-muted);
+	margin: 0;
+}
+
+.gift__rgpd a {
+	text-decoration: underline;
+	text-underline-offset: 0.15em;
+}
+
+.gift__submit {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 48px;
+	padding-inline: var(--space-5, 1.5rem);
+	border: 0;
+	border-radius: var(--gift-radius);
+	background: var(--gift-accent);
+	color: var(--color-on-accent, #1a1a1a);
+	font-family: var(--font-display, "Oswald", sans-serif);
+	font-size: var(--text-base);
+	font-weight: var(--font-weight-semibold, 600);
+	cursor: pointer;
+	transition: filter var(--gift-transition);
+}
+
+.gift__submit:hover {
+	filter: brightness(1.05);
+}
+
+.gift__submit:focus-visible {
+	outline: 2px solid var(--gift-accent);
+	outline-offset: 2px;
+}
+
+.gift__submit[aria-busy="true"],
+.gift__submit:disabled {
+	opacity: 0.6;
+	cursor: progress;
+}
+
+.gift__status {
+	font-size: var(--text-sm);
+	color: var(--gift-text);
+	margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.gift__answer,
+	.gift__chevron,
+	.gift__input,
+	.gift__submit {
+		transition: none;
+	}
+}

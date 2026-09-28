@@ -1,0 +1,39 @@
+{
+  "key": "group_article_relations",
+  "title": "Article - Liens éditoriaux",
+  "fields": [
+    {
+      "key": "field_article_related_product",
+      "label": "Produit source",
+      "name": "related_product",
+      "type": "post_object",
+      "instructions": "Produit dont est issu l'article (numéro, livre, etc.).",
+      "required": 0,
+      "conditional_logic": 0,
+      "post_type": ["product"],
+      "taxonomy": [],
+      "allow_null": 1,
+      "multiple": 0,
+      "return_format": "id",
+      "filters": ["search"]
+    }
+  ],
+  "location": [
+    [
+      {
+        "param": "post_type",
+        "operator": "==",
+        "value": "post"
+      }
+    ]
+  ],
+  "menu_order": 10,
+  "position": "normal",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "hide_on_screen": [],
+  "active": true,
+  "description": "Liens éditoriaux propres aux articles.",
+  "modified": 1780876800
+}

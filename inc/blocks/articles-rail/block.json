@@ -1,0 +1,43 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "180c/articles-rail",
+  "title": "Rail d'articles",
+  "category": "180c",
+  "icon": "align-left",
+  "description": "Rail horizontal d'articles. Modes : récents, par catégorie, par tag, ou manuel.",
+  "keywords": ["articles", "rail", "slider", "editorial"],
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "align": ["wide", "full"]
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "default": ""
+    },
+    "mode": {
+      "type": "string",
+      "default": "recent",
+      "enum": ["recent", "category", "tag", "manual"]
+    },
+    "category_id": {
+      "type": "number"
+    },
+    "tag_id": {
+      "type": "number"
+    },
+    "count": {
+      "type": "number",
+      "default": 8
+    },
+    "manual_post_ids": {
+      "type": "array",
+      "items": { "type": "number" },
+      "default": []
+    }
+  },
+  "render": "file:./render.php",
+  "style": "file:./style.css"
+}

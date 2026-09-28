@@ -1,0 +1,364 @@
+/**
+ * Composant — Stepper de résiliation (._180c-unsub sur <dialog> natif).
+ *
+ * Parcours de rétention en 4 écrans rendu sous « Gérer votre abonnement »
+ * (parts/account/unsubscribe-stepper.php). Piloté par
+ * src/js/modules/unsubscribe-flow.js (Phase 7). Chrome UI → échelle typo fixe,
+ * tokens DS uniquement (light/dark gérés par les tokens). Cibles tactiles
+ * ≥ 44px. Namespace _180c-unsub (underscore initial : identifiant CSS valide,
+ * cf. ._180c-order-review).
+ *
+ * @package 180c
+ */
+
+@layer components {
+  /* Plein écran : le <dialog> occupe tout le viewport une fois ouvert. */
+  ._180c-unsub {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: var(--color-bg);
+    color: var(--color-fg);
+    overflow: auto;
+  }
+
+  ._180c-unsub::backdrop {
+    background: color-mix(in srgb, #000 55%, transparent);
+  }
+
+  /* Contenu centré et borné en largeur pour rester lisible en plein écran. */
+  ._180c-unsub__inner {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: var(--space-2xl) var(--space-lg) var(--space-3xl);
+  }
+
+  /* Croix de fermeture, ancrée en haut à droite du viewport. */
+  ._180c-unsub__close {
+    position: fixed;
+    top: var(--space-md);
+    right: var(--space-md);
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: none;
+    color: var(--color-fg);
+    cursor: pointer;
+    transition: background-color var(--transition-base);
+  }
+
+  ._180c-unsub__close:hover {
+    background: var(--color-bg-elevated);
+  }
+
+  ._180c-unsub__close:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  ._180c-unsub__step {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  ._180c-unsub__step[hidden] {
+    display: none;
+  }
+
+  ._180c-unsub__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg);
+  }
+
+  /* Le titre reçoit le focus à chaque transition (tabindex=-1) sans contour
+     persistant inesthétique ; le focus-visible reste visible au clavier. */
+  ._180c-unsub__title:focus {
+    outline: none;
+  }
+
+  ._180c-unsub__title:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+  }
+
+  ._180c-unsub__text {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: var(--line-height-normal);
+    color: var(--color-fg-muted);
+  }
+
+  ._180c-unsub__mention {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    color: var(--color-fg-muted);
+  }
+
+  ._180c-unsub__end-date {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg);
+  }
+
+  /* Rail recette de l'écran 1 : neutralise les marges du shell home-module
+     pour l'intégrer dans le flux du <dialog>. */
+  ._180c-unsub__step .home-module {
+    margin: 0;
+    padding: 0;
+  }
+
+  ._180c-unsub__step .container-180c {
+    padding-inline: 0;
+  }
+
+  /* ---------- Sondage (écran 3) ---------- */
+  ._180c-unsub__fieldset {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  ._180c-unsub__radio {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    min-height: 44px;
+    padding: var(--space-2xs) var(--space-sm);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: border-color var(--transition-base),
+                background-color var(--transition-base);
+  }
+
+  ._180c-unsub__radio:hover {
+    border-color: var(--color-fg-muted);
+  }
+
+  ._180c-unsub__radio:has(input:focus-visible) {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  ._180c-unsub__radio:has(input:checked) {
+    border-color: var(--color-accent);
+    background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  }
+
+  ._180c-unsub__radio-label {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    color: var(--color-fg);
+  }
+
+  ._180c-unsub__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  ._180c-unsub__label {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    color: var(--color-fg);
+  }
+
+  ._180c-unsub__textarea {
+    width: 100%;
+    padding: var(--space-sm);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-elevated);
+    color: var(--color-fg);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    resize: vertical;
+  }
+
+  ._180c-unsub__textarea:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+  }
+
+  /* Message d'erreur de l'écran 3 (role=alert), injecté par le JS. */
+  ._180c-unsub__error {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    color: var(--color-danger);
+  }
+
+  ._180c-unsub__error[hidden] {
+    display: none;
+  }
+
+  /* ---------- Actions ---------- */
+  ._180c-unsub__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-top: var(--space-sm);
+  }
+
+  ._180c-unsub__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: var(--space-2xs) var(--space-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-elevated);
+    color: var(--color-fg);
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color var(--transition-base),
+                border-color var(--transition-base);
+  }
+
+  ._180c-unsub__btn:hover {
+    border-color: var(--color-fg-muted);
+  }
+
+  ._180c-unsub__btn--primary {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+
+  ._180c-unsub__btn--primary:hover {
+    background: color-mix(in srgb, var(--color-accent) 88%, #000);
+    border-color: color-mix(in srgb, var(--color-accent) 88%, #000);
+    color: var(--color-on-accent);
+  }
+
+  ._180c-unsub__btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* Boutons rendus en <a> (data-unsub-pause, data-unsub-done) à l'intérieur de
+     .entry-content : la règle éditoriale `.entry-content a` (accent + underline,
+     même layer, 0,0,1,1) l'emportait → bouton souligné au texte couleur accent.
+     Spécificité 0,0,2,1 pour rétablir l'apparence bouton (texte foncé lisible,
+     sans soulignement). */
+  .entry-content a._180c-unsub__btn {
+    text-decoration: none;
+  }
+
+  .entry-content a._180c-unsub__btn--primary {
+    color: var(--color-on-accent);
+  }
+
+  /* Lien « Contacter le service client » rendu en <a> (bouton secondaire) :
+     rétablit la teinte texte du DS face à `.entry-content a` (accent). */
+  .entry-content a._180c-unsub__btn--contact {
+    color: var(--color-fg);
+  }
+
+  /* Lien secondaire « Non merci, se désabonner » (bouton stylé en lien, non souligné). */
+  ._180c-unsub__link {
+    padding: var(--space-2xs);
+    border: 0;
+    background: none;
+    color: var(--color-fg-muted);
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  ._180c-unsub__link:hover,
+  ._180c-unsub__link:focus-visible {
+    color: var(--color-fg);
+  }
+
+  /* ---------- Barre d'actions sticky (footer par écran) ----------
+     Une barre par écran, basculée en synchro avec sa section via
+     data-unsub-step. Hors de ._180c-unsub__inner : s'étend sur 100 % de la
+     largeur de la page et reste collée en bas (fixed, bottom:0) — comme la
+     croix de fermeture, ancrée au viewport du <dialog> plein écran. */
+  ._180c-unsub__footer {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 2;
+    width: 100%;
+    padding-block: var(--space-sm);
+    background: var(--color-bg);
+    border-top: 1px solid var(--color-border);
+  }
+
+  ._180c-unsub__footer[hidden] {
+    display: none;
+  }
+
+  /* Conteneur identique au header du site (.site-container) : largeur bornée,
+     centré, padding latéral. Actions ferrées à gauche, lien service client
+     poussé tout à droite. */
+  ._180c-unsub__footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-sm) var(--space-md);
+  }
+
+  /* Dans le footer, les actions n'ont plus la marge supérieure de flux. */
+  ._180c-unsub__footer ._180c-unsub__actions {
+    margin-top: 0;
+  }
+
+  /* Lien « Contacter le service client » : bouton secondaire (outline) ferré à
+     droite, même si les actions de gauche passent à la ligne. */
+  ._180c-unsub__btn--contact {
+    margin-inline-start: auto;
+  }
+
+  /* Le contenu scrollable doit dégager la hauteur du footer fixe. */
+  ._180c-unsub__inner {
+    padding-bottom: calc(var(--space-3xl) + 56px);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    ._180c-unsub[open] {
+      animation: unsub-in var(--transition-base);
+    }
+  }
+
+  @keyframes unsub-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}

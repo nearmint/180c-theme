@@ -1,0 +1,78 @@
+/**
+ * Smart App Banner (top).
+ *
+ * iOS Safari gère sa propre bannière native via <meta name="apple-itunes-app">.
+ * Le composant CSS .smart-banner cible le rendu non-Safari (Android, desktop).
+ * Masqué par défaut, JS l'affiche via classe .is-visible.
+ */
+
+@layer components {
+  /* ============================================================
+   * SMART BANNER (top, non utilisé en Safari iOS)
+   * ============================================================ */
+  .smart-banner {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3);
+    background-color: var(--color-accent);
+    color: var(--color-on-accent);
+    padding: var(--spacing-2) var(--spacing-4);
+    min-height: 44px;
+    z-index: var(--z-smart-banner);
+    position: relative;
+  }
+
+  .smart-banner.is-visible {
+    display: flex;
+  }
+
+  .smart-banner__content {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    flex: 1;
+    min-width: 0;
+  }
+
+  .smart-banner__icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+
+  .smart-banner__icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .smart-banner__title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .smart-banner__cta {
+    flex-shrink: 0;
+    font-family: var(--font-display);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    text-decoration: none;
+    color: var(--color-fg);
+    background-color: rgba(0, 0, 0, 0.15);
+    border-radius: var(--radius-pill);
+    padding: 4px var(--spacing-3);
+    transition: background-color var(--transition-fast);
+  }
+
+  .smart-banner__cta:hover {
+    background-color: rgba(0, 0, 0, 0.25);
+  }
+}

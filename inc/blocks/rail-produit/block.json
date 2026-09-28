@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "acf/rail-produit",
+  "title": "Rail de produits",
+  "category": "180c",
+  "icon": "cart",
+  "description": "Rail horizontal de produits WooCommerce (scroll latéral) à insérer dans un article. Source au choix : catégorie produit ou sélection manuelle. Réutilise le composant rail du thème. Styles fournis par le bundle CSS principal (src/css/components/blocks-produits.css).",
+  "keywords": ["produit", "rail", "slider", "woo", "boutique"],
+  "textdomain": "180c",
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "align": false,
+    "multiple": true
+  },
+  "acf": {
+    "mode": "preview",
+    "renderTemplate": "render.php"
+  }
+}

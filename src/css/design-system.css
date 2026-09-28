@@ -1,0 +1,566 @@
+/**
+ * Design System — styles de mise en page de la documentation.
+ *
+ * IMPORTANT : ce fichier ne contient QUE la chrome des pages Design System
+ * (layout deux colonnes, nav latérale, grilles de swatches/specimens, fiches
+ * composant). Il NE redéfinit PAS les tokens ni les composants du thème : ils
+ * sont déjà disponibles globalement via main.css.
+ *
+ * Convention : @layer base pour la structure, @layer components pour les blocs
+ * de doc réutilisables. Aucune couleur en dur — uniquement les tokens --* .
+ * Préfixe de classe dédié : `.ds-*` (BEM).
+ */
+
+@layer base {
+  /* Défilement doux vers les ancres (respecte prefers-reduced-motion). */
+  @media (prefers-reduced-motion: no-preference) {
+    html:has(.ds) {
+      scroll-behavior: smooth;
+    }
+  }
+
+  /* Cible de skip-link : pas d'outline disgracieux au focus programmatique. */
+  .ds__content:focus {
+    outline: none;
+  }
+
+  .ds {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: var(--container-px);
+    padding-block: var(--section-y);
+  }
+
+  @media (min-width: 1024px) {
+    .ds {
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: var(--space-2xl);
+      align-items: start;
+    }
+  }
+
+  .ds__content {
+    min-inline-size: 0;
+  }
+}
+
+@layer components {
+  /* ---- Navigation latérale ---- */
+  .ds-nav__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+  }
+
+  @media (min-width: 1024px) {
+    .ds-nav {
+      position: sticky;
+      top: var(--space-lg);
+      max-block-size: calc(100svh - (2 * var(--space-lg)));
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+
+    .ds-nav__list {
+      flex-direction: column;
+      gap: var(--space-3xs);
+    }
+  }
+
+  .ds-nav__link {
+    display: block;
+    padding: var(--space-2xs) var(--space-sm);
+    border-radius: var(--radius-md);
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: var(--transition-fast);
+  }
+
+  .ds-nav__link:hover,
+  .ds-nav__link:focus-visible {
+    color: var(--ink);
+    background: var(--cream);
+  }
+
+  .ds-nav__link--active {
+    color: var(--on-accent);
+    background: var(--primary);
+  }
+
+  /* Ancres de section (page active) — masquées sous 1024px (nav non sticky). */
+  .ds-nav__sub {
+    list-style: none;
+    margin: var(--space-3xs) 0 var(--space-2xs);
+    padding-inline-start: var(--space-sm);
+    border-inline-start: 1px solid var(--rule);
+    display: none;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  @media (min-width: 1024px) {
+    .ds-nav__sub {
+      display: flex;
+    }
+  }
+
+  .ds-nav__sub-link {
+    display: block;
+    padding: var(--space-3xs) var(--space-2xs);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
+    color: var(--muted);
+    text-decoration: none;
+    transition: var(--transition-fast);
+  }
+
+  .ds-nav__sub-link:hover,
+  .ds-nav__sub-link:focus-visible {
+    color: var(--ink);
+    background: var(--cream);
+  }
+
+  .ds-nav__sub-link--active {
+    color: var(--ink);
+    font-weight: var(--font-weight-semibold);
+    box-shadow: inset 2px 0 0 var(--primary);
+  }
+
+  /* Focus visible homogène pour tous les liens/cibles de la doc. */
+  .ds a:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  /* Décalage d'ancrage : les sections ne passent pas sous le header sticky. */
+  .ds-group,
+  .ds-component {
+    scroll-margin-block-start: var(--space-2xl);
+  }
+
+  /* ---- En-têtes de section / groupe ---- */
+  .ds-section__header {
+    margin-block-end: var(--space-xl);
+    padding-block-end: var(--space-md);
+    border-block-end: 1px solid var(--rule);
+  }
+
+  .ds-section__title {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    margin: 0;
+  }
+
+  .ds-section__lead {
+    color: var(--muted);
+    margin-block-start: var(--space-2xs);
+  }
+
+  .ds-group {
+    margin-block-end: var(--space-2xl);
+  }
+
+  .ds-group__title {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 0 0 var(--space-md);
+    padding-block-end: var(--space-2xs);
+    border-block-end: 1px solid var(--rule);
+  }
+
+  /* ---- Grilles génériques ---- */
+  .ds-grid {
+    display: grid;
+    gap: var(--space-md);
+  }
+
+  .ds-grid--swatch {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+
+  .ds-grid--font {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+
+  .ds-grid--box {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+
+  .ds-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  /* ---- Swatch couleur (light + dark) ---- */
+  .ds-swatch {
+    margin: 0;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--cream);
+  }
+
+  .ds-swatch__chips {
+    display: flex;
+    block-size: 88px;
+  }
+
+  .ds-swatch__chip {
+    flex: 1;
+    display: block;
+  }
+
+  .ds-swatch__chip--light {
+    box-shadow: inset 0 0 0 1px var(--rule);
+  }
+
+  .ds-swatch__caption {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--space-2xs) var(--space-xs);
+  }
+
+  .ds-swatch__token {
+    font-size: var(--text-xs);
+    color: var(--ink);
+  }
+
+  .ds-swatch__value {
+    font-size: var(--text-xs);
+    color: var(--muted);
+  }
+
+  .ds-swatch__value--alias {
+    font-style: italic;
+  }
+
+  /* ---- Specimen typo ---- */
+  .ds-specimen {
+    margin: 0;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    background: var(--cream);
+  }
+
+  .ds-specimen__render {
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+
+  .ds-specimen__caption {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    margin-block-start: var(--space-2xs);
+    padding-block-start: var(--space-2xs);
+    border-block-start: 1px solid var(--rule);
+  }
+
+  .ds-specimen__token {
+    font-size: var(--text-xs);
+    color: var(--ink);
+  }
+
+  .ds-specimen__value {
+    font-size: var(--text-xs);
+    color: var(--muted);
+  }
+
+  /* ---- Espacements ---- */
+  .ds-spaces {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  .ds-space {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .ds-space__bar {
+    block-size: 16px;
+    background: var(--primary);
+    border-radius: var(--radius-sm);
+    min-inline-size: 4px;
+  }
+
+  .ds-space__token {
+    font-size: var(--text-xs);
+    color: var(--ink);
+  }
+
+  .ds-space__value {
+    font-size: var(--text-xs);
+    color: var(--muted);
+    text-align: end;
+    min-inline-size: 5ch;
+  }
+
+  /* ---- Boîtes (rayons / ombres) ---- */
+  .ds-box {
+    margin: 0;
+    text-align: center;
+  }
+
+  .ds-box__demo {
+    display: block;
+    block-size: 80px;
+    margin-block-end: var(--space-2xs);
+    background: var(--primary);
+  }
+
+  .ds-box__demo--shadow {
+    background: var(--cream);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-md);
+  }
+
+  .ds-box figcaption {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: var(--text-xs);
+  }
+
+  .ds-box__value {
+    color: var(--muted);
+  }
+
+  /* ---- Tableau token / valeur ---- */
+  .ds-table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+  }
+
+  .ds-table th,
+  .ds-table td {
+    text-align: start;
+    padding: var(--space-2xs) var(--space-xs);
+    border-block-end: 1px solid var(--rule);
+  }
+
+  .ds-table th {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+
+  .ds-table__value {
+    color: var(--muted);
+  }
+
+  .ds-empty {
+    color: var(--muted);
+  }
+
+  /* ============================================================
+   * Components (Phase 3)
+   * ============================================================ */
+
+  .ds-components {
+    display: grid;
+    gap: var(--space-lg);
+  }
+
+  .ds-component {
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--paper);
+  }
+
+  .ds-component--legacy {
+    border-color: var(--color-warning);
+  }
+
+  .ds-component__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    padding: var(--space-xs) var(--space-md);
+    border-block-end: 1px solid var(--rule);
+    background: var(--cream);
+  }
+
+  .ds-component__name {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+  }
+
+  .ds-component__badge {
+    margin-inline-start: auto;
+    padding: 2px var(--space-2xs);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .ds-component__badge--live {
+    background: color-mix(in srgb, var(--color-success) 18%, transparent);
+    color: var(--color-success);
+  }
+
+  .ds-component__badge--snapshot {
+    background: var(--cream);
+    color: var(--muted);
+    box-shadow: inset 0 0 0 1px var(--rule);
+  }
+
+  .ds-component__legacy {
+    margin: 0;
+    padding: var(--space-2xs) var(--space-md);
+    background: color-mix(in srgb, var(--color-warning) 14%, transparent);
+    color: var(--ink);
+    font-size: var(--text-sm);
+    border-block-end: 1px solid var(--rule);
+  }
+
+  /* Cadre d'aperçu : fond neutre damier léger pour distinguer le composant. */
+  .ds-component__preview {
+    padding: var(--space-lg);
+    background-color: var(--cream);
+    background-image:
+      linear-gradient(45deg, color-mix(in srgb, var(--rule) 40%, transparent) 25%, transparent 25%),
+      linear-gradient(-45deg, color-mix(in srgb, var(--rule) 40%, transparent) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, color-mix(in srgb, var(--rule) 40%, transparent) 75%),
+      linear-gradient(-45deg, transparent 75%, color-mix(in srgb, var(--rule) 40%, transparent) 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+  }
+
+  .ds-component__meta {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: var(--space-3xs) var(--space-md);
+    margin: 0;
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .ds-component__meta dt {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+
+  .ds-component__meta dd {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3xs);
+  }
+
+  .ds-component__variant {
+    font-size: var(--text-xs);
+  }
+
+  .ds-component__note {
+    margin: 0;
+    padding: 0 var(--space-md) var(--space-md);
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+
+  /* Helpers de mise en page dans les aperçus. */
+  .ds-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .ds-stack--sm {
+    gap: var(--space-2xs);
+  }
+
+  /* Placeholder média neutre (jamais de photo recadrée ni overlay). */
+  .ds-ph {
+    display: block;
+    inline-size: 100%;
+    min-block-size: 56px;
+    aspect-ratio: 1 / 1;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-sm);
+    background-color: var(--cream);
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent 0,
+      transparent 9px,
+      color-mix(in srgb, var(--rule) 55%, transparent) 9px,
+      color-mix(in srgb, var(--rule) 55%, transparent) 10px
+    );
+  }
+
+  .ds-ph--wide {
+    aspect-ratio: 16 / 10;
+  }
+
+  .ds-ph--avatar {
+    aspect-ratio: 1 / 1;
+    max-inline-size: 64px;
+    border-radius: var(--radius-pill);
+  }
+
+  /* ---- Sandbox d'aperçu ----
+     Plusieurs composants réels sont position:fixed, hors-canvas (transform) ou
+     display:none par défaut (overlays, drawer, toast, lightbox, CMP). Dans la
+     fiche de doc on les neutralise pour qu'ils s'affichent EN FLUX dans le
+     cadre. Ces overrides sont strictement limités à .ds-component__preview et
+     n'affectent jamais le rendu réel du site. */
+  .ds-component__preview :is(
+    .site-header,
+    .site-header__inner,
+    .site-side-menu,
+    .toast,
+    .lightbox,
+    .consent,
+    .smart-banner
+  ) {
+    position: static !important;
+    inset: auto !important;
+    transform: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: auto !important;
+    max-inline-size: 100%;
+  }
+
+  /* Composants masqués par défaut (display:none) : forcés visibles ici. */
+  .ds-component__preview :is(.lightbox, .consent, .smart-banner) {
+    display: block !important;
+  }
+
+  .ds-component__preview .site-side-menu {
+    inline-size: 100%;
+    max-inline-size: var(--side-menu-width);
+  }
+}

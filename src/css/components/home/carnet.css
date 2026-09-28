@@ -1,0 +1,123 @@
+/*
+ * Home module — carnet (Mon carnet de recettes)
+ *
+ * Trois états, deux surfaces ici :
+ *  - .carnet--cta   : incitation abonnement pour le visiteur sans accès
+ *                     (break-out pleine largeur, fond accent, comme la bannière).
+ *  - .carnet--empty : état vide gracieux pour l'abonné sans favori.
+ * L'état « abonné avec favoris » réutilise le rail mutualisé (rail-180c,
+ * modifier home-module--carnet) — aucun style propre nécessaire ici.
+ *
+ * .carnet--cta est aussi la surface partagée de deux modules Home Builder :
+ * `subscription_banner` (bannière abonnement, non-abonnés) et `gift_banner`
+ * (offrir un abonnement, abonnés connectés). Ce dernier ajoute le modifier
+ * .carnet--gift, VOLONTAIREMENT sans déclaration : design strictement identique,
+ * le modifier n'est qu'un point d'accroche (QA, futur écart de style).
+ *
+ * Tokens only (couleurs/espacements/typo). Cibles tactiles >= 44px,
+ * contraste AA, anti-CLS (pas d'image, hauteurs intrinsèques au contenu).
+ */
+
+@layer components {
+  /* ---- État incitation (visiteur non abonné) ---------------------------- */
+  .carnet--cta {
+    width: 100vw;
+    max-width: none;
+    margin-inline: calc(50% - 50vw);
+    background-color: var(--color-accent);
+    color: #0d0d0d;
+    isolation: isolate;
+  }
+
+  .carnet--cta > .container-180c {
+    padding-block: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .carnet__cta-inner {
+    max-width: 42rem;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .carnet--cta .carnet__title {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    line-height: var(--line-height-tight);
+    font-weight: var(--font-weight-bold);
+    color: inherit;
+    margin: 0 0 var(--space-sm);
+    text-wrap: balance;
+  }
+
+  .carnet__cta-text {
+    font-family: var(--font-body);
+    font-size: var(--text-lg);
+    line-height: var(--line-height-snug);
+    color: inherit;
+    margin: 0 0 var(--space-lg);
+  }
+
+  .carnet__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm) var(--space-md);
+  }
+
+  /* CTA primaire local : noir sur fond accent (contraste fort, cohérent banner) */
+  .carnet__subscribe {
+    min-height: 44px;
+    background-color: #0d0d0d;
+    color: #ffffff;
+    border-color: #0d0d0d;
+  }
+
+  .carnet__subscribe:hover:not(:disabled) {
+    filter: brightness(1.15);
+  }
+
+  .carnet__login {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .carnet__login:hover {
+    text-decoration: none;
+  }
+
+  /* ---- État vide (abonné sans favori) ----------------------------------- */
+  .carnet--empty > .container-180c {
+    padding-block: clamp(2rem, 4vw, 3rem);
+    text-align: center;
+  }
+
+  .carnet--empty .carnet__title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    line-height: var(--line-height-tight);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-fg);
+    margin: 0 0 var(--space-sm);
+  }
+
+  .carnet__empty-text {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: var(--line-height-snug);
+    color: var(--color-fg-muted);
+    max-width: 38rem;
+    margin: 0 auto var(--space-lg);
+  }
+
+  .carnet__browse {
+    min-height: 44px;
+  }
+}

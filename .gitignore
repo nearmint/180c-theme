@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Build output
+dist/
+*.log
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# OS
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# WordPress (si ce repo est cloné dans wp-content/themes, ces fichiers n'existent pas ici)
+.gstack/
+src/images/badges/a.svg
+src/images/badges/ae.svg
+.cart-preview.html
+
+# Rapports import auteurs (about-authors) — sorties non versionnées
+scripts/about-authors/out/
+
+# Sorties locales d'outillage — jamais versionnées
+_STATE/
+temp/
+
+# Secrets et configuration privée
+.env*
+*.jks
+*.keystore
+google-services.json
+180/GoogleService-Info.plist
+android-secrets/
+
+# Claude Code — contexte privé et réglages locaux
+CLAUDE.local.md
+.claude/settings.local.json

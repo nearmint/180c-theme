@@ -1,0 +1,33 @@
+/**
+ * Composant : pages légales (mentions légales, confidentialité, CGV).
+ *
+ * Activé par la classe `body.legal` (voir inc/theme-setup.php).
+ * Habillage sobre : contenu aéré verticalement.
+ *
+ * Le retrait de la carte d'en-tête (fond/rayon) + l'alignement à gauche
+ * sont désormais gérés globalement pour toutes les pages standard via
+ * `.entry-header:has(> .entry-title)` (entry-header.css) — la règle
+ * scopée `body.legal .entry-header` était redondante, supprimée.
+ *
+ * @package 180c
+ */
+
+/* Padding vertical du contenu : de l'air sous le header et au-dessus
+ * du footer. .site-main est le wrapper réel (singular.php). */
+body.legal .site-main {
+  padding-block: var(--space-2xl);
+}
+
+/* Alignement à gauche du bloc de texte légal.
+ *
+ * .entry-content (single.css, @layer components) est centré via
+ * `margin-inline: auto` + `padding-inline`, ce qui faisait paraître le
+ * texte « centré » dans le container. Sur les pages légales on neutralise
+ * ces deux propriétés : le bloc de lecture s'aligne à gauche.
+ *
+ * Sélecteur non-layered (0,2,0) : bat la règle `.entry-content`
+ * (@layer components, 0,1,0). max-width conservée (mesure de lecture). */
+body.legal .entry-content {
+  margin-inline: 0;
+  padding-inline: 0;
+}

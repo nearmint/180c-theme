@@ -1,0 +1,104 @@
+{
+  "key": "group_content_seo",
+  "title": "SEO",
+  "fields": [
+    {
+      "key": "field_seo_title",
+      "label": "Titre SEO",
+      "name": "seo_title",
+      "type": "text",
+      "instructions": "Titre affiché dans les résultats Google, à la place du titre éditorial. Décrivez le sujet avec les mots que le lecteur tape (« Câpres maison : préparation au vinaigre et au sel »). Visez 60 caractères. La valeur est reprise telle quelle : ajoutez « · 180°C » vous-même si vous le souhaitez. Laissez vide pour conserver le titre automatique.",
+      "required": 0,
+      "conditional_logic": 0,
+      "placeholder": ""
+    },
+    {
+      "key": "field_seo_description",
+      "label": "Meta description",
+      "name": "seo_description",
+      "type": "textarea",
+      "instructions": "Résumé affiché sous le titre dans les résultats Google. Visez 155 caractères : au-delà, Google coupe. Votre texte n'est jamais tronqué par le site. Laissez vide pour conserver le résumé automatique (chapô, intro de recette, ou début du contenu).",
+      "required": 0,
+      "conditional_logic": 0,
+      "rows": 3,
+      "new_lines": ""
+    },
+    {
+      "key": "field_seo_og_image_override",
+      "label": "Image OG personnalisée",
+      "name": "og_image_override",
+      "type": "image",
+      "instructions": "Image affichée quand la page est partagée sur les réseaux sociaux. Visez un format paysage d'au moins 1200 × 630 pixels. Les SVG ne sont pas acceptés par les réseaux. Laissez vide pour utiliser l'image à la une.",
+      "required": 0,
+      "conditional_logic": 0,
+      "return_format": "id",
+      "preview_size": "medium",
+      "library": "all",
+      "min_width": 0,
+      "min_height": 0,
+      "min_size": "",
+      "max_width": "",
+      "max_height": "",
+      "max_size": ""
+    },
+    {
+      "key": "field_seo_no_index",
+      "label": "Ne pas indexer",
+      "name": "no_index",
+      "type": "true_false",
+      "instructions": "Retire la page des résultats Google : elle sort du sitemap et reçoit une directive « noindex ». Les liens qu'elle contient restent suivis. La désindexation par Google peut prendre plusieurs semaines.",
+      "required": 0,
+      "conditional_logic": 0,
+      "default_value": 0,
+      "ui": 1,
+      "ui_on_text": "Oui",
+      "ui_off_text": "Non"
+    }
+  ],
+  "location": [
+    [
+      {
+        "param": "post_type",
+        "operator": "==",
+        "value": "recipe"
+      }
+    ],
+    [
+      {
+        "param": "post_type",
+        "operator": "==",
+        "value": "post"
+      }
+    ],
+    [
+      {
+        "param": "post_type",
+        "operator": "==",
+        "value": "page"
+      }
+    ],
+    [
+      {
+        "param": "post_type",
+        "operator": "==",
+        "value": "product"
+      }
+    ],
+    [
+      {
+        "param": "taxonomy",
+        "operator": "==",
+        "value": "product_cat"
+      }
+    ]
+  ],
+  "menu_order": 100,
+  "position": "normal",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "hide_on_screen": [],
+  "active": true,
+  "description": "Overrides SEO communs aux types de contenu principaux et aux catégories de la boutique. Les quatre champs sont lus par le front : title, description et image de partage via inc/seo/overrides.php, no_index également via inc/seo/sitemap.php.",
+  "modified": 1753970400
+}

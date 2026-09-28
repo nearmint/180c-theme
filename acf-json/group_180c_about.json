@@ -1,0 +1,171 @@
+{
+    "key": "group_180c_about",
+    "title": "Page À propos",
+    "fields": [
+        {
+            "key": "field_180c_about_hero_image",
+            "label": "Image d'en-tête",
+            "name": "about_hero_image",
+            "type": "image",
+            "instructions": "Visuel d'en-tête (candidat LCP). Affiché brut, jamais recadré.",
+            "return_format": "id",
+            "preview_size": "medium",
+            "library": "all"
+        },
+        {
+            "key": "field_180c_about_intro",
+            "label": "Manifeste / intro",
+            "name": "about_intro",
+            "type": "wysiwyg",
+            "instructions": "Histoire et manifeste de 180°C. Vide par défaut.",
+            "tabs": "visual",
+            "toolbar": "full",
+            "media_upload": 1,
+            "delay": 0
+        },
+        {
+            "key": "field_180c_about_sections",
+            "label": "Sections libres",
+            "name": "about_sections",
+            "type": "flexible_content",
+            "instructions": "Sections éditoriales optionnelles. Ordre = ordre d'affichage. La section « Auteurs » est ajoutable autant de fois que voulu.",
+            "button_label": "Ajouter une section",
+            "layouts": [
+                {
+                    "key": "layout_180c_about_text",
+                    "name": "text",
+                    "label": "Texte",
+                    "display": "block",
+                    "sub_fields": [
+                        {
+                            "key": "field_180c_about_text_content",
+                            "label": "Contenu",
+                            "name": "section_content",
+                            "type": "wysiwyg",
+                            "tabs": "visual",
+                            "toolbar": "full",
+                            "media_upload": 1,
+                            "delay": 0
+                        }
+                    ]
+                },
+                {
+                    "key": "layout_180c_about_text_image",
+                    "name": "text_image",
+                    "label": "Texte + image",
+                    "display": "block",
+                    "sub_fields": [
+                        {
+                            "key": "field_180c_about_ti_content",
+                            "label": "Contenu",
+                            "name": "section_content",
+                            "type": "wysiwyg",
+                            "tabs": "visual",
+                            "toolbar": "full",
+                            "media_upload": 1,
+                            "delay": 0,
+                            "wrapper": {"width": "60"}
+                        },
+                        {
+                            "key": "field_180c_about_ti_image",
+                            "label": "Image",
+                            "name": "section_image",
+                            "type": "image",
+                            "return_format": "id",
+                            "preview_size": "medium",
+                            "library": "all",
+                            "wrapper": {"width": "40"}
+                        },
+                        {
+                            "key": "field_180c_about_ti_position",
+                            "label": "Position de l'image",
+                            "name": "section_image_position",
+                            "type": "select",
+                            "choices": {
+                                "left": "À gauche",
+                                "right": "À droite"
+                            },
+                            "default_value": "right",
+                            "return_format": "value",
+                            "allow_null": 0,
+                            "multiple": 0,
+                            "ui": 0
+                        }
+                    ]
+                },
+                {
+                    "key": "layout_180c_about_quote",
+                    "name": "quote",
+                    "label": "Citation",
+                    "display": "block",
+                    "sub_fields": [
+                        {
+                            "key": "field_180c_about_quote_text",
+                            "label": "Citation",
+                            "name": "quote_text",
+                            "type": "textarea",
+                            "rows": 3,
+                            "new_lines": ""
+                        },
+                        {
+                            "key": "field_180c_about_quote_attr",
+                            "label": "Attribution",
+                            "name": "quote_attribution",
+                            "type": "text"
+                        }
+                    ]
+                },
+                {
+                    "key": "layout_180c_about_authors",
+                    "name": "authors",
+                    "label": "Auteurs",
+                    "display": "block",
+                    "sub_fields": [
+                        {
+                            "key": "field_180c_authors_title",
+                            "label": "Titre",
+                            "name": "authors_title",
+                            "type": "text",
+                            "wrapper": {"width": "50"}
+                        },
+                        {
+                            "key": "field_180c_authors_subtitle",
+                            "label": "Sous-titre",
+                            "name": "authors_subtitle",
+                            "type": "text",
+                            "wrapper": {"width": "50"}
+                        },
+                        {
+                            "key": "field_180c_authors_list",
+                            "label": "Auteurs",
+                            "name": "authors_list",
+                            "type": "user",
+                            "instructions": "Sélection d'auteurs. Toutes les données (photo, nom, bio, site internet) proviennent de la fiche auteur.",
+                            "return_format": "id",
+                            "multiple": 1,
+                            "allow_null": 0
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "page_template",
+                "operator": "==",
+                "value": "template-about.php"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "Contenu de la page À propos / Qui sommes-nous",
+    "modified": 1748822400
+}

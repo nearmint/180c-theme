@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "acf/recette-unique",
+  "title": "Recette unique",
+  "category": "180c",
+  "icon": "food",
+  "description": "Affiche une carte recette sélectionnée, centrée et à largeur contrainte, à insérer dans le flux d'un article. Les styles sont fournis par le bundle CSS principal (src/css/components/blocks-recettes.css).",
+  "keywords": ["recette", "recipe", "carte", "card", "cuisine"],
+  "textdomain": "180c",
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "align": false,
+    "multiple": true
+  },
+  "acf": {
+    "mode": "preview",
+    "renderTemplate": "render.php"
+  }
+}

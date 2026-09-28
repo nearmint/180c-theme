@@ -1,0 +1,58 @@
+/**
+ * Bundle CSS « commerce » — chargé UNIQUEMENT sur boutique, fiche produit,
+ * panier, commande et Mon Compte (voir `_180c_needs_commerce_styles()` dans
+ * inc/enqueue.php).
+ *
+ * POURQUOI
+ * --------
+ * `dist/assets/main-*.css` est la seule feuille render-blocking du thème.
+ * PageSpeed mobile la chiffrait à 42,8 Ko transférés / ~600 ms sur le chemin
+ * critique. Or près des deux tiers de son volume brut (~200 Ko sur 334 Ko)
+ * n'ont strictement aucun sélecteur susceptible de matcher sur une page
+ * éditoriale : tunnel de commande, Mon Compte, parcours de résiliation,
+ * onglets de fiche produit, cross-sells du panier. La home, la Gazette et les
+ * articles — l'écrasante majorité du trafic — payaient ces octets en tête de
+ * chargement pour rien.
+ *
+ * CE QUI RESTE VOLONTAIREMENT DANS main.css
+ * -----------------------------------------
+ *  - `cart.css` : le tiroir mini-panier et l'icône du header sont présents sur
+ *    TOUTES les pages ;
+ *  - `card-product.css` : carte produit des rails « publications » de la home
+ *    et des cross-sells (extraite de woo.css au commit précédent) ;
+ *  - `paywall.css`, `subscribe.css`, `gift.css` : pages éditoriales/marketing,
+ *    pas des pages WooCommerce.
+ *
+ * CASCADE
+ * -------
+ * Cette feuille est chargée APRÈS main.css. Les fichiers ci-dessous gardent
+ * leur ordre relatif d'origine, et aucun sélecteur qu'ils portent n'apparaît
+ * dans un fichier resté global (vérifié par grep sur `src/css/`) : la cascade
+ * est donc inchangée. Les blocs `@layer components` viennent s'ajouter à la
+ * couche déjà déclarée par main.css (les couches sont globales au document et
+ * main.css est parsé en premier), ils restent donc bien avant `utilities`.
+ *
+ * Pas de `@import "tailwindcss"` ici : aucun de ces fichiers n'utilise `@apply`
+ * ni `theme()`, et dupliquer preflight + utilitaires annulerait tout le gain.
+ * Les tokens (`tokens.css`, bloc `@theme`) sont posés sur `:root` par main.css.
+ */
+
+/* `@reference` charge le contexte Tailwind SANS émettre une seule règle : il ne
+ * sert qu'à faire passer cette entrée par le même pipeline que main.css. Sans
+ * lui, Vite minifie ce fichier avec esbuild et non lightningcss, et les
+ * `color-mix()` perdent leur repli hexadécimal + branche `@supports` (rendu
+ * dégradé sur Safari < 16.2 / Chrome < 111 dans le tunnel de commande).
+ *
+ * On référence main.css et non "tailwindcss" : le repli statique de `color-mix()`
+ * n'est calculable que si les valeurs du bloc `@theme` (--color-accent,
+ * --color-success…) sont connues, et elles vivent dans main.css. */
+@reference "./main.css";
+
+@import "./components/cart-crosssells.css";
+@import "./components/woo.css";
+@import "./components/product-tabs.css";
+@import "./components/my-account.css";
+@import "./components/account-deletion.css";
+@import "./components/unsubscribe-flow.css";
+@import "./components/checkout.css";
+@import "./components/onboarding.css";

@@ -1,0 +1,126 @@
+{
+  "key": "group_180c_sponsor",
+  "title": "Article — Sponsorisation",
+  "fields": [
+    {
+      "key": "field_180c_sponsor_actif",
+      "label": "Article sponsorisé",
+      "name": "est_sponsorise",
+      "type": "true_false",
+      "instructions": "Affiche l'encart de sponsorisation en tête d'article. Défaut : non.",
+      "required": 0,
+      "conditional_logic": 0,
+      "wrapper": {
+        "width": "",
+        "class": "",
+        "id": ""
+      },
+      "message": "",
+      "default_value": 0,
+      "ui": 1,
+      "ui_on_text": "Sponsorisé",
+      "ui_off_text": "Non"
+    },
+    {
+      "key": "field_180c_sponsor_mention",
+      "label": "Mention",
+      "name": "sponsor_mention",
+      "type": "textarea",
+      "instructions": "Texte affiché dans l'encart (ex. « En partenariat avec la Maison Untel »). Le badge « Contenu sponsorisé » est ajouté automatiquement.",
+      "required": 0,
+      "conditional_logic": [
+        [
+          {
+            "field": "field_180c_sponsor_actif",
+            "operator": "==",
+            "value": "1"
+          }
+        ]
+      ],
+      "wrapper": {
+        "width": "",
+        "class": "",
+        "id": ""
+      },
+      "default_value": "En partenariat avec",
+      "placeholder": "",
+      "maxlength": "",
+      "rows": 3,
+      "new_lines": ""
+    },
+    {
+      "key": "field_180c_sponsor_logo",
+      "label": "Logo",
+      "name": "sponsor_logo",
+      "type": "image",
+      "instructions": "Logo du partenaire (PNG transparent de préférence). Optionnel.",
+      "required": 0,
+      "conditional_logic": [
+        [
+          {
+            "field": "field_180c_sponsor_actif",
+            "operator": "==",
+            "value": "1"
+          }
+        ]
+      ],
+      "wrapper": {
+        "width": "",
+        "class": "",
+        "id": ""
+      },
+      "return_format": "array",
+      "preview_size": "medium",
+      "library": "all",
+      "min_width": 0,
+      "min_height": 0,
+      "min_size": "",
+      "max_width": "",
+      "max_height": "",
+      "max_size": "",
+      "mime_types": ""
+    },
+    {
+      "key": "field_180c_sponsor_lien",
+      "label": "Lien sortant",
+      "name": "sponsor_lien",
+      "type": "url",
+      "instructions": "URL du partenaire (https://…). Optionnel : rend le logo cliquable (rel=\"sponsored\").",
+      "required": 0,
+      "conditional_logic": [
+        [
+          {
+            "field": "field_180c_sponsor_actif",
+            "operator": "==",
+            "value": "1"
+          }
+        ]
+      ],
+      "wrapper": {
+        "width": "",
+        "class": "",
+        "id": ""
+      },
+      "default_value": "",
+      "placeholder": "https://"
+    }
+  ],
+  "location": [
+    [
+      {
+        "param": "post_type",
+        "operator": "==",
+        "value": "post"
+      }
+    ]
+  ],
+  "menu_order": 4,
+  "position": "side",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "hide_on_screen": [],
+  "active": true,
+  "description": "Encart de sponsorisation affiché automatiquement en tête d'article (post).",
+  "modified": 1780963200
+}

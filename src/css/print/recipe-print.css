@@ -1,0 +1,220 @@
+/**
+ * Feuille d'impression — fiche recette.
+ *
+ * Mise en page sobre : ne conserver QUE, dans cet ordre sémantique,
+ *   1. Titre (h1)
+ *   2. Chapo / sous-titre
+ *   3. Ingrédients (liste à puces)
+ *   4. Déroulé (liste ordonnée)
+ *
+ * Tout le reste est masqué : chrome global (header, footer, side-menu,
+ * bannières, toaster, breadcrumb, sticky CTA, paywall), visuel du hero,
+ * eyebrow / byline, barre d'actions / boutons de partage réseaux sociaux,
+ * favoris, timers, encarts extras / source, mots-clés (tags), bio auteur,
+ * rail « Vous aimerez aussi », et — décision LOT 2 reconduite — les images
+ * du déroulé (impression texte seul).
+ *
+ * Aucun style de marque : pas de fond, bordure, ombre, badge, couleur
+ * d'accent ni image décorative. Noir sur blanc. On ne conserve que la
+ * typographie (Oswald/Playfair pour les titres, fallback lisible) et une
+ * structure aérée. Marges de page via `@page`.
+ *
+ * NB cascade : le bloc de MASQUAGE est placé en dernier et en !important pour
+ * battre la réinitialisation `.recipe-section { display: block }` (plusieurs
+ * sections masquées portent aussi la classe .recipe-section).
+ *
+ * @package 180c
+ */
+
+@media print {
+  /* Marges d'impression (l'équivalent d'un « container » papier). */
+  @page {
+    margin: 18mm;
+  }
+
+  /* Sobriété : neutralise les tokens de surface pour un rendu noir sur blanc. */
+  :root {
+    --color-bg: #fff;
+    --color-fg: #000;
+    --color-accent: #000;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  /* ----------------------------------------------------------------
+   * Conteneurs conservés — pleine largeur dans la zone imprimable,
+   * sans surface.
+   * ---------------------------------------------------------------- */
+  .recipe,
+  .recipe-hero,
+  .recipe-hero__content,
+  .recipe-section,
+  .recipe-ingredients,
+  .recipe-steps,
+  .container-180c,
+  .entry-header {
+    display: block;
+    margin-inline: 0;
+    padding-inline: 0;
+    max-width: none;
+    width: auto;
+    min-height: 0;
+    background: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    color: #000 !important;
+  }
+
+  .recipe-hero {
+    padding-block: 0;
+  }
+
+  /* Rythme vertical sobre entre les blocs conservés. */
+  .recipe-section {
+    margin-block: 16pt 0;
+    break-inside: avoid;
+  }
+
+  /* ----------------------------------------------------------------
+   * 1. Titre + chapo.
+   * ---------------------------------------------------------------- */
+  .entry-header__title {
+    font-family: var(--font-display), Oswald, sans-serif;
+    font-size: 22pt;
+    font-weight: 600;
+    line-height: 1.15;
+    margin: 0 0 8pt;
+  }
+
+  /* Titre de RECETTE : Playfair Display à l'impression aussi (cf.
+     `.recipe-hero__content > .entry-header .entry-header__title` dans
+     recipe.css). Sélecteur scopé au hero recette pour ne pas toucher
+     l'impression d'un article. */
+  .recipe-hero .entry-header__title {
+    font-family: var(--font-body), "Playfair Display", Georgia, serif;
+  }
+
+  .entry-header__standfirst {
+    display: block;
+    font-family: var(--font-body), "Playfair Display", Georgia, serif;
+    font-size: 12pt;
+    font-style: italic;
+    line-height: 1.4;
+    margin: 0 0 16pt;
+  }
+
+  /* ----------------------------------------------------------------
+   * 2. Sections ingrédients / déroulé.
+   * ---------------------------------------------------------------- */
+  .recipe-section__title {
+    font-family: var(--font-display), Oswald, sans-serif;
+    font-size: 15pt;
+    font-weight: 600;
+    margin: 0 0 8pt;
+  }
+
+  .recipe-ingredients__group-title {
+    font-family: var(--font-display), Oswald, sans-serif;
+    font-size: 12pt;
+    font-weight: 600;
+    margin: 10pt 0 4pt;
+  }
+
+  /* Ingrédients : liste à puces simple. */
+  .recipe-ingredients__list {
+    list-style: disc;
+    margin: 0;
+    padding-left: 1.4em;
+  }
+
+  .recipe-ingredients__item {
+    display: list-item;
+    margin: 0 0 3pt;
+    line-height: 1.35;
+    break-inside: avoid;
+  }
+
+  .recipe-ingredients__quantity {
+    font-weight: 600;
+  }
+
+  /* Déroulé : liste ordonnée native (le badge décoratif est masqué). */
+  .recipe-steps__list {
+    list-style: decimal;
+    margin: 0;
+    padding-left: 1.6em;
+  }
+
+  .recipe-step {
+    display: list-item;
+    break-inside: avoid;
+    margin: 0 0 10pt;
+    line-height: 1.4;
+  }
+
+  .recipe-step__body {
+    display: block;
+    margin: 0;
+    padding: 0;
+  }
+
+  .recipe-step__title {
+    font-family: var(--font-display), Oswald, sans-serif;
+    font-size: 12pt;
+    font-weight: 600;
+    margin: 0 0 3pt;
+  }
+
+  .recipe-step__content {
+    margin: 0;
+  }
+
+  /* Liens en texte noir (pas d'URL parasite ni de couleur d'accent). */
+  a {
+    color: #000 !important;
+    text-decoration: none !important;
+  }
+
+  /* ----------------------------------------------------------------
+   * MASQUAGE (en dernier → priorité de cascade sur les resets ci-dessus).
+   * ---------------------------------------------------------------- */
+  .site-header,
+  .site-footer,
+  .side-menu,
+  .breadcrumb,
+  .smart-banner,
+  .toast-region,
+  .reading-progress,
+  .recipe-sticky-cta,
+  .recipe-paywall,
+  .paywall,
+  .recipe-hero__figure,
+  .recipe-hero__zoom,
+  .recipe-actions,
+  .share-actions,
+  .recipe-share,
+  .recipe-print-btn,
+  .favorite-button,
+  .entry-header__eyebrow,
+  .entry-header__byline,
+  .entry-header__meta,
+  .recipe-extras,
+  .recipe-source,
+  .recipe-tags,
+  .recipe-author-bio,
+  .recipe-related,
+  .home-module,
+  .rail-180c,
+  .recipe-step__header,
+  .recipe-step__number,
+  .recipe-step__timer,
+  .recipe-steps img,
+  .recipe-step__content img,
+  .recipe-ingredients img {
+    display: none !important;
+  }
+}

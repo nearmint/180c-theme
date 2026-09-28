@@ -1,0 +1,527 @@
+/**
+ * Composant — Cahiers de Delphine (page d'optin newsletter).
+ *
+ * 4 sections BEM : hero / signup / subscribe / rail.
+ * Rail horizontal style « Netflix » (scroll-snap-x) sur tous les breakpoints.
+ *
+ * Tokens uniquement (aucune couleur hardcodée). Dark mode automatique via
+ * --color-{bg,fg,bg-elevated,border} qui basculent au niveau :root.
+ *
+ * Le JS associé (src/js/modules/cahiers-de-delphine.js) pose les classes
+ * is-loading / is-success / is-error sur le form, et is-visible sur les
+ * sections via IntersectionObserver (respect prefers-reduced-motion).
+ */
+
+@layer components {
+
+  /* ============================================================
+   * Container racine + cadence verticale
+   * ============================================================ */
+  .cdd-optin {
+    display: flex;
+    flex-direction: column;
+    gap: var(--section-y);
+    padding-block: var(--section-y);
+  }
+
+  /* Wrappers internes — largeur container partagée avec le reste du thème */
+  .cdd-optin__hero-wrap,
+  .cdd-optin__signup-wrap,
+  .cdd-optin__subscribe-wrap,
+  .cdd-optin__rail-wrap {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: var(--container-px);
+    width: 100%;
+  }
+
+  /* ============================================================
+   * Reveal — IntersectionObserver
+   * Classe .is-visible posée par le JS. Si pas de JS ou
+   * prefers-reduced-motion : opacity 1 d'emblée (cf. JS).
+   * ============================================================ */
+  .cdd-optin__hero,
+  .cdd-optin__signup,
+  .cdd-optin__subscribe,
+  .cdd-optin__rail {
+    opacity: 1;
+  }
+
+  .cdd-optin.is-reveal-ready .cdd-optin__hero,
+  .cdd-optin.is-reveal-ready .cdd-optin__signup,
+  .cdd-optin.is-reveal-ready .cdd-optin__subscribe,
+  .cdd-optin.is-reveal-ready .cdd-optin__rail {
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+      opacity var(--transition-slow),
+      transform var(--transition-slow);
+  }
+
+  .cdd-optin.is-reveal-ready .cdd-optin__hero.is-visible,
+  .cdd-optin.is-reveal-ready .cdd-optin__signup.is-visible,
+  .cdd-optin.is-reveal-ready .cdd-optin__subscribe.is-visible,
+  .cdd-optin.is-reveal-ready .cdd-optin__rail.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cdd-optin.is-reveal-ready .cdd-optin__hero,
+    .cdd-optin.is-reveal-ready .cdd-optin__signup,
+    .cdd-optin.is-reveal-ready .cdd-optin__subscribe,
+    .cdd-optin.is-reveal-ready .cdd-optin__rail {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+
+  /* ============================================================
+   * HERO
+   * ============================================================ */
+  .cdd-optin__hero {
+    text-align: center;
+  }
+
+  .cdd-optin__hero-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    align-items: center;
+  }
+
+  .cdd-optin__hero-title {
+    font-family: var(--font-display);
+    font-size: var(--text-4xl);
+    line-height: var(--line-height-tight);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-fg);
+    text-wrap: balance;
+    max-width: 22ch;
+  }
+
+  .cdd-optin__hero-subtitle {
+    font-family: var(--font-body);
+    font-style: italic;
+    font-size: var(--text-xl);
+    line-height: var(--line-height-snug);
+    color: var(--color-fg-muted);
+    max-width: 56ch;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  .cdd-optin__hero-figure {
+    max-width: var(--container-max);
+    margin: var(--space-lg) auto 0;
+    padding-inline: var(--container-px);
+    width: 100%;
+  }
+
+  .cdd-optin__hero-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: clamp(20rem, 50vh, 32rem);
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+  }
+
+  /* ============================================================
+   * SIGNUP — carte de formulaire centrée
+   * ============================================================ */
+  .cdd-optin__signup-wrap {
+    max-width: 640px;
+  }
+
+  .cdd-optin__signup-title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    line-height: var(--line-height-tight);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-fg);
+    text-align: center;
+    margin-block-end: var(--space-md);
+  }
+
+  .cdd-optin__signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-lg);
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+  }
+
+  .cdd-optin__signup-label {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-fg-muted);
+    letter-spacing: 0.02em;
+  }
+
+  .cdd-optin__signup-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  @media (min-width: 640px) {
+    .cdd-optin__signup-row {
+      flex-direction: row;
+      align-items: stretch;
+    }
+  }
+
+  .cdd-optin__signup-input {
+    flex: 1;
+    min-height: 48px;
+    padding-inline: var(--space-sm);
+    padding-block: var(--space-2xs);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: var(--line-height-normal);
+    transition:
+      border-color var(--transition-fast),
+      outline var(--transition-fast);
+    appearance: none;
+    width: 100%;
+  }
+
+  .cdd-optin__signup-input::placeholder {
+    color: var(--color-fg-muted);
+    opacity: 0.7;
+  }
+
+  .cdd-optin__signup-input:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .cdd-optin__signup-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding-inline: var(--space-md);
+    padding-block: var(--space-2xs);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-accent);
+    background-color: var(--color-accent);
+    color: var(--color-on-accent);
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      filter var(--transition-fast),
+      box-shadow var(--transition-fast);
+    user-select: none;
+  }
+
+  .cdd-optin__signup-submit:hover:not(:disabled) {
+    filter: brightness(0.92);
+  }
+
+  .cdd-optin__signup-submit:active:not(:disabled) {
+    filter: brightness(0.85);
+  }
+
+  .cdd-optin__signup-submit:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .cdd-optin__signup-submit:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .cdd-optin__signup-form.is-loading .cdd-optin__signup-submit {
+    pointer-events: none;
+  }
+
+  .cdd-optin__signup-feedback {
+    min-height: 1.4em;
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    line-height: var(--line-height-normal);
+    color: var(--color-fg-muted);
+  }
+
+  .cdd-optin__signup-form.is-success .cdd-optin__signup-feedback {
+    color: var(--color-success);
+  }
+
+  .cdd-optin__signup-form.is-error .cdd-optin__signup-feedback {
+    color: var(--color-danger);
+  }
+
+  .cdd-optin__signup-disclaimer {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    line-height: var(--line-height-normal);
+    color: var(--color-fg-muted);
+    margin: 0;
+  }
+
+  /* ============================================================
+   * SUBSCRIBE — bloc CTA payant, surface alt
+   * ============================================================ */
+  .cdd-optin__subscribe {
+    background-color: var(--color-bg-elevated);
+    padding-block: var(--section-y);
+    border-block: 1px solid var(--color-border);
+  }
+
+  .cdd-optin__subscribe-wrap {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .cdd-optin__subscribe-title {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    line-height: var(--line-height-tight);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-fg);
+    text-wrap: balance;
+    max-width: 22ch;
+  }
+
+  .cdd-optin__subscribe-intro {
+    font-family: var(--font-body);
+    font-size: var(--text-lg);
+    line-height: var(--line-height-snug);
+    color: var(--color-fg-muted);
+    max-width: 56ch;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  .cdd-optin__subscribe-cta {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-height: 56px;
+    padding-inline: var(--space-xl);
+    padding-block: var(--space-xs);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-accent);
+    background-color: var(--color-accent);
+    color: var(--color-on-accent);
+    text-decoration: none;
+    transition:
+      filter var(--transition-fast),
+      transform var(--transition-base),
+      box-shadow var(--transition-base);
+  }
+
+  .cdd-optin__subscribe-cta:hover {
+    filter: brightness(0.92);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .cdd-optin__subscribe-cta:active {
+    filter: brightness(0.85);
+    transform: translateY(0);
+  }
+
+  .cdd-optin__subscribe-cta:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+
+  .cdd-optin__subscribe-cta-label {
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .cdd-optin__subscribe-cta-sub {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    font-style: italic;
+    line-height: 1.2;
+    opacity: 0.85;
+  }
+
+  /* ============================================================
+   * RAIL — Netflix horizontal scroll-snap (tous breakpoints)
+   * ============================================================ */
+  .cdd-optin__rail-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .cdd-optin__rail-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  .cdd-optin__rail-title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    line-height: var(--line-height-tight);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-fg);
+  }
+
+  .cdd-optin__rail-subtitle {
+    font-family: var(--font-body);
+    font-style: italic;
+    font-size: var(--text-base);
+    line-height: var(--line-height-snug);
+    color: var(--color-fg-muted);
+    margin: 0;
+  }
+
+  /* Track : la <ul> .cdd-optin__rail-list joue le rôle de track scrollable */
+  .cdd-optin__rail-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+    gap: var(--space-md);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--container-px);
+    /* Étend le track jusqu'aux bords du viewport pour le peek-and-cut Netflix */
+    margin-inline: calc(var(--container-px) * -1);
+    padding-inline: var(--container-px);
+    padding-block-end: var(--space-2xs);
+    -webkit-overflow-scrolling: touch;
+    /* Snap stop normal pour permettre scrolls courts */
+    overscroll-behavior-x: contain;
+
+    /* Masque la scrollbar (effet Netflix) */
+    scrollbar-width: none;
+  }
+
+  .cdd-optin__rail-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Card : chaque <li> .cdd-optin__rail-item est une carte snap-able */
+  .cdd-optin__rail-item {
+    flex: 0 0 auto;
+    width: clamp(13rem, 60vw, 18rem); /* ~220px mobile → ~280px+ desktop */
+    scroll-snap-align: start;
+  }
+
+  .cdd-optin__rail-link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    color: inherit;
+    text-decoration: none;
+    height: 100%;
+    border-radius: var(--radius-md);
+    transition: transform var(--transition-base);
+  }
+
+  .cdd-optin__rail-link:hover {
+    transform: translateY(-2px);
+  }
+
+  .cdd-optin__rail-link:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+  }
+
+  .cdd-optin__rail-figure {
+    margin: 0;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    background-color: var(--color-bg-elevated);
+  }
+
+  .cdd-optin__rail-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transition: transform var(--transition-slow);
+  }
+
+  .cdd-optin__rail-link:hover .cdd-optin__rail-image,
+  .cdd-optin__rail-link:focus-visible .cdd-optin__rail-image {
+    transform: scale(1.03);
+  }
+
+  .cdd-optin__rail-card-title {
+    font-family: var(--font-body);
+    font-size: var(--text-lg);
+    line-height: var(--line-height-snug);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg);
+    margin: 0;
+    text-wrap: balance;
+
+    /* 2 lignes max */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .cdd-optin__rail-footer {
+    margin: 0;
+    text-align: end;
+  }
+
+  .cdd-optin__rail-link-all {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3xs);
+    color: var(--color-accent);
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: filter var(--transition-fast);
+  }
+
+  .cdd-optin__rail-link-all::after {
+    content: "→";
+    transition: transform var(--transition-fast);
+  }
+
+  .cdd-optin__rail-link-all:hover::after {
+    transform: translateX(2px);
+  }
+
+  .cdd-optin__rail-link-all:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+    border-radius: var(--radius-sm);
+  }
+}

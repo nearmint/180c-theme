@@ -1,0 +1,259 @@
+/**
+ * Design tokens 180°C.
+ *
+ * Variables CSS partagées par toute la couche de présentation.
+ * Cohérentes avec le design system des apps iOS/Android.
+ *
+ * Refonte 2026-05 : nouveaux noms canoniques (--space-*, --text-*, --container-px,
+ * --section-y, --side-menu-width). Les anciens noms (--spacing-*, --font-size-*,
+ * --container-gutter) restent disponibles comme alias pour ne pas casser les
+ * composants existants.
+ *
+ * ============================================================================
+ * USAGE TOKENS TYPOGRAPHIQUES — Discipline
+ *
+ * Tokens FLUID (clamp), à fort impact visuel :
+ *   --text-2xl, --text-3xl, --text-4xl, --text-5xl
+ *   → réservés au CONTENU ÉDITORIAL PRINCIPAL.
+ *   → h1 d'article, h2 de section éditoriale, hero, titres de page,
+ *     citations marquantes, blocs Gutenberg « display ».
+ *   → utilisés dans le corps de page (main editorial content), pas dans la
+ *     chrome du site.
+ *
+ * Tokens FIXES (échelle modérée) :
+ *   --text-xs, --text-sm, --text-base, --text-md, --text-lg, --text-xl
+ *   → réservés aux CONTEXTES UI / CHROME.
+ *   → header nav, side menu, footer, sidebar, labels, captions, métadonnées,
+ *     boutons, badges, tooltips.
+ *   → ne JAMAIS utiliser --text-2xl+ pour un titre de colonne footer, un
+ *     label de section UI, un nom de catégorie en sidebar, etc.
+ *
+ * Référence : un titre de colonne footer = --text-sm en uppercase ; un
+ * sub-title de bloc UI = --text-xs. Si un titre UI semble trop petit, c'est
+ * presque toujours un problème de letter-spacing / casse / weight, pas de
+ * taille. Augmenter la taille pour gagner de la « présence » casse la
+ * hiérarchie globale et fait dériver l'identité.
+ * ============================================================================
+ */
+
+:root {
+  /* ============================================================
+   * Spacing scale (4px base) — noms canoniques --space-*
+   * ============================================================ */
+  --space-3xs: 4px;
+  --space-2xs: 8px;
+  --space-xs: 12px;
+  --space-sm: 16px;
+  --space-md: 24px;
+  --space-lg: 32px;
+  --space-xl: 48px;
+  --space-2xl: 64px;
+  --space-3xl: 96px;
+  --space-4xl: 128px;
+
+  /* Alias historiques (--spacing-N) — mêmes valeurs */
+  --spacing-1: var(--space-3xs);
+  --spacing-2: var(--space-2xs);
+  --spacing-3: var(--space-xs);
+  --spacing-4: var(--space-sm);
+  --spacing-6: var(--space-md);
+  --spacing-8: var(--space-lg);
+  --spacing-12: var(--space-xl);
+  --spacing-16: var(--space-2xl);
+  --spacing-24: var(--space-3xl);
+  --spacing-32: var(--space-4xl);
+
+  /* ============================================================
+   * Typography — font-size scale fluide via clamp()
+   * Refonte : nouveaux noms --text-* avec valeurs ajustées plus mesurées
+   * ============================================================ */
+  --text-xs: clamp(0.75rem, 0.7rem + 0.2vw, 0.8125rem);     /* 12 → 13px */
+  --text-sm: clamp(0.8125rem, 0.78rem + 0.2vw, 0.875rem);   /* 13 → 14px */
+  --text-base: clamp(0.9375rem, 0.9rem + 0.25vw, 1rem);     /* 15 → 16px */
+  --text-md: 1.0625rem;                                     /* 17px — fixed UI token, palier entre base et lg */
+  --text-lg: clamp(1rem, 0.95rem + 0.3vw, 1.125rem);        /* 16 → 18px */
+  --text-xl: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);       /* 18 → 22px */
+  --text-2xl: clamp(1.5rem, 1.3rem + 1vw, 2rem);            /* 24 → 32px */
+  --text-3xl: clamp(2rem, 1.7rem + 1.5vw, 3rem);            /* 32 → 48px */
+  --text-4xl: clamp(2.5rem, 2rem + 2.5vw, 4.5rem);          /* 40 → 72px */
+  --text-5xl: clamp(3rem, 2.4rem + 3vw, 6rem);              /* 48 → 96px */
+
+  /* Alias historiques (--font-size-*) — pointent sur la nouvelle échelle */
+  --font-size-xs: var(--text-xs);
+  --font-size-sm: var(--text-sm);
+  --font-size-base: var(--text-base);
+  --font-size-lg: var(--text-lg);
+  --font-size-xl: var(--text-xl);
+  --font-size-2xl: var(--text-2xl);
+  --font-size-3xl: var(--text-3xl);
+  --font-size-4xl: var(--text-4xl);
+
+  /* ============================================================
+   * Typography — line heights
+   * ============================================================ */
+  --line-height-tight: 1.1;
+  --line-height-snug: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.7;
+
+  /* ============================================================
+   * Typography — font weights
+   * ============================================================ */
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* ============================================================
+   * Border radius
+   * ============================================================ */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* ============================================================
+   * Shadows
+   * ============================================================ */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
+
+  /* ============================================================
+   * Hauteur du header sticky (états repos / scrollé)
+   * Source de vérité partagée : header.css dimensionne le header avec ces
+   * tokens, et la barre de progression de lecture s'y aligne (article.css).
+   * ============================================================ */
+  --header-height: 80px;
+  --header-height-scrolled: 56px;
+
+  /* ============================================================
+   * Z-index layers
+   * ============================================================ */
+  --z-nav: 100;
+  --z-modal: 200;
+  --z-toast: 300;
+  /* Invite d'activation des notifications web. Au-dessus des toasts (elle
+     persiste, ils passent) mais sous le smart banner, qui reste prioritaire. */
+  --z-push-prompt: 350;
+  --z-smart-banner: 400;
+  --z-side-menu: 500;
+  --z-cart-drawer: 550; /* Mini-panier off-canvas — au-dessus du side-menu. */
+
+  /* ============================================================
+   * Scrim / overlay (assombrissement des panneaux off-canvas)
+   * ============================================================ */
+  --color-scrim: rgba(0, 0, 0, 0.5);
+
+  /* ============================================================
+   * Breakpoints (informatif — Tailwind v4 gère ses propres breakpoints)
+   * ============================================================ */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+
+  /* ============================================================
+   * Transitions standard
+   * ============================================================ */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 400ms ease;
+
+  /* ============================================================
+   * Layout — container global
+   * ============================================================ */
+  --container-max: 1280px;
+  --container-px: clamp(1rem, 3vw, 2.5rem);
+  /* Alias historique */
+  --container-gutter: var(--container-px);
+
+  /* Largeur de lecture confortable (~68ch) — partagée header + corps +
+     share-actions article, et hérité par le card visual du .entry-header
+     (cf. components/entry-header.css). 42rem ≈ 672px, légèrement inférieur
+     au `contentSize: 44rem` de theme.json (volontaire : la chrome CSS
+     plafonne un cran sous l'hint éditeur Gutenberg pour assurer la marge
+     visuelle de la carte). */
+  --content-width: 42rem;
+
+  /* Espacement vertical entre sections (main > *) */
+  --section-y: clamp(3rem, 6vw, 6rem);
+
+  /* ============================================================
+   * Side menu (push) — largeur du panneau et durée de transition
+   * ============================================================ */
+  --side-menu-width: 320px;
+  --side-menu-transition: 300ms ease;
+
+  /* === Hero (scope composant home/hero-editorial) === */
+  --hero-min-height: clamp(28rem, 70svh, 44rem);
+  --hero-content-max: 38rem;
+  --hero-padding-block: clamp(2rem, 5vw, 5rem);
+  --hero-overlay: linear-gradient(180deg, rgba(0, 0, 0, 0.10) 0%, rgba(0, 0, 0, 0.55) 70%, rgba(0, 0, 0, 0.65) 100%);
+  --hero-text-on-dark: #ffffff;
+
+  /* ============================================================
+   * vocabulary aliases 
+   *
+   * Couleurs : aliases vers les tokens --color-* existants → héritent
+   * automatiquement de la bascule dark mode (cf. main.css). En light :
+   *   --paper = bg page, --cream = surface élevée, --ink = texte,
+   *   --muted = texte secondaire, --rule = filets, --primary = accent.
+   *
+   * Pour les blocs Gutenberg, theme.json expose en parallèle les slugs
+   * canoniques --wp--preset--color--paper/ink/cream/… avec leurs valeurs
+   * « light » fixes (cf. doc). Les composants doivent préférer les
+   * aliases courts ci-dessous pour suivre le dark mode.
+   * ============================================================ */
+  --paper: var(--color-bg);
+  --cream: var(--color-bg-elevated);
+  --ink: var(--color-fg);
+  --muted: var(--color-fg-muted);
+  --rule: var(--color-border);
+  --primary: var(--color-accent);
+  --on-accent: #14110F;
+
+  /* Surface claire CONSTANTE (ne suit pas le dark mode) : fond « papier » pour
+   * les visuels pensés pour l'impression (planches, logos transparents type
+   * wordmark) afin qu'ils restent lisibles en mode sombre. */
+  --media-paper: #ffffff;
+
+  /* Texte sur fond accent (#FFAE3A), famille canonique --color-* consommée par
+   * les boutons (DS .btn--primary, WC .button.alt, #place_order). CONSTANT
+   * (l'accent reste clair dans les deux modes) → contraste AA garanti en CLAIR
+   * et SOMBRE. Source unique = l'alias historique --on-accent (#14110F) pour
+   * éviter le doublon. */
+  --color-on-accent: var(--on-accent);
+
+  /* ============================================================
+   * Échelle numérotée (multiples de 4px) — vocabulaire Tailwind /
+   * cahier des charges. Les noms canoniques t-shirt --space-3xs/2xs/…
+   * restent disponibles ci-dessus.
+   * ============================================================ */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+
+  /* Radius & container & font — aliases de confort */
+  --radius-full: 9999px;
+  --container-pad: var(--container-px);
+  --font-sm: var(--text-sm);
+  --font-md: var(--text-md);
+  --font-lg: var(--text-lg);
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --side-menu-width: 380px;
+  }
+}

@@ -1,0 +1,245 @@
+/**
+ * Paywall recette 180°C.
+ *
+ * Le contenu est tronqué server-side (render.php) — pas de masque JS contournable.
+ * Ce CSS gère uniquement l'apparence de l'overlay et de la card de CTA.
+ *
+ * Structure :
+ *  .paywall (wrapper relatif sur le contenu recette tronqué)
+ *    .paywall__gradient  (gradient masquant le bas du contenu)
+ *    .paywall__inner     (card centrée avec CTA)
+ *      .paywall__title
+ *      .paywall__desc
+ *      .paywall__actions  (btn--primary + btn--ghost)
+ *
+ * Placement : render.php insère .paywall après les N premiers ingrédients.
+ */
+
+@layer components {
+  /* -------------------------
+   * Wrapper paywall
+   * ------------------------- */
+  .paywall {
+    position: relative;
+    /* Doit chevaucher le contenu tronqué adjacent, mais JAMAIS passer au-dessus
+     * du header sticky (--z-nav: 100). z-index local faible suffit. */
+    z-index: 1;
+    /* Marge négative pour chevaucher le contenu en dessous */
+    margin-top: calc(var(--spacing-12) * -1);
+    /* Masque le contenu sous le gradient */
+    padding-top: var(--spacing-12);
+  }
+
+  /* Variante article (single.php) : le 1er paragraphe réel sert d'amorce,
+   * donc pas de chevauchement négatif sur le contenu — espacement standard.
+   * Même spécificité que .paywall, placé après → l'emporte. */
+  .paywall--article {
+    margin-top: var(--spacing-8);
+    padding-top: 0;
+  }
+
+  /* -------------------------
+   * Gradient masquant le bas du contenu
+   * Fondu de transparent vers --color-bg
+   * ------------------------- */
+  .paywall__gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--spacing-12);
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      var(--color-bg) 100%
+    );
+    pointer-events: none;
+  }
+
+  /* -------------------------
+   * Card CTA centrée
+   * ------------------------- */
+  .paywall__inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--spacing-4);
+    max-width: 480px;
+    margin-inline: auto;
+    padding: var(--spacing-8) var(--spacing-6);
+    background-color: var(--color-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--color-border);
+  }
+
+  /* -------------------------
+   * Icône / visuel premium (optionnel)
+   * ------------------------- */
+  .paywall__icon {
+    width: 48px;
+    height: 48px;
+    color: var(--color-accent);
+    flex-shrink: 0;
+  }
+
+  /* -------------------------
+   * Titre paywall
+   * ------------------------- */
+  .paywall__title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-fg);
+    line-height: var(--line-height-snug);
+  }
+
+  /* -------------------------
+   * Description
+   * ------------------------- */
+  .paywall__desc {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    color: var(--color-fg-muted);
+    line-height: var(--line-height-relaxed);
+    max-width: 360px;
+  }
+
+  /* -------------------------
+   * Bloc prix / avantages (optionnel)
+   * Utilisé pour afficher le prix de l'abonnement
+   * ------------------------- */
+  .paywall__pricing {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-1);
+  }
+
+  .paywall__price {
+    font-family: var(--font-display);
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-fg);
+    line-height: 1;
+  }
+
+  .paywall__price-period {
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    color: var(--color-fg-muted);
+  }
+
+  /* -------------------------
+   * Actions (CTAs)
+   * ------------------------- */
+  .paywall__actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .paywall__actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* -------------------------
+   * Lien "J'ai déjà un compte" / "Connexion"
+   * ------------------------- */
+  .paywall__login-link {
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    color: var(--color-fg-muted);
+  }
+
+  .paywall__login-link a {
+    color: var(--color-accent-text);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color var(--transition-fast);
+  }
+
+  .paywall__login-link a:hover {
+    color: var(--color-fg);
+  }
+
+  .paywall__login-link a:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* ================================================================
+   * Paywall recette — aperçu flouté + avantages
+   * ================================================================ */
+
+  /* Le paywall recette suit le facts strip : pas de chevauchement négatif. */
+  .recipe-paywall {
+    margin-top: 0;
+    margin-bottom: var(--spacing-12);
+    padding-top: var(--spacing-8);
+    border-top: 1px solid var(--color-border);
+  }
+
+  /* Aperçu flouté de lignes factices — teaser visuel, jamais du contenu réel. */
+  .recipe-paywall__preview {
+    max-width: 680px;
+    margin-inline: auto;
+    padding-inline: var(--container-px);
+    filter: blur(4px);
+    opacity: 0.55;
+    user-select: none;
+    -webkit-mask-image: linear-gradient(to bottom, rgb(0 0 0) 0%, transparent 100%);
+    mask-image: linear-gradient(to bottom, rgb(0 0 0) 0%, transparent 100%);
+  }
+
+  .recipe-paywall__preview-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--spacing-2);
+  }
+
+  .recipe-paywall__preview-list li {
+    padding: var(--spacing-2) 0;
+    border-bottom: 1px solid var(--color-border);
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    color: var(--color-fg);
+  }
+
+  /* Liste d'avantages de l'abonnement. */
+  .paywall__benefits {
+    list-style: none;
+    margin: var(--spacing-2) 0 0;
+    padding: 0;
+    display: grid;
+    gap: var(--spacing-2);
+    width: 100%;
+    max-width: 360px;
+    text-align: left;
+  }
+
+  .paywall__benefit {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-2);
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    color: var(--color-fg);
+    line-height: var(--line-height-snug);
+  }
+
+  .paywall__benefit-check {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--color-accent);
+  }
+}

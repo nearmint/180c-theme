@@ -1,0 +1,655 @@
+/**
+ * Composant — Onboarding abonné (._180c-onboarding).
+ *
+ * Mini-carousel de bienvenue (5 écrans) lancé depuis la page « order-received »
+ * (markup : template-parts/onboarding/carousel.php ; binding :
+ * src/js/modules/onboarding.js). Cible âgée → fort contraste, grandes cibles,
+ * typographie généreuse, flux vertical centré. Tokens DS uniquement (light/dark
+ * gérés par les tokens), BEM strict, échelle typo : eyebrow/boutons = Oswald
+ * (chrome), titres/corps = Playfair (--font-body, le thème n'embarque pas Inter).
+ *
+ * Affichage :
+ *  - SANS JS (._180c-onboarding.no-js) : bloc rendu empilé et visible sous le
+ *    récap, contenu accessible ; barre de nav et bouton fermer masqués.
+ *  - AVEC JS (._180c-onboarding.js) : le module déplace le bloc en enfant de
+ *    <body> (hors #site-shell, dont le will-change:transform piégerait le
+ *    position:fixed) et le passe en overlay modal — scrim plein écran + panneau
+ *    centré ~720px, zone scrollable + barre de nav collée en pied de panneau
+ *    (reprise des styles de ._180c-unsub__footer). Masqué via [hidden] jusqu'à
+ *    ouverture.
+ *
+ * @package 180c
+ */
+
+@layer components {
+  /* ---------- Bouton de lancement (rendu dans thankyou.php, sous le récap) --- */
+  ._180c-onboarding-launch {
+    margin-top: var(--space-xl);
+    text-align: center;
+  }
+
+  ._180c-onboarding-launch__intro {
+    margin: 0 0 var(--space-md);
+    font-family: var(--font-body);
+    font-size: var(--text-lg);
+    line-height: var(--line-height-normal);
+    color: var(--color-fg);
+  }
+
+  ._180c-onboarding-launch__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 52px;
+    padding: var(--space-sm) var(--space-2xl);
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-md);
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color var(--transition-base),
+                border-color var(--transition-base);
+  }
+
+  ._180c-onboarding-launch__btn:hover {
+    background: color-mix(in srgb, var(--color-accent) 88%, #000);
+    border-color: color-mix(in srgb, var(--color-accent) 88%, #000);
+  }
+
+  ._180c-onboarding-launch__btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* ---------- Socle (sans JS : empilé, inline) ---------- */
+  ._180c-onboarding {
+    max-width: 100%;
+    margin-top: var(--space-2xl);
+  }
+
+  ._180c-onboarding__panel {
+    display: flex;
+    flex-direction: column;
+  }
+
+  ._180c-onboarding__viewport {
+    display: block;
+  }
+
+  ._180c-onboarding__screens {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xl);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Flux vertical centré, identique pour les 5 écrans. */
+  ._180c-onboarding__screen {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    align-items: center;
+    text-align: center;
+  }
+
+  /* Rail d'en-tête + barre de nav : modale (JS) uniquement. */
+  ._180c-onboarding__header[hidden],
+  ._180c-onboarding__nav[hidden] {
+    display: none;
+  }
+
+  /* ---------- Mode modale (JS, ouvert) ---------- */
+  ._180c-onboarding.js:not([hidden]) {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-modal, 200);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-md);
+    background: color-mix(in srgb, #000 60%, transparent);
+  }
+
+  ._180c-onboarding.js ._180c-onboarding__panel {
+    position: relative;
+    width: 100%;
+    max-width: 45rem;
+    max-height: 92vh;
+    background: var(--color-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  ._180c-onboarding.js ._180c-onboarding__viewport {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: var(--space-lg) var(--space-xl) var(--space-xl);
+  }
+
+  /* En modale, l'eyebrow vit sur le rail d'en-tête : on masque celui de chaque
+     écran (conservé pour le rendu empilé sans JS). */
+  ._180c-onboarding.js ._180c-onboarding__screen ._180c-onboarding__eyebrow {
+    display: none;
+  }
+
+  ._180c-onboarding.js ._180c-onboarding__screens {
+    display: block;
+  }
+
+  ._180c-onboarding.js ._180c-onboarding__screen {
+    display: none;
+  }
+
+  ._180c-onboarding.js ._180c-onboarding__screen.is-active {
+    display: flex;
+  }
+
+  /* ---------- Rail d'en-tête : eyebrow (gauche) + fermer (droite) ---------- */
+  ._180c-onboarding__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    flex: 0 0 auto;
+    padding: var(--space-sm) var(--space-sm) var(--space-sm) var(--space-xl);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  /* Eyebrow du rail : aligné à gauche, tronqué si nécessaire (pas de
+     chevauchement avec le × en largeur réduite). */
+  ._180c-onboarding__eyebrow--rail {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: start;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ---------- Bouton fermer ---------- */
+  ._180c-onboarding__close {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: var(--color-bg);
+    color: var(--color-fg);
+    cursor: pointer;
+    transition: background-color var(--transition-base);
+  }
+
+  ._180c-onboarding__close:hover {
+    background: var(--color-bg-elevated);
+  }
+
+  ._180c-onboarding__close:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* ---------- Typographie ---------- */
+  ._180c-onboarding__eyebrow {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-accent-text);
+  }
+
+  ._180c-onboarding__title {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: var(--text-3xl);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight, 1.15);
+    color: var(--color-fg);
+  }
+
+  ._180c-onboarding__title:focus {
+    outline: none;
+  }
+
+  ._180c-onboarding__title:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+  }
+
+  ._180c-onboarding__lead {
+    margin: 0;
+    max-width: 46ch;
+    font-family: var(--font-body);
+    font-size: var(--text-lg);
+    line-height: var(--line-height-normal);
+    color: var(--color-fg);
+  }
+
+  /* Lead desktop/mobile : on bascule la variante selon le viewport (cf. media). */
+  ._180c-onboarding__lead--mobile {
+    display: none;
+  }
+
+  ._180c-onboarding__help {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    color: var(--color-fg-muted);
+  }
+
+  ._180c-onboarding__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  ._180c-onboarding__list-item {
+    max-width: 46ch;
+    font-family: var(--font-body);
+    font-size: var(--text-lg);
+    line-height: var(--line-height-normal);
+    color: var(--color-fg);
+  }
+
+  /* Liste des interlocuteurs (écran 5) : alignée à gauche (le reste de l'écran
+     est centré), occupe la largeur de contenu. */
+  ._180c-onboarding__routes {
+    align-self: stretch;
+    text-align: start;
+  }
+
+  /* ---------- Neutralisation de la cascade éditoriale (rendu inline sans JS) ---
+     Sans JS, le bloc est rendu dans .entry-content, où single.css pose (même
+     @layer) `.entry-content ul { list-style: disc }` (0,1,1) et
+     `.entry-content a { color: accent; underline }` (0,1,1) — qui battent les
+     règles de base de l'onboarding (0,1,0) : double puce (disc native) et bouton
+     illisible (accent sur accent, souligné). On scope sous .entry-content pour
+     une spécificité supérieure (0,2,0 / 0,2,1). En modale (JS), le bloc est en
+     <body> : ces sélecteurs ne matchent pas et les règles de base suffisent. */
+  .entry-content ._180c-onboarding__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .entry-content ._180c-onboarding__list-item {
+    margin: 0;
+    padding: 0;
+  }
+
+  .entry-content a._180c-onboarding__action {
+    color: var(--color-on-accent);
+    text-decoration: none;
+  }
+
+  /* ---------- Visuel carré 1:1 centré (écrans 2 & 3) ---------- */
+  ._180c-onboarding__visual {
+    width: 100%;
+    max-width: 17.5rem;
+    margin: 0;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: var(--radius-lg, 16px);
+    background: var(--color-bg-elevated);
+  }
+
+  ._180c-onboarding__visual-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ---------- Écran 1 — stores & QR (centrés) ---------- */
+  ._180c-onboarding__stores {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-xl);
+    width: 100%;
+  }
+
+  ._180c-onboarding__store {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    align-items: center;
+  }
+
+  ._180c-onboarding__store-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-fg);
+  }
+
+  /* Le QR doit rester sombre-sur-clair pour être scannable quel que soit le
+     thème : panneau blanc fixe (contrainte fonctionnelle, pas décorative). */
+  ._180c-onboarding__qr {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 168px;
+    height: 168px;
+    padding: var(--space-sm);
+    border-radius: var(--radius-md);
+    background: #fff;
+  }
+
+  ._180c-onboarding__qr svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  ._180c-onboarding__qr:empty {
+    display: none;
+  }
+
+  ._180c-onboarding__badge {
+    display: inline-flex;
+  }
+
+  ._180c-onboarding__badge:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm, 4px);
+  }
+
+  ._180c-onboarding__badge img {
+    display: block;
+    height: auto;
+  }
+
+  /* ---------- Écran 4 — newsletter ---------- */
+  ._180c-onboarding__logo {
+    margin: 0;
+  }
+
+  ._180c-onboarding__logo-img {
+    display: block;
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+  }
+
+  /* Le seul logo Cahiers disponible est blanc (pour fond foncé). En thème clair
+     on l'inverse (tracé sombre lisible) ; en thème sombre il reste blanc.
+     Token-safe : aucune couleur, juste une inversion conditionnelle. */
+  @media (prefers-color-scheme: light) {
+    ._180c-onboarding__logo-img {
+      filter: invert(1);
+    }
+  }
+
+  [data-theme="light"] ._180c-onboarding__logo-img {
+    filter: invert(1);
+  }
+
+  [data-theme="dark"] ._180c-onboarding__logo-img {
+    filter: none;
+  }
+
+  ._180c-onboarding__confirm {
+    display: flex;
+    gap: var(--space-sm);
+    align-items: flex-start;
+    margin: 0;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--color-success) 12%, transparent);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    color: var(--color-fg);
+    text-align: start;
+  }
+
+  ._180c-onboarding__confirm-icon {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background: var(--color-success);
+    color: #fff;
+  }
+
+  ._180c-onboarding__minor-link {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+  }
+
+  ._180c-onboarding__minor-link a {
+    color: var(--color-fg-muted);
+    text-underline-offset: 0.2em;
+  }
+
+  ._180c-onboarding__minor-link a:hover,
+  ._180c-onboarding__minor-link a:focus-visible {
+    color: var(--color-fg);
+  }
+
+  /* ---------- CTA in-content (liens réels, fonctionnels sans JS) ---------- */
+  ._180c-onboarding__cta {
+    margin-top: var(--space-2xs);
+  }
+
+  ._180c-onboarding__action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: var(--space-sm) var(--space-lg);
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-md);
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.02em;
+    text-decoration: none;
+  }
+
+  ._180c-onboarding__action:hover {
+    background: color-mix(in srgb, var(--color-accent) 88%, #000);
+    border-color: color-mix(in srgb, var(--color-accent) 88%, #000);
+    color: var(--color-on-accent);
+  }
+
+  ._180c-onboarding__action:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* ---------- Barre de navigation (pied de panneau, reprise _180c-unsub__footer) */
+  ._180c-onboarding__nav {
+    flex: 0 0 auto;
+    padding: var(--space-sm) var(--space-lg);
+    background: var(--color-bg);
+    border-top: 1px solid var(--color-border);
+  }
+
+  ._180c-onboarding__nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-sm) var(--space-md);
+  }
+
+  ._180c-onboarding__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: var(--space-2xs) var(--space-lg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-elevated);
+    color: var(--color-fg);
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: background-color var(--transition-base),
+                border-color var(--transition-base);
+  }
+
+  ._180c-onboarding__btn:hover {
+    border-color: var(--color-fg-muted);
+  }
+
+  ._180c-onboarding__btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  ._180c-onboarding__btn--ghost {
+    background: none;
+    border-color: transparent;
+    color: var(--color-fg-muted);
+  }
+
+  ._180c-onboarding__btn--ghost:hover {
+    color: var(--color-fg);
+    border-color: var(--color-border);
+  }
+
+  ._180c-onboarding__btn--primary {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+
+  ._180c-onboarding__btn--primary:hover {
+    background: color-mix(in srgb, var(--color-accent) 88%, #000);
+    border-color: color-mix(in srgb, var(--color-accent) 88%, #000);
+    color: var(--color-on-accent);
+  }
+
+  /* ---------- Progression : « Étape X / 5 » + barre segmentée ---------- */
+  ._180c-onboarding__progress {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2xs);
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  ._180c-onboarding__progress-label {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.04em;
+    color: var(--color-fg-muted);
+  }
+
+  ._180c-onboarding__bar {
+    display: flex;
+    gap: var(--space-2xs);
+    width: 100%;
+    max-width: 16rem;
+  }
+
+  ._180c-onboarding__segment {
+    flex: 1 1 0;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--color-border);
+    transition: background-color var(--transition-base);
+  }
+
+  ._180c-onboarding__segment.is-active {
+    background: var(--color-accent);
+  }
+
+  /* ---------- Mobile : QR masqués, badges en CTA, lead/aide adaptés ---------- */
+  @media (max-width: 47.99rem) {
+    ._180c-onboarding__qr {
+      display: none;
+    }
+
+    ._180c-onboarding__lead--desktop,
+    ._180c-onboarding__help--desktop {
+      display: none;
+    }
+
+    ._180c-onboarding__lead--mobile {
+      display: block;
+    }
+  }
+
+  /* ---------- Mouvement réduit ---------- */
+  @media (prefers-reduced-motion: no-preference) {
+    ._180c-onboarding.js ._180c-onboarding__screen.is-active {
+      animation: _180c-onb-in var(--transition-base);
+    }
+  }
+
+  @keyframes _180c-onb-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+/* ============================================================
+ * Verrou de scroll du <body> quand la modale est ouverte — hors @layer pour
+ * battre toute règle non-layered, même logique que body.has-side-menu-open.
+ * ============================================================ */
+body.has-onboarding-open {
+  overflow: hidden;
+}
+
+/* ============================================================
+ * Taille du logo Cahiers (écran 4) — hors @layer.
+ *
+ * WC core pose `.woocommerce-page img { max-width: 100%; height: auto }` en
+ * NON-layered (cf. footer.css) ; `body.woocommerce-page` reste un ancêtre du
+ * bloc même déplacé en <body>, donc cette règle (0,1,1) bat le `max-width:300px`
+ * posé en @layer → logo en pleine largeur. On rétablit hors @layer, avec une
+ * spécificité (0,2,0) supérieure : logo ≤ 300px, hauteur auto, centré. Le
+ * conteneur est borné par sécurité.
+ * ============================================================ */
+._180c-onboarding ._180c-onboarding__logo {
+  max-width: 300px;
+  margin-inline: auto;
+}
+
+._180c-onboarding ._180c-onboarding__logo-img {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+}

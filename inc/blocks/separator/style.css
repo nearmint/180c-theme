@@ -1,0 +1,66 @@
+/* Block: 180c/separator */
+
+.block-180c-separator {
+  padding: var(--spacing-6) 0;
+}
+
+/* Variante ligne */
+.block-180c-separator__line {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 0;
+}
+
+.block-180c-separator--line {
+  display: flex;
+  align-items: center;
+}
+
+/* Motif décoratif centré */
+.block-180c-separator--line::before,
+.block-180c-separator--line::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid var(--color-border);
+}
+
+.block-180c-separator--line .block-180c-separator__line {
+  display: none;
+}
+
+/* Petit losange central */
+.block-180c-separator--line::before {
+  margin-right: var(--spacing-4);
+}
+
+.block-180c-separator--line::after {
+  margin-left: var(--spacing-4);
+}
+
+/* Pseudo-centre via background accent */
+.block-180c-separator--line {
+  position: relative;
+}
+
+.block-180c-separator--line > hr {
+  display: none;
+}
+
+/* Simplification : juste la ligne + losange CSS */
+.block-180c-separator--line {
+  overflow: hidden;
+}
+
+/* Variante image */
+.block-180c-separator--image {
+  display: flex;
+  justify-content: center;
+}
+
+.block-180c-separator__image {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  max-height: 120px;
+  object-fit: contain;
+}

@@ -1,0 +1,370 @@
+/**
+ * Page auteur 180°C — styles (v2).
+ *
+ * Vocabulaire tokens : (paper / cream / ink / muted / rule / primary,
+ * --space-N, --radius-*, --container-*). Aucune règle dark-mode locale :
+ * la bascule est wired globalement dans src/css/main.css et les aliases
+ * --paper/--ink/... héritent automatiquement du flip.
+ *
+ * Structure BEM (cf. patterns/author-*.php + author.php) :
+ *  .author                         — main container
+ *  .author-header                  — bloc identité
+ *  .author-header--no-photo        — modifier : ACF author_photo absent
+ *  .author-header__inner           — flex wrapper
+ *  .author-header__media           — figure photo (LCP)
+ *  .author-header__photo           — img photo
+ *  .author-header__text            — colonne textuelle
+ *  .author-header__name            — h1
+ *  .author-header__role            — fonction éditoriale
+ *  .author-header__bio             — biographie
+ *  .author-header__socials         — liste réseaux
+ *  .author-header__social-link     — chip-link réseau
+ *  .author-section                 — section grille articles/recettes
+ *  .author-section__title          — h2
+ *  .author-section__grid           — grille 1 → 2 → 4 cols (mobile-first)
+ *  .author-section__item           — wrapper de carte
+ *
+ * Le composant .pagination (réutilisable) vit dans pagination.css.
+ * Le composant .author-related (rail bas de page) est ci-dessous.
+ */
+
+@layer components {
+
+  /* ================================================================
+   * HEADER — identité auteur
+   * ================================================================ */
+  .author-header {
+    background-color: var(--paper);
+    color: var(--ink);
+    padding-block: var(--space-10) var(--space-8);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .author-header__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-6);
+    text-align: center;
+  }
+
+  .author-header__media {
+    flex-shrink: 0;
+    margin: 0;
+  }
+
+  .author-header__photo {
+    width: 140px;
+    height: 140px;
+    border-radius: var(--radius-full);
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    background-color: var(--cream);
+  }
+
+  .author-header__text {
+    max-width: 65ch;
+  }
+
+  .author-header__name {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    line-height: var(--line-height-tight);
+    color: var(--ink);
+    margin: 0 0 var(--space-2);
+  }
+
+  .author-header__role {
+    font-family: var(--font-display);
+    font-size: var(--font-sm);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 var(--space-4);
+  }
+
+  .author-header__bio {
+    font-family: var(--font-body);
+    font-size: var(--font-md);
+    line-height: var(--line-height-relaxed);
+    color: var(--muted);
+    margin: 0 0 var(--space-6);
+    max-width: 65ch;
+  }
+
+  .author-header__bio p {
+    margin: 0 0 0.75em;
+  }
+
+  .author-header__bio p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* === Layout ≥ lg : photo gauche + texte droite, aligné à gauche === */
+  @media (min-width: 1024px) {
+    .author-header__inner {
+      flex-direction: row;
+      align-items: center;
+      text-align: left;
+      gap: var(--space-8);
+    }
+
+    .author-header__photo {
+      width: 180px;
+      height: 180px;
+    }
+
+    /* Pas de photo → texte pleine largeur aligné à gauche. */
+    .author-header--no-photo .author-header__inner {
+      align-items: flex-start;
+    }
+  }
+
+  /* ================================================================
+   * RÉSEAUX SOCIAUX — chips horizontaux
+   * ================================================================ */
+  .author-header__socials {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  @media (min-width: 1024px) {
+    .author-header__socials {
+      justify-content: flex-start;
+    }
+  }
+
+  .author-header__social {
+    display: block;
+  }
+
+  .author-header__social-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-full);
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: var(--font-sm);
+    font-weight: var(--font-weight-medium);
+    text-decoration: none;
+    transition: color var(--transition-fast),
+                border-color var(--transition-fast),
+                background-color var(--transition-fast);
+    min-height: 44px;
+  }
+
+  .author-header__social-link:hover,
+  .author-header__social-link:focus-visible {
+    color: var(--ink);
+    border-color: var(--primary);
+    background-color: var(--cream);
+  }
+
+  /* ================================================================
+   * SECTIONS — grilles articles / recettes (gabarit, espacements)
+   * Le détail de la grille (col count) est défini en Étape 5.
+   * ================================================================ */
+  .author-section {
+    margin-block-start: var(--space-12);
+    color: var(--ink);
+  }
+
+  .author-section__title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    line-height: var(--line-height-snug);
+    color: var(--ink);
+    margin: 0 0 var(--space-6);
+  }
+
+  .author-section__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  @media (min-width: 640px) {
+    .author-section__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .author-section__grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .author-section__item {
+    display: block;
+  }
+
+  /* ================================================================
+   * LOAD-MORE — bouton enhancement JS (remplace .pagination)
+   * Optionnel, fallback no-JS = composant .pagination (cf. Étape 6).
+   * ================================================================ */
+  .author-section__load-more-wrapper {
+    margin-block-start: var(--space-8);
+    text-align: center;
+  }
+
+  .author-section__load-more {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: var(--space-2) var(--space-6);
+    border: 1px solid var(--ink);
+    border-radius: var(--radius-full);
+    background-color: transparent;
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: var(--font-sm);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color var(--transition-fast),
+                border-color var(--transition-fast),
+                background-color var(--transition-fast);
+  }
+
+  .author-section__load-more:hover,
+  .author-section__load-more:focus-visible {
+    color: var(--paper);
+    background-color: var(--ink);
+  }
+
+  .author-section__load-more[disabled],
+  .author-section__load-more[aria-busy="true"] {
+    opacity: 0.6;
+    cursor: progress;
+  }
+
+  /* ================================================================
+   * RAIL « autres auteurs » (Étape 8)
+   * ================================================================ */
+  /* Fond --paper (clair) pour contraster avec le footer site qui est en
+   * --cream. Sans cette inversion, le rail se fond dans le footer (cf.
+   * v3 etape 3). La bordure haute du footer suffit a separer
+   * visuellement, donc on retire le margin-block-start. */
+  .author-related {
+    padding-block: var(--space-10);
+    background-color: var(--paper);
+  }
+
+  .author-related__title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    line-height: var(--line-height-snug);
+    color: var(--ink);
+    margin: 0 0 var(--space-6);
+    text-align: center;
+  }
+
+  /* Grille statique 2 → 3 → 6 colonnes (mobile-first). */
+  .author-related__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  @media (min-width: 640px) {
+    .author-related__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .author-related__grid {
+      grid-template-columns: repeat(6, 1fr);
+    }
+  }
+
+  .author-related__item {
+    display: block;
+  }
+
+  .author-related__link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-3);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--ink);
+    text-align: center;
+    transition: background-color var(--transition-fast),
+                transform var(--transition-fast);
+  }
+
+  /* Hover en --cream : inverse du fond --paper du rail pour rester
+   * visible apres la bascule v3 etape 3. */
+  .author-related__link:hover,
+  .author-related__link:focus-visible {
+    background-color: var(--cream);
+    transform: translateY(-2px);
+  }
+
+  .author-related__avatar,
+  .author-related__monogram {
+    width: 96px;
+    height: 96px;
+    border-radius: var(--radius-full);
+    background-color: var(--cream);
+    flex-shrink: 0;
+  }
+
+  .author-related__avatar {
+    object-fit: cover;
+    object-position: center;
+    display: block;
+  }
+
+  .author-related__monogram {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--ink);
+    letter-spacing: 0.02em;
+  }
+
+  .author-related__name {
+    font-family: var(--font-display);
+    font-size: var(--font-md);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-snug);
+    color: var(--ink);
+    text-wrap: balance;
+  }
+
+  .author-related__role {
+    font-family: var(--font-display);
+    font-size: var(--font-sm);
+    font-weight: var(--font-weight-regular);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+}

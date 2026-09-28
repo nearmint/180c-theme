@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "180c/products-rail",
+  "title": "Rail de produits",
+  "category": "180c",
+  "icon": "cart",
+  "description": "Rail horizontal de produits WooCommerce (scroll latéral). Source : IDs explicites ou catégorie produit. Remplace le shortcode [rail_produits].",
+  "keywords": ["produits", "rail", "slider", "woo", "boutique"],
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "align": ["wide", "full"]
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "default": ""
+    },
+    "ids": {
+      "type": "string",
+      "default": ""
+    },
+    "cat": {
+      "type": "string",
+      "default": ""
+    },
+    "limit": {
+      "type": "number",
+      "default": 8
+    }
+  },
+  "render": "file:./render.php",
+  "style": "file:./style.css"
+}

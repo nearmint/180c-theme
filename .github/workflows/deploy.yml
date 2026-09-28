@@ -1,0 +1,492 @@
+# Déploiement du thème 180c-theme vers la production.
+#
+# Chaîne : push sur main → build Vite → artefact filtré → SFTP (thème seul).
+#
+# Les exclusions de l'artefact ont été classées fichier par fichier (runtime ou
+# outillage) lors d'un audit du 15/07/2026. Ne les modifie pas sans refaire ce
+# classement : plusieurs sont contre-intuitives et leur violation ne se voit pas
+# en revue de code.
+#
+# Prérequis : le site NE DOIT PAS être en maintenance quand le workflow tourne,
+# sinon le smoke test échoue (503).
+
+name: Deploy theme to production
+
+on:
+  push:
+    branches: [main]
+    # Un miroir --delete sur la production n'a aucune raison de tourner pour un
+    # commit qui ne peut pas changer l'artefact : *.md est de toute façon exclu
+    # du rsync, docs/ et .claude/ aussi. Déclencher quand même faisait courir un
+    # risque destructif pour un résultat transféré rigoureusement identique.
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.claude/**'
+      # tools/ et audit/ sont exclus du rsync au même titre : un commit qui ne
+      # touche qu'eux produit un artefact rigoureusement identique. Déclencher
+      # un mirror --delete pour cela, c'est prendre un risque destructif pour
+      # un résultat nul.
+      - 'tools/**'
+      - 'audit/**'
+  workflow_dispatch:
+
+# Un seul déploiement à la fois, et JAMAIS d'annulation en vol :
+# couper un mirror --delete laisserait le thème à moitié déployé en production.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build & deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Historique complet : l'étape suivante compare le range poussé
+          # (github.event.before..github.sha), impossible avec le depth 1 par défaut.
+          fetch-depth: 0
+        # NOTE : on part du checkout, PAS de `git archive`.
+        # .gitattributes marque `src/ export-ignore` — ce qui est FAUX :
+        # src/css et src/images sont du runtime (icônes inline, badges du footer,
+        # images d'e-mails, page design-system). Un git archive livrerait un thème cassé.
+
+      - name: Alerte — chemins modifiés mais jamais déployés
+        # mu-plugins/ et inc/migration/ sont exclus de l'artefact, et leur absence
+        # est même assertée par le sanity check. C'est volontaire (les mu-plugins
+        # vivent hors du dossier du thème, les migrations s'exécutent à la demande),
+        # mais un push qui les modifie affiche un déploiement vert alors que RIEN
+        # n'a changé en production. Ce rappel rend la reprise manuelle visible.
+        # Volontairement non bloquant : ce n'est pas une erreur, c'est une consigne.
+        if: github.event_name == 'push'
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ] \
+             || ! git cat-file -e "${BEFORE}^{commit}" 2>/dev/null; then
+            echo "Range indisponible (création de branche, force-push ou historique tronqué) — contrôle ignoré."
+            exit 0
+          fi
+          touched=$(git diff --name-only "$BEFORE" "$GITHUB_SHA" -- mu-plugins/ inc/migration/)
+          if [ -z "$touched" ]; then
+            echo "OK — aucun chemin hors-déploiement touché."
+            exit 0
+          fi
+          echo "::warning::Reprise manuelle requise : mu-plugins/ ou inc/migration/ ont été modifiés, or ces chemins ne partent jamais en production."
+          {
+            echo "### ⚠️ Reprise manuelle requise"
+            echo
+            echo "Ces fichiers ont été modifiés mais **ne sont pas déployés** (exclus de l'artefact) :"
+            echo
+            echo '```'
+            echo "$touched"
+            echo '```'
+            echo
+            echo "\`mu-plugins/\` vit hors du dossier du thème et \`inc/migration/\` s'exécute à la demande : à reprendre à la main."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'   # package.json → engines >= 24
+          cache: 'npm'
+
+      # ---------------------------------------------------------------
+      # Garde-fous AVANT le build : on échoue vite et gratuitement.
+      # ---------------------------------------------------------------
+
+      - name: Guard — pas de require vers bin/ (supprimé par f90ea89)
+        # Régression réelle : le functions.php committé a longtemps requis
+        # bin/migrate-recipes.php et bin/cleanup-content.php, disparus.
+        # Front indemne (garde WP_CLI) mais toute commande wp fatalise.
+        run: |
+          if grep -rn --include='*.php' "get_template_directory() . '/bin/" . ; then
+            echo "::error::Un fichier require encore bin/ — supprimé par f90ea89. Nettoie avant de déployer."
+            exit 1
+          fi
+          echo "OK — aucun require vers bin/"
+
+      - name: Lint PHP
+        run: |
+          find . -name '*.php' -not -path './node_modules/*' -not -path './.git/*' \
+            -print0 | xargs -0 -n1 -P4 php -l > /dev/null
+          echo "OK — $(find . -name '*.php' -not -path './node_modules/*' | wc -l) fichiers PHP valides"
+
+      - name: Guard — contraintes de schéma REST opposables
+        # Un `sanitize_callback` déclaré prive l'argument du
+        # `rest_parse_request_arg` que le cœur assigne par défaut
+        # (wp-includes/rest-api/class-wp-rest-request.php:858-861) : `enum`,
+        # `minimum` et `type` deviennent alors décoratifs, sans avertissement.
+        # A laissé passer un 500 (503 Varnish) sur /newsletter/subscribe, route
+        # publique. Analyse statique : le job ne charge jamais WordPress.
+        run: php tools/check-rest-args-validation.php
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Verify build output
+        # dist/ est gitignoré : il n'existe QUE parce que la CI vient de le produire.
+        # C'est ce qui élimine définitivement l'oubli du dist/ à l'upload manuel.
+        run: |
+          test -d dist || { echo "::error::dist/ absent après le build"; exit 1; }
+          test -f dist/.vite/manifest.json || { echo "::error::manifest.json absent — inc/helpers.php:540 le lit au runtime"; exit 1; }
+          test -n "$(ls -A dist/assets 2>/dev/null)" || { echo "::error::dist/assets vide"; exit 1; }
+          echo "dist/ : $(find dist -type f | wc -l) fichiers, $(du -sh dist | cut -f1)"
+
+      # ---------------------------------------------------------------
+      # Artefact : uniquement ce qui doit vivre en production.
+      # Chemins ancrés par '/' → aucun risque de matcher un dossier imbriqué.
+      #
+      # src/css et src/images RESTENT : ce sont du runtime (icônes inline, badges
+      # du footer, images d'e-mails, page design-system) — c'est ce que le sanity
+      # check exige. src/js, lui, n'est que de la source : en production il est
+      # déjà bundlé dans dist/assets, inc/enqueue.php ne le sert jamais depuis le
+      # thème (ligne 114 = mode HMR, l'URL pointe sur le serveur de dev ; ligne 119
+      # = clé du manifest, pas un chemin disque). Il était publié pour rien.
+      #
+      # audit/ (documentation de conformité, jamais du runtime) reste exclu par
+      # précaution : sans cette ligne, un tel dossier apparaîtrait à la racine de
+      # l'artefact et ferait échouer la garde racine du sanity check.
+      # ---------------------------------------------------------------
+
+      - name: Prepare deploy artifact
+        run: |
+          rsync -a \
+            --exclude='/.git/' \
+            --exclude='/.github/' \
+            --exclude='/.claude/' \
+            --exclude='/node_modules/' \
+            --exclude='/vendor/' \
+            --exclude='/inc/migration/' \
+            --exclude='/mu-plugins/' \
+            --exclude='/content/' \
+            --exclude='/dev/' \
+            --exclude='/docs/' \
+            --exclude='/tests/' \
+            --exclude='/src/js/' \
+            --exclude='/dist/hot' \
+            --exclude='/tools/' \
+            --exclude='/audit/' \
+            --exclude='/_STATE/' \
+            --exclude='/composer.json' \
+            --exclude='/composer.lock' \
+            --exclude='/package.json' \
+            --exclude='/package-lock.json' \
+            --exclude='/vite.config.js' \
+            --exclude='/postcss.config.js' \
+            --exclude='/eslint.config.js' \
+            --exclude='/stylelint.config.js' \
+            --exclude='/phpcs.xml.dist' \
+            --exclude='/.editorconfig' \
+            --exclude='/.gitattributes' \
+            --exclude='/.gitignore' \
+            --exclude='*.md' \
+            --exclude='.DS_Store' \
+            --exclude='.env' \
+            --exclude='.env.local' \
+            ./ ./_deploy/
+          echo "Artefact : $(find ./_deploy -type f | wc -l) fichiers, $(du -sh ./_deploy | cut -f1)"
+
+      - name: Sanity check artifact
+        # mirror --delete aligne le serveur sur cet artefact.
+        # S'il est incomplet, --delete supprime du runtime en production.
+        # Ces vérifications sont la contrepartie du --delete : elles ne sont pas négociables.
+        run: |
+          fail=0
+          for f in style.css functions.php index.php woocommerce.php theme.json; do
+            test -f "./_deploy/$f" || { echo "::error::$f absent de l'artefact"; fail=1; }
+          done
+          for d in dist acf-json inc parts patterns template-parts woocommerce assets admin src/css src/images; do
+            test -d "./_deploy/$d" || { echo "::error::$d/ absent de l'artefact"; fail=1; }
+          done
+          # Ce qui ne doit JAMAIS partir
+          test ! -e "./_deploy/dist/hot" || { echo "::error::dist/hot présent — basculerait le front en HMR vers localhost"; fail=1; }
+          test ! -d "./_deploy/node_modules" || { echo "::error::node_modules dans l'artefact"; fail=1; }
+          test ! -d "./_deploy/mu-plugins" || { echo "::error::mu-plugins dans l'artefact"; fail=1; }
+          test ! -d "./_deploy/inc/migration" || { echo "::error::inc/migration dans l'artefact"; fail=1; }
+          test ! -d "./_deploy/tests" || { echo "::error::tests/ dans l'artefact — scripts wp eval-file de dev, jamais en production"; fail=1; }
+          ! find ./_deploy -name '_debug-auth.php' | grep -q . || { echo "::error::_debug-auth.php dans l'artefact"; fail=1; }
+          ! find ./_deploy -name '.env*' | grep -q . || { echo "::error::fichier .env dans l'artefact"; fail=1; }
+          # Ordre de grandeur : ~549 fichiers / ~5,5 Mo (référence audit du 15/07)
+          n=$(find ./_deploy -type f | wc -l)
+          test "$n" -ge 450 || { echo "::error::artefact suspect : seulement $n fichiers (attendu ~549)"; fail=1; }
+
+          # Garde racine. Ce qui filtre l'artefact est une liste d'EXCLUSIONS, pas
+          # une allowlist : tout nouveau fichier posé à la racine part donc en
+          # production par défaut, sans que personne ait eu à en décider. La liste
+          # ci-dessous rétablit la décision — elle échoue sur ce qu'elle ne connaît
+          # pas, au lieu de le publier en silence.
+          # Établie depuis l'artefact réellement produit (2026-07-27, 40 entrées) ;
+          # vérifiée équivalente à « racine git moins exclusions, plus dist ».
+          # 2026-07-31 : 39 entrées — `page-cahiers-de-delphine.php` retiré, le
+          # gabarit ayant été supprimé (la page /newsletter/ le remplace).
+          # 2026-08-05 : 40 entrées — `page-app.php` ajouté (cible du QR code de
+          # téléchargement de l'app, redirige selon l'appareil).
+          expected="
+            404.php acf-json admin archive-recipe.php archive.php assets attachment.php
+            author.php dist footer.php front-page.php functions.php header.php inc
+            index.php languages LICENSE page-abonnement.php page-aide.php
+            page-app.php page-contact.php page-newsletter.php
+            page-offrir-un-abonnement.php page-plan-du-site.php parts patterns
+            search.php single-recipe.php single.php singular.php src style.css
+            template-about.php template-design-system.php template-home.php
+            template-mon-carnet.php template-parts theme.json woocommerce
+            woocommerce.php
+          "
+          # Sens 1 — ce que l'artefact contient en trop : publication par omission.
+          while IFS= read -r entry; do
+            case " $(echo $expected) " in
+              *" $entry "*) ;;
+              *)
+                echo "::error::nouvelle entrée racine non classée : « $entry » — l'ajouter à la liste attendue (sanity check) ou aux exclusions rsync"
+                fail=1
+                ;;
+            esac
+          done < <(ls -A ./_deploy)
+
+          # Sens 2 — ce qui manque à l'artefact : c'est LA direction dangereuse.
+          # Le mirror tourne en --delete : une entrée qui disparaît de l'artefact
+          # est supprimée de la production, sans que rien ne le dise. Les asserts
+          # nominatifs plus haut n'en couvrent que onze, et le seuil de 450 fichiers
+          # ne voit pas partir un dossier de trente. L'égalité stricte, elle, le voit.
+          for entry in $(echo $expected); do
+            test -e "./_deploy/$entry" || {
+              echo "::error::entrée racine disparue : « $entry » — si la suppression est volontaire, retirer l'entrée de la liste figée dans le même commit"
+              fail=1
+            }
+          done
+
+          exit $fail
+
+      - name: Install lftp
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+
+      - name: Guard — la cible est bien le thème
+        # Vérifie que REMOTE_PATH pointe sur un dossier de thème AVANT tout --delete.
+        # Un chemin erroné (ex. .../themes) ferait des dégâts irréversibles.
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          LFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+          REMOTE_PATH: ${{ secrets.SFTP_REMOTE_PATH }}
+        run: |
+          out=$(lftp --env-password -u "$SFTP_USER" "sftp://$SFTP_HOST" -e "
+            set sftp:auto-confirm yes;
+            cd $REMOTE_PATH;
+            cls -1 style.css functions.php;
+            bye
+          " 2>&1) || { echo "::error::Connexion ou chemin invalide"; exit 1; }
+          echo "$out"
+          if ! echo "$out" | grep -q 'style.css'; then
+            echo "::error::style.css introuvable dans $REMOTE_PATH — ce n'est pas un thème, --delete est refusé"
+            exit 1
+          fi
+
+          # « C'est un thème » ne suffit pas : les smoke tests interrogent en dur
+          # /wp-content/themes/180c-theme/, alors que la cible réelle est le secret
+          # REMOTE_PATH. Un chemin pointant sur un AUTRE thème passerait le test
+          # ci-dessus, se ferait écraser par le --delete, et l'échec se lirait
+          # comme un problème d'asset. On exige donc l'en-tête de CE thème.
+          header=$(lftp --env-password -u "$SFTP_USER" "sftp://$SFTP_HOST" -e "
+            set sftp:auto-confirm yes;
+            cat $REMOTE_PATH/style.css;
+            bye
+          " 2>&1) || { echo "::error::Lecture de $REMOTE_PATH/style.css impossible"; exit 1; }
+          if ! echo "$header" | grep -qE '^Text Domain:[[:space:]]*180c[[:space:]]*\r?$'; then
+            echo "::error::$REMOTE_PATH contient un thème, mais PAS 180c-theme (en-tête « Text Domain: 180c » absent) — --delete est refusé"
+            exit 1
+          fi
+          echo "OK — cible confirmée : thème 180c"
+
+      - name: Guard — pas de dérive ACF en production
+        # inc/acf/load-json.php force ACF à écrire ses groupes de champs dans
+        # acf-json/ du thème. Un groupe créé ou modifié depuis le back-office de
+        # PRODUCTION y dépose donc un JSON qui n'est dans aucun commit — et que
+        # le mirror --delete efface silencieusement au déploiement suivant.
+        #
+        # On compare avant d'écrire : tout JSON présent en prod et absent de
+        # l'artefact fait échouer le job, production intacte. La récupération
+        # (télécharger le fichier, le committer) reste manuelle et volontaire :
+        # rapatrier automatiquement reviendrait à valider une dérive non relue.
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          LFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+          REMOTE_PATH: ${{ secrets.SFTP_REMOTE_PATH }}
+        run: |
+          # acf-json/ absent côté serveur (premier déploiement) : rien à comparer.
+          remote=$(lftp --env-password -u "$SFTP_USER" "sftp://$SFTP_HOST" -e "
+            set sftp:auto-confirm yes;
+            cls -1 $REMOTE_PATH/acf-json/;
+            bye
+          " 2>/dev/null || true)
+
+          missing=""
+          count=0
+          while IFS= read -r line; do
+            f=$(basename "$line")
+            case "$f" in
+              *.json) ;;
+              *) continue ;;
+            esac
+            count=$((count + 1))
+            test -f "./_deploy/acf-json/$f" || missing="$missing$f"$'\n'
+          done <<< "$remote"
+
+          echo "acf-json distant : $count fichier(s) — artefact : $(find ./_deploy/acf-json -name '*.json' | wc -l)"
+
+          if [ -n "$missing" ]; then
+            echo "::error::Dérive ACF détectée : des groupes de champs existent en production mais pas dans le dépôt. Le mirror --delete les supprimerait."
+            echo "Fichiers concernés :"
+            echo "$missing"
+            echo "À faire avant de relancer : télécharger ces fichiers depuis $REMOTE_PATH/acf-json/, les committer, puis redéployer."
+            exit 1
+          fi
+          echo "OK — aucun groupe de champs présent en prod et absent du dépôt"
+
+      - name: Deploy over SFTP
+        # Le mirror tourne en DEUX passes, et l'ordre n'est pas négociable.
+        #
+        # Incident du 2026-08-21 (constat C-01 de l'audit logs du 2026-08-22) :
+        # le commit a2173b5 ajoutait inc/mailchimp/membership-sync.php — fichier
+        # NEUF — et modifiait inc/bootstrap.php pour le `require_once`. En une
+        # seule passe, lftp a transféré inc/bootstrap.php AVANT le fichier neuf.
+        # Entre les deux, chaque requête front a levé « Failed opening required
+        # [...] membership-sync.php », backtrace remontant jusqu'à index.php :
+        # site entièrement indisponible 74 s (25 CRITICAL, 17:47:10→17:48:24 UTC).
+        #
+        # Passe 1 — `--only-missing` : ne transfère QUE les fichiers absents du
+        # serveur. Les fichiers neufs atterrissent donc AVANT que le moindre
+        # fichier modifié ne soit touché, ce qui rend ce fatal impossible.
+        # Un mirror simplement privé de `--delete` ne suffirait PAS : il
+        # transfère le même ensemble dans le même ordre et reproduit le fatal à
+        # l'identique — vérifié sur lftp 4.9.3, `--delete` ne gouverne que les
+        # suppressions, or l'incident n'était pas une suppression.
+        #
+        # Passe 2 — `--delete` : strictement la commande d'avant. Elle met à
+        # jour les fichiers modifiés et supprime les obsolètes.
+        #
+        # Les arguments communs vivent dans MIRROR_ARGS : toute divergence entre
+        # les deux passes (exclusion, chemins) recréerait le bug. Le parallélisme
+        # est un réglage de SESSION (`set mirror:parallel-transfer-count`) : il
+        # s'applique aux deux passes par construction.
+        #
+        # Ceci ne rend PAS le déploiement atomique : un fichier modifié reste
+        # écrit en place (xfer:use-temp-file = no par défaut). Seule une bascule
+        # par renommage supprimerait ce créneau — hors périmètre, backlog.
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          LFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+          REMOTE_PATH: ${{ secrets.SFTP_REMOTE_PATH }}
+        run: |
+          MIRROR_ARGS="--verbose -x '(^|/)\.DS_Store\$' ./_deploy/ $REMOTE_PATH"
+
+          lftp --env-password -u "$SFTP_USER" "sftp://$SFTP_HOST" -e "
+            set sftp:auto-confirm yes;
+            set net:timeout 20;
+            set net:max-retries 3;
+            set net:reconnect-interval-base 5;
+            set mirror:parallel-transfer-count 4;
+            mirror -R --only-missing $MIRROR_ARGS;
+            mirror -R --delete $MIRROR_ARGS;
+            bye
+          "
+
+      - name: Verify deployment
+        # La sortie d'un outil n'est pas une preuve. On redemande.
+        #
+        # Deux pièges corrigés ici, tous deux vécus :
+        #  1. lftp affiche TOUJOURS `mkdir -p sftp://...`, même quand le dossier
+        #     existe. Le chercher produisait un faux positif à chaque run réussi.
+        #  2. `grep -q ... && { ... }` renvoie 1 quand grep ne trouve RIEN, ce qui
+        #     tue l'étape sous `set -e` — donc échec précisément quand tout va bien.
+        #     D'où le `if`.
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          LFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+          REMOTE_PATH: ${{ secrets.SFTP_REMOTE_PATH }}
+        run: |
+          out=$(lftp --env-password -u "$SFTP_USER" "sftp://$SFTP_HOST" -e "
+            set sftp:auto-confirm yes;
+            mirror -R --delete --dry-run -x '(^|/)\.DS_Store\$' ./_deploy/ $REMOTE_PATH;
+            bye
+          " 2>&1)
+          echo "$out"
+          if echo "$out" | grep -qE '^(Transferring|Removing)'; then
+            echo "::error::Le dry-run annonce encore du travail — transfert incomplet"
+            exit 1
+          fi
+          echo "OK — serveur aligné sur l'artefact"
+
+      - name: Purge du cache page
+        # Les assets sont hashés et le mirror tourne en --delete : l'ancien
+        # dist/assets/main-XXXX.js disparaît à l'instant où le nouveau arrive.
+        # WP Super Cache, lui, continue de servir le HTML d'AVANT le déploiement,
+        # qui pointe sur le hash supprimé — donc plus aucun JS sur le site
+        # (vécu le 26/07/2026 : CMP invisible, liens data-action non interceptés).
+        #
+        # Une page servie depuis le cache ne boote pas WordPress. On émet donc
+        # une requête AVEC query string, qui contourne le cache et exécute
+        # _180c_purge_page_cache_on_deploy() (inc/enqueue.php) : elle mémorise ce
+        # GITHUB_RUN_ID et purge dès qu'il diffère du dernier vu.
+        #
+        # Le signal est le RUN ID, et non plus l'empreinte du manifest Vite. Un
+        # déploiement PHP seul laisse ce manifest identique : la purge ne partait
+        # pas, l'ancien HTML était servi indéfiniment, et ce step passait au vert
+        # sans rien purger. Un step vert ne prouvait donc pas qu'une purge avait
+        # eu lieu — deux fois constaté le 2026-08-29.
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" --retry 3 --retry-delay 15 --retry-all-errors --max-time 60 "https://www.180c.fr/?deploy-cache-purge=${GITHUB_RUN_ID}")
+          echo "Requête de purge (contourne le cache) : $code"
+          test "$code" = "200" || { echo "::error::La requête de purge répond $code"; exit 1; }
+          sleep 5
+
+      - name: Smoke test
+        # Le second test est le décisif : un déploiement sans CSS répondrait 200
+        # sur l'accueil et passerait pour un succès.
+        # Rappel : si le site est en maintenance, l'accueil renvoie 503 et ce test échoue.
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" --retry 3 --retry-delay 15 --retry-all-errors https://www.180c.fr/)
+          echo "Accueil : $code"
+          test "$code" = "200" || { echo "::error::Accueil en $code (site en maintenance ?)"; exit 1; }
+
+          asset=$(cd ./_deploy && find dist/assets -name '*.css' -type f | head -1)
+          code=$(curl -s -o /dev/null -w "%{http_code}" --retry 3 --retry-delay 15 --retry-all-errors "https://www.180c.fr/wp-content/themes/180c-theme/$asset")
+          echo "Asset $asset : $code"
+          test "$code" = "200" || { echo "::error::Asset dist/ en $code — le site est probablement sans style"; exit 1; }
+
+          # Bloquant, et non plus un simple warning : la production répond bien 404
+          # aujourd'hui (relevé le 2026-07-27), donc l'assertion ne peut échouer que
+          # sur une vraie régression — un artefact qui embarquerait node_modules,
+          # ou un --delete qui n'aurait pas nettoyé. Publier 40 Mo de dépendances
+          # n'est pas un détail cosmétique qu'on signale en passant.
+          code=$(curl -s -o /dev/null -w "%{http_code}" --retry 3 --retry-delay 15 --retry-all-errors "https://www.180c.fr/wp-content/themes/180c-theme/node_modules/.package-lock.json")
+          echo "node_modules purgé (404 attendu) : $code"
+          test "$code" = "404" || { echo "::error::node_modules répond en $code — des dépendances de build sont exposées publiquement"; exit 1; }
+
+      - name: Vérifie que la page LIVE sert le build courant
+        # L'étape précédente teste un asset choisi dans l'artefact — elle répond
+        # donc 200 même quand le HTML servi aux visiteurs pointe ailleurs.
+        # Ici on part de la page réellement servie (sans query string, donc
+        # potentiellement depuis le cache) et on exige que les bundles qu'elle
+        # référence existent. C'est le test qui aurait attrapé la panne du 26/07.
+        run: |
+          html=$(curl -s --retry 3 --retry-delay 15 --retry-all-errors https://www.180c.fr/)
+          refs=$(echo "$html" | grep -o 'dist/assets/[A-Za-z0-9._-]*\.\(js\|css\)' | sort -u)
+          test -n "$refs" || { echo "::error::Aucun asset dist/ référencé par la page servie"; exit 1; }
+          fail=0
+          for ref in $refs; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --retry 3 --retry-delay 15 --retry-all-errors "https://www.180c.fr/wp-content/themes/180c-theme/$ref")
+            echo "$ref : $code"
+            test "$code" = "200" || { echo "::error::La page servie référence $ref, absent du serveur (cache page non purgé ?)"; fail=1; }
+          done
+          exit $fail

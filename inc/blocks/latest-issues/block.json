@@ -1,0 +1,29 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "180c/latest-issues",
+  "title": "Derniers numéros",
+  "category": "180c",
+  "icon": "media-document",
+  "description": "Slider horizontal des N derniers numéros du magazine.",
+  "keywords": ["numéros", "magazine", "slider", "issues"],
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "align": ["wide", "full"]
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "default": "Les derniers numéros"
+    },
+    "count": {
+      "type": "number",
+      "default": 6,
+      "minimum": 2,
+      "maximum": 12
+    }
+  },
+  "render": "file:./render.php",
+  "style": "file:./style.css"
+}

@@ -1,0 +1,138 @@
+/*
+ * Home module — hero_editorial
+ *
+ * Full-bleed magazine cover. Neutralises the .container-180c constraint
+ * for this module only, sets a background image via the existing
+ * <img class="hero-180c__image">, applies a dark gradient overlay for
+ * legibility, and lays out the content (title / excerpt / CTA) in the
+ * bottom-left, constrained by .container-180c rules internally.
+ *
+ * Tokens consumed : --hero-min-height, --hero-content-max,
+ * --hero-padding-block, --hero-overlay, --hero-text-on-dark,
+ * --container-max, --container-px, --font-display, --font-body,
+ * --text-5xl, --text-lg, --line-height-tight, --line-height-snug,
+ * --font-weight-bold, --space-md, --space-lg.
+ */
+
+@layer components {
+  /* Break-out : sortir des contraintes max-width/padding de .site-main */
+  .home-module--hero_editorial {
+    width: 100vw;
+    max-width: none;
+    margin-inline: calc(50% - 50vw);
+  }
+
+  /* Full-bleed : neutralise le container parent uniquement pour ce module */
+  .home-module--hero_editorial > .container-180c {
+    max-width: none;
+    padding-inline: 0;
+  }
+
+  .hero-180c {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    /* Coins arrondis : overflow:hidden ci-dessus fait suivre l'image (et son
+       overlay) sans recadrage ni perte de ratio (object-fit: cover). */
+    border-radius: var(--radius-lg);
+    min-height: var(--hero-min-height);
+    display: flex;
+    align-items: flex-end;
+    color: var(--hero-text-on-dark);
+  }
+
+  .hero-180c__media {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+  }
+
+  .hero-180c__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+  }
+
+  /* Overlay sombre dégradé : lisibilité du contenu en bas */
+  .hero-180c::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--hero-overlay);
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .hero-180c__content {
+    position: relative;
+    width: 100%;
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-block: var(--hero-padding-block);
+    padding-inline: var(--container-px);
+  }
+
+  .hero-180c__title {
+    font-family: var(--font-display);
+    font-size: var(--text-5xl);
+    line-height: var(--line-height-tight);
+    font-weight: var(--font-weight-bold);
+    max-width: var(--hero-content-max);
+    margin: 0 0 var(--space-md);
+    text-wrap: balance;
+    /* Toujours blanc : le hero est posé sur une image à overlay sombre dans les
+       deux modes. Sans cette règle, `@layer base h1{color:var(--color-fg)}`
+       repeindrait le titre en sombre en light mode (color posé sur l'élément
+       battant le blanc hérité de .hero-180c). Dropshadow conservé pour la
+       lisibilité sur l'image. */
+    color: var(--hero-text-on-dark);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  .hero-180c__excerpt {
+    font-family: var(--font-body);
+    font-size: var(--text-lg);
+    line-height: var(--line-height-snug);
+    max-width: var(--hero-content-max);
+    margin: 0 0 var(--space-lg);
+    color: rgba(255, 255, 255, 0.92);
+  }
+
+  /* CTA : la classe .btn--primary est déjà stylée par buttons.css.
+     On n'override que si nécessaire ; ici on ne touche rien. */
+
+  /* ----------------------------------------------------------------
+   * Hero entièrement cliquable (stretched-link).
+   *
+   * Le pseudo ::after du CTA s'étend sur toute la carte .hero-180c pour
+   * en faire une cible de clic unique vers la recette/l'article. Pour que
+   * le pseudo soit ancré sur .hero-180c (et non sur .hero-180c__content),
+   * on retire le contexte de positionnement du contenu : l'overlay
+   * dégradé étant en z-index négatif, le contenu reste lisible au-dessus
+   * sans `position: relative`. Le bouton favori (z-index:2) passe au-dessus
+   * du pseudo (z-index:1) → il reste cliquable indépendamment.
+   * ---------------------------------------------------------------- */
+  .home-module--hero_editorial .hero-180c__content {
+    position: static;
+  }
+
+  .home-module--hero_editorial .hero-180c__cta::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  /* CRUCIAL : .btn--primary applique `filter: brightness()` au survol/clic.
+     Or `filter` crée un bloc conteneur pour les descendants absolus → le
+     pseudo ::after se ré-ancrerait sur le bouton (et non sur .hero-180c) dès
+     le hover, le faisant rétrécir : d'où le clignotement du curseur et le
+     clic inopérant sur l'image. On neutralise donc le filtre sur ce CTA ;
+     l'affordance vient déjà du survol de toute la carte (curseur pointer). */
+  .home-module--hero_editorial a.hero-180c__cta:hover,
+  .home-module--hero_editorial a.hero-180c__cta:active {
+    filter: none;
+  }
+}

@@ -1,0 +1,421 @@
+{
+  "key": "group_recipe_fields",
+  "title": "Recette — Champs",
+  "fields": [
+    {
+      "key": "field_180c_tab_intro",
+      "label": "Intro",
+      "name": "",
+      "type": "tab",
+      "instructions": "",
+      "required": 0,
+      "conditional_logic": 0,
+      "wrapper": {
+        "width": "",
+        "class": "",
+        "id": ""
+      },
+      "placement": "top",
+      "endpoint": 0
+    },
+    {
+      "key": "field_180c_recipe_intro",
+      "label": "Introduction",
+      "name": "recipe_intro",
+      "type": "textarea",
+      "instructions": "Reprend le texte d'introduction en gras parsé aujourd'hui.",
+      "required": 0,
+      "conditional_logic": 0,
+      "wrapper": {
+        "width": "",
+        "class": "",
+        "id": ""
+      },
+      "default_value": "",
+      "placeholder": "",
+      "maxlength": "",
+      "rows": 3,
+      "new_lines": ""
+    },
+    {
+      "key": "field_180c_tab_meta",
+      "label": "Méta",
+      "name": "",
+      "type": "tab",
+      "instructions": "",
+      "required": 0,
+      "conditional_logic": 0,
+      "wrapper": {
+        "width": "",
+        "class": "",
+        "id": ""
+      },
+      "placement": "top",
+      "endpoint": 0
+    },
+    {
+      "key": "field_180c_servings",
+      "label": "Portions",
+      "name": "servings",
+      "type": "number",
+      "instructions": "Nombre de portions. Minimum 1.",
+      "required": 0,
+      "conditional_logic": 0,
+      "wrapper": {
+        "width": "33",
+        "class": "",
+        "id": ""
+      },
+      "default_value": "",
+      "placeholder": "",
+      "prepend": "",
+      "append": "",
+      "min": 1,
+      "max": "",
+      "step": 1
+    },
+    {
+      "key": "field_180c_servings_unit",
+      "label": "Unité de portion",
+      "name": "servings_unit",
+      "type": "text",
+      "instructions": "",
+      "required": 0,
+      "conditional_logic": 0,
+      "wrapper": {
+        "width": "33",
+        "class": "",
+        "id": ""
+      },
+      "default_value": "personnes",
+      "maxlength": "",
+      "placeholder": "personnes",
+      "prepend": "",
+      "append": ""
+    },
+    {
+      "key": "field_180c_prep_time_min",
+      "label": "Temps de préparation",
+      "name": "prep_time_min",
+      "type": "number",
+      "instructions": "Durée en minutes, nombre entier. Laisser vide si inconnu : le schema.org n'émet la propriété que si elle est renseignée.",
+      "required": 0,
+      "conditional_logic": 0,
+      "wrapper": {
+        "width": "33",
+        "class": "",
+        "id": ""
+      },
+      "default_value": "",
+      "placeholder": "",
+      "prepend": "",
+      "append": "min",
+      "min": 0,
+      "max": "",
+      "step": 1
+    },
+    {
+      "key": "field_180c_cook_time_min",
+      "label": "Temps de cuisson",
+      "name": "cook_time_min",
+      "type": "number",
+      "instructions": "Durée en minutes, nombre entier. Laisser vide si inconnu.",
+      "required": 0,
+      "conditional_logic": 0,
+      "wrapper": {
+        "width": "33",
+        "class": "",
+        "id": ""
+      },
+      "default_value": "",
+      "placeholder": "",
+      "prepend": "",
+      "append": "min",
+      "min": 0,
+      "max": "",
+      "step": 1
+    },
+    {
+      "key": "field_180c_rest_time_min",
+      "label": "Temps de repos",
+      "name": "rest_time_min",
+      "type": "number",
+      "instructions": "Durée en minutes, nombre entier (repos, réfrigération, levée). Laisser vide si inconnu. S'additionne aux deux autres pour totalTime.",
+      "required": 0,
+      "conditional_logic": 0,
+      "wrapper": {
+        "width": "33",
+        "class": "",
+        "id": ""
+      },
+      "default_value": "",
+      "placeholder": "",
+      "prepend": "",
+      "append": "min",
+      "min": 0,
+      "max": "",
+      "step": 1
+    },
+    {
+      "key": "field_180c_recipe_is_premium",
+      "label": "Recette premium",
+      "name": "recipe_is_premium",
+      "type": "true_false",
+      "instructions": "Drapeau éditorial. Le paywall front reste piloté par class_list (comportement existant inchangé).",
+      "required": 0,
+      "conditional_logic": 0,
+      "wrapper": {
+        "width": "34",
+        "class": "",
+        "id": ""
+      },
+      "message": "Réservée aux abonnés",
+      "default_value": 1,
+      "ui": 1,
+      "ui_on_text": "",
+      "ui_off_text": ""
+    },
+    {
+      "key": "field_180c_tab_ingredients",
+      "label": "Ingrédients",
+      "name": "",
+      "type": "tab",
+      "instructions": "",
+      "required": 0,
+      "conditional_logic": 0,
+      "wrapper": {
+        "width": "",
+        "class": "",
+        "id": ""
+      },
+      "placement": "top",
+      "endpoint": 0
+    },
+    {
+      "key": "field_180c_ingredients_groups",
+      "label": "Groupes d'ingrédients",
+      "name": "ingredients_groups",
+      "type": "repeater",
+      "instructions": "Au moins un groupe. Le titre du groupe est optionnel (ex. « Pour les chips : »).",
+      "required": 1,
+      "conditional_logic": 0,
+      "wrapper": {
+        "width": "",
+        "class": "",
+        "id": ""
+      },
+      "layout": "block",
+      "pagination": 0,
+      "min": 1,
+      "max": 0,
+      "collapsed": "",
+      "button_label": "Ajouter un groupe",
+      "rows_per_page": 20,
+      "sub_fields": [
+        {
+          "key": "field_180c_ig_group_label",
+          "label": "Titre du groupe",
+          "name": "group_label",
+          "type": "text",
+          "instructions": "Optionnel — ex. « Pour les chips : ». Laisser vide si aucun titre.",
+          "required": 0,
+          "conditional_logic": 0,
+          "wrapper": {
+            "width": "",
+            "class": "",
+            "id": ""
+          },
+          "default_value": "",
+          "maxlength": "",
+          "placeholder": "Pour les chips :",
+          "prepend": "",
+          "append": "",
+          "parent_repeater": "field_180c_ingredients_groups"
+        },
+        {
+          "key": "field_180c_ig_items",
+          "label": "Ingrédients",
+          "name": "items",
+          "type": "repeater",
+          "instructions": "Une ligne brute par ingrédient.",
+          "required": 1,
+          "conditional_logic": 0,
+          "wrapper": {
+            "width": "",
+            "class": "",
+            "id": ""
+          },
+          "layout": "table",
+          "pagination": 0,
+          "min": 1,
+          "max": 0,
+          "collapsed": "",
+          "button_label": "Ajouter une ligne",
+          "rows_per_page": 20,
+          "parent_repeater": "field_180c_ingredients_groups",
+          "sub_fields": [
+            {
+              "key": "field_180c_ig_item_line",
+              "label": "Ligne",
+              "name": "line",
+              "type": "text",
+              "instructions": "",
+              "required": 1,
+              "conditional_logic": 0,
+              "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+              },
+              "default_value": "",
+              "maxlength": "",
+              "placeholder": "300 g de petits pois écossés",
+              "prepend": "",
+              "append": "",
+              "parent_repeater": "field_180c_ig_items"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "field_180c_tab_steps",
+      "label": "Étapes",
+      "name": "",
+      "type": "tab",
+      "instructions": "",
+      "required": 0,
+      "conditional_logic": 0,
+      "wrapper": {
+        "width": "",
+        "class": "",
+        "id": ""
+      },
+      "placement": "top",
+      "endpoint": 0
+    },
+    {
+      "key": "field_180c_steps",
+      "label": "Étapes",
+      "name": "steps",
+      "type": "repeater",
+      "instructions": "Au moins une étape.",
+      "required": 1,
+      "conditional_logic": 0,
+      "wrapper": {
+        "width": "",
+        "class": "",
+        "id": ""
+      },
+      "layout": "block",
+      "pagination": 0,
+      "min": 1,
+      "max": 0,
+      "collapsed": "field_180c_step_title",
+      "button_label": "Ajouter une étape",
+      "rows_per_page": 20,
+      "sub_fields": [
+        {
+          "key": "field_180c_step_title",
+          "label": "Titre de l'étape",
+          "name": "step_title",
+          "type": "text",
+          "instructions": "Optionnel — ex. « Houmous vert mousse ».",
+          "required": 0,
+          "conditional_logic": 0,
+          "wrapper": {
+            "width": "",
+            "class": "",
+            "id": ""
+          },
+          "default_value": "",
+          "maxlength": "",
+          "placeholder": "Houmous vert mousse",
+          "prepend": "",
+          "append": "",
+          "parent_repeater": "field_180c_steps"
+        },
+        {
+          "key": "field_180c_step_content",
+          "label": "Contenu",
+          "name": "step_content",
+          "type": "wysiwyg",
+          "instructions": "",
+          "required": 1,
+          "conditional_logic": 0,
+          "wrapper": {
+            "width": "",
+            "class": "",
+            "id": ""
+          },
+          "default_value": "",
+          "tabs": "all",
+          "toolbar": "basic",
+          "media_upload": 0,
+          "delay": 0,
+          "parent_repeater": "field_180c_steps"
+        }
+      ]
+    },
+    {
+      "key": "field_180c_tab_source",
+      "label": "Magazine papier",
+      "name": "",
+      "type": "tab",
+      "instructions": "",
+      "required": 0,
+      "conditional_logic": 0,
+      "wrapper": {
+        "width": "",
+        "class": "",
+        "id": ""
+      },
+      "placement": "top",
+      "endpoint": 0
+    },
+    {
+      "key": "field_180c_source_issue",
+      "label": "Numéro d'origine",
+      "name": "source_issue",
+      "type": "post_object",
+      "instructions": "Produit WooCommerce (numéro papier) dont la recette est issue.",
+      "required": 0,
+      "conditional_logic": 0,
+      "wrapper": {
+        "width": "",
+        "class": "",
+        "id": ""
+      },
+      "post_type": [
+        "product"
+      ],
+      "post_status": "",
+      "taxonomy": "",
+      "return_format": "id",
+      "multiple": 0,
+      "allow_null": 1,
+      "bidirectional": 0,
+      "ui": 1,
+      "bidirectional_target": []
+    }
+  ],
+  "location": [
+    [
+      {
+        "param": "post_type",
+        "operator": "==",
+        "value": "recipe"
+      }
+    ]
+  ],
+  "menu_order": 0,
+  "position": "normal",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "hide_on_screen": "",
+  "active": true,
+  "description": "Modèle structuré de la recette : intro, méta, ingrédients, étapes, magazine papier.",
+  "show_in_rest": 0,
+  "modified": 1785456000
+}

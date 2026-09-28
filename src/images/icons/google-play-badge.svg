@@ -1,0 +1,12 @@
+<!-- TODO : remplacer par le badge officiel Google Play (https://play.google.com/intl/en_us/badges/) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 42" width="140" height="42" role="img" aria-label="Google Play">
+  <rect x="0.5" y="0.5" width="139" height="41" rx="6" ry="6" fill="#0E0E0E" stroke="#FFFFFF" stroke-opacity="0.4"/>
+  <g>
+    <path d="M15 11.5l11 9.5-11 9.5c-.4-.3-.7-.8-.7-1.4V12.9c0-.6.3-1.1.7-1.4z" fill="#00C2FF"/>
+    <path d="M26 21l3.3-2.9-9-5.2c-.3-.2-.7-.3-1.1-.3l6.8 8.4z" fill="#23E27D"/>
+    <path d="M26 21l-6.8 8.4c.4 0 .8-.1 1.1-.3l9-5.2L26 21z" fill="#FFCB2B"/>
+    <path d="M29.3 18.1L26 21l3.3 2.9 2.4-1.4c1-.6 1-2 0-2.6l-2.4-1.8z" fill="#FF3E44"/>
+    <text x="40" y="17" font-family="Roboto,Arial,sans-serif" font-size="8" fill="#FFFFFF" letter-spacing="0.5">DISPONIBLE SUR</text>
+    <text x="40" y="32" font-family="Roboto,Arial,sans-serif" font-size="14" font-weight="600" fill="#FFFFFF">Google Play</text>
+  </g>
+</svg>

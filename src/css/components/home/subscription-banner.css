@@ -1,0 +1,9 @@
+/*
+ * Home module — subscription_banner
+ *
+ * Le rendu reprend désormais le markup du repli CTA du carnet (.carnet--cta) :
+ * le style provient de ./carnet.css (titre, sous-titre, actions). Ce module
+ * n'a donc plus de styles propres. Fichier conservé (import dans main.css) pour
+ * la stabilité de la liste d'imports et d'éventuels styles futurs spécifiques
+ * à la bannière.
+ */

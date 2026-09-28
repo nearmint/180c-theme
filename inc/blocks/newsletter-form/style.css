@@ -1,0 +1,133 @@
+/* Block: 180c/newsletter-form */
+
+.block-180c-newsletter-form {
+  padding: var(--spacing-12) var(--spacing-6);
+  background-color: var(--color-bg-elevated);
+  border-radius: var(--radius-lg);
+}
+
+/* Variante avec image */
+.block-180c-newsletter-form--with-image {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-8);
+  align-items: center;
+  padding: 0;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .block-180c-newsletter-form--with-image {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.block-180c-newsletter-form__media {
+  overflow: hidden;
+}
+
+.block-180c-newsletter-form__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  min-height: 280px;
+}
+
+.block-180c-newsletter-form--with-image .block-180c-newsletter-form__content {
+  padding: var(--spacing-8) var(--spacing-6);
+}
+
+.block-180c-newsletter-form__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-5);
+}
+
+.block-180c-newsletter-form__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  color: var(--color-fg);
+  margin: 0;
+  line-height: 1.15;
+}
+
+.block-180c-newsletter-form__description {
+  font-family: var(--font-body);
+  color: var(--color-fg-muted);
+  margin: 0;
+  max-width: 55ch;
+  line-height: 1.7;
+}
+
+.block-180c-newsletter-form__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.block-180c-newsletter-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.block-180c-newsletter-form__label {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-fg);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.block-180c-newsletter-form__input-group {
+  display: flex;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+}
+
+.block-180c-newsletter-form__input {
+  flex: 1 1 200px;
+  padding: var(--spacing-3) var(--spacing-4);
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--color-fg);
+  transition: border-color 0.2s ease;
+  min-width: 0;
+}
+
+.block-180c-newsletter-form__input:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-color: var(--color-accent);
+}
+
+.block-180c-newsletter-form__input::placeholder {
+  color: var(--color-fg-muted);
+  opacity: 0.7;
+}
+
+.block-180c-newsletter-form__submit {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.block-180c-newsletter-form__consent {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--color-fg-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/*
+ * Zone de feedback ARIA : portée par le composant partagé
+ * `.newsletter-form__feedback` (+ modificateurs --success / --error),
+ * basculé par le module unifié src/js/modules/newsletter.js
+ * ([data-newsletter-form]). Voir src/css/components/newsletter-form.css.
+ */

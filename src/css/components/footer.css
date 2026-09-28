@@ -1,0 +1,428 @@
+/**
+ * Footer site 180°C — refonte v3 (2026-05).
+ *
+ * Discipline tokens : tous les titres du footer utilisent des tokens FIXES
+ * (--text-xl pour les h2 de colonne, --text-lg pour les sub-titles). Voir
+ * la note « USAGE TOKENS TYPOGRAPHIQUES » dans tokens.css. Les h3 sub-titles
+ * sont volontairement proches en taille des h2 col-titles pour créer un
+ * contraste hiérarchique modéré (UI visible, pas du caption).
+ *
+ * Structure DOM (parts/footer/main.php) :
+ *  footer.site-footer
+ *    .site-container
+ *      .site-footer__brand-row                   (logo gauche / theme toggle droite)
+ *        .site-footer__brand > a.site-footer__logo > svg (currentColor)
+ *        .site-footer__theme-toggle-wrap > h3 + fieldset.theme-toggle
+ *      .site-footer__columns                     (4 colonnes éditoriales)
+ *        nav.site-footer__col × 3                (Découvrir / Éditions / Aide)
+ *        .site-footer__col--tools                (Apps et réseaux)
+ *          .site-footer__app > ul.site-footer__app-badges > li > a > img
+ *          .site-footer__social-wrap > ul.site-footer__social > li > a > svg
+ *      .site-footer__bottom                      (copyright + légaux)
+ *        p.site-footer__copyright
+ *        nav.site-footer__legal > ul.site-footer__legal-nav
+ *
+ * Responsive : 1 col < 768 / 2 cols 768-1023 / 4 cols ≥ 1024.
+ * Bloc bas : flex space-between desktop, stack centré mobile (légaux au-dessus).
+ */
+
+@layer components {
+  /* ============================================================
+   * Conteneur global
+   * ============================================================ */
+  .site-footer {
+    background-color: var(--color-bg-elevated);
+    color: var(--color-fg);
+    margin-block-start: auto;
+    padding-block-start: 0;
+    padding-block-end: 0;
+    /* Bordure haute --rule : separation visuelle franche entre le footer
+     * et le module precedent (notamment le rail "autres signatures" de
+     * la page auteur qui est desormais en --paper). v3 etape 3. */
+    border-top: 1px solid var(--rule);
+  }
+
+  /* ============================================================
+   * Brand row — logo (gauche) + theme toggle (droite) sur desktop,
+   * stack vertical sur mobile. Le margin-block-end vit ici, pas sur
+   * .site-footer__brand : il marque la séparation entre la row et
+   * la grille des colonnes éditoriales.
+   * ============================================================ */
+  .site-footer__brand-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-lg);
+    padding-block-start: var(--space-xl);
+    margin-block-end: var(--space-2xl);
+  }
+
+  @media (min-width: 768px) {
+    .site-footer__brand-row {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-xl);
+    }
+  }
+
+  /* ============================================================
+   * Brand block — logo SVG unique inliné (currentColor)
+   * Helper _180c_render_svg_icon('logo-180c') ; cf. parts/footer/main.php.
+   * ============================================================ */
+  .site-footer__brand {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+  }
+
+  .site-footer__logo {
+    display: inline-flex;
+    align-items: center;
+    height: 50px;
+    color: var(--color-fg);
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    align-self: flex-start;
+    transition: opacity var(--transition-fast);
+  }
+
+  .site-footer__logo:hover {
+    opacity: 0.85;
+  }
+
+  .site-footer__logo:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+  }
+
+  .site-footer__logo > svg {
+    display: block;
+    height: 150%;
+    width: auto;
+  }
+
+  /* ============================================================
+   * Grille des 4 colonnes
+   *
+   * `minmax(0, 1fr)` : sans le min=0, une cellule grid prend par défaut
+   * `min-content` comme largeur minimum, ce qui permet à un contenu long
+   * (h2 large, mot long, image non resizable) de pousser la colonne et
+   * faire déborder l'ensemble. minmax(0, 1fr) force la colonne à respecter
+   * la portion calculée → pas d'overflow horizontal possible.
+   * ============================================================ */
+  .site-footer__columns {
+    display: grid;
+    grid-template-columns: 1fr;
+    column-gap: var(--space-xl);
+    row-gap: var(--space-2xl);
+    padding-block-end: var(--space-xl);
+  }
+
+  @media (min-width: 768px) {
+    .site-footer__columns {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .site-footer__columns {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  /* --- Colonne (nav éditoriale ou bloc outils) -------------- */
+  .site-footer__col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    margin: 0;
+    min-width: 0;
+  }
+
+  /* Tokens FIXES discipline : --text-xl uppercase. Cible 1 ligne sur desktop
+   * ≥ 1024px pour les 4 libellés (« Découvrir 180°C », « Éditions Thermostat 6 »,
+   * « Aide et contact », « Apps et réseaux »). Si un libellé wrap encore,
+   * basculer à --text-lg avant tout autre arbitrage (ne PAS hardcoder en px). */
+  .site-footer__col-title {
+    margin: 0 0 var(--space-md) 0;
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1.2;
+    color: var(--color-fg);
+    /* white-space normal → autorise wrap si nécessaire ; minmax(0, 1fr) sur
+     * la grille empêche déjà l'overflow, donc inutile de forcer nowrap. */
+    white-space: normal;
+  }
+
+  /* --- Liste de liens éditoriaux ---------------------------- */
+  .site-footer__nav {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  .site-footer__nav li {
+    margin: 0;
+  }
+
+  .site-footer__nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3xs);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    color: var(--color-fg-muted);
+    text-decoration: none;
+    line-height: 1.6;
+    border-radius: var(--radius-sm);
+    transition: color var(--transition-fast);
+  }
+
+  .site-footer__nav a:hover {
+    color: var(--color-fg);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+  }
+
+  .site-footer__nav a:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    color: var(--color-fg);
+  }
+
+  /* --- Colonne outils (Apps et réseaux) --------------------
+   *
+   * La col 4 contient 2 sous-blocs depuis la refonte brand-row :
+   *   1. .site-footer__app           (CONSERVÉ — décision actée)
+   *   2. .site-footer__social-wrap   (sans séparateur, espacement par padding)
+   *
+   * Le theme toggle a migré dans .site-footer__brand-row (voir plus haut).
+   * On force gap=0 sur la colonne et on contrôle l'espacement localement
+   * via padding-block sur chaque sous-bloc. */
+  .site-footer__col--tools {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .site-footer__sub-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-md);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.3;
+    color: var(--color-fg-muted);
+    margin-block-end: var(--space-xs);
+  }
+
+  .site-footer__app,
+  .site-footer__social-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    padding-block-end: var(--space-md);
+  }
+
+  /* Theme toggle wrap dans le brand-row : label (h3) à gauche, toggle pill
+   * à droite, sur la même ligne. flex-wrap autorise un fallback sur 2 lignes
+   * pour les viewports très étroits où la pill ne tiendrait pas à côté du
+   * libellé. Pas de padding-block — l'air est porté par .site-footer__brand-row. */
+  .site-footer__theme-toggle-wrap {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    padding-block: 0;
+  }
+
+  /* h3 « Régler l'affichage » : neutralise tout rythme vertical hérité de
+   * l'ancien layout col 4 (le sub-title est ici inline avec le toggle, pas
+   * empilé). La typo Oswald + --text-md vient de .site-footer__sub-title. */
+  .site-footer__theme-toggle-wrap .site-footer__sub-title {
+    margin-block: 0;
+  }
+
+  .site-footer__app-badges {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  .site-footer__app-badge {
+    display: inline-block;
+    line-height: 0;
+    border-radius: var(--radius-md);
+    transition: opacity var(--transition-fast);
+  }
+
+  .site-footer__app-badge:hover {
+    opacity: 0.8;
+  }
+
+  .site-footer__app-badge:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+
+  /* .site-footer__app-badge img : sizing déplacé hors @layer en bas de
+   * fichier (override WooCommerce non-layered — cf. note dédiée). */
+
+  /* --- Social icons (intégrés dans la col 4) --------------
+   *
+   * Pas de séparateur visuel entre __app et __social-wrap. La respiration
+   * est portée par le padding-block hérité du sélecteur groupé ci-dessus
+   * (var(--space-md) de chaque côté). On ne fait que resserrer légèrement
+   * l'air sous le sub-title pour rapprocher les icônes du libellé. */
+  .site-footer__social-wrap .site-footer__sub-title {
+    margin-block-end: var(--space-xs);
+  }
+
+  .site-footer__social {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  .site-footer__social a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background-color: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-fg-muted);
+    transition: background-color var(--transition-fast),
+                color var(--transition-fast),
+                border-color var(--transition-fast);
+  }
+
+  .site-footer__social a:hover {
+    background-color: var(--color-bg);
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .site-footer__social a:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+
+  .site-footer__social svg {
+    display: block;
+    width: 22px;
+    height: 22px;
+  }
+
+  /* ============================================================
+   * Bloc bas — copyright (gauche) + légaux (droite)
+   * ============================================================ */
+  .site-footer__bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    padding-block-start: var(--space-md);
+    padding-block-end: max(var(--space-md), env(safe-area-inset-bottom));
+    border-block-start: 1px solid var(--color-border);
+    font-size: var(--text-sm);
+  }
+
+  .site-footer__copyright {
+    margin: 0;
+    font-family: var(--font-body);
+    color: var(--color-fg-muted);
+  }
+
+  .site-footer__copyright time {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .site-footer__legal-nav {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    justify-content: flex-end;
+  }
+
+  .site-footer__legal-nav li {
+    margin: 0;
+  }
+
+  .site-footer__legal-nav a {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-fg-muted);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .site-footer__legal-nav a:hover {
+    color: var(--color-fg);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .site-footer__legal-nav a:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Mobile (< 768px) — stack centré, légaux au-dessus du copyright. */
+  @media (max-width: 767px) {
+    .site-footer__bottom {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .site-footer__copyright {
+      order: 2;
+    }
+
+    .site-footer__legal-nav {
+      order: 1;
+      justify-content: center;
+    }
+  }
+}
+
+/* ============================================================
+ * Store badges (footer) : sizing par hauteur.
+ *
+ * HORS @layer volontairement : la règle WooCommerce
+ * `.woocommerce img, .woocommerce-page img { height: auto }` est NON-layered
+ * et bat toute règle layered quelle que soit la spécificité (CSS Cascade L5),
+ * ce qui écrasait les badges. On sort le sizing du layer, avec une spécificité
+ * (0,2,1) > `.woocommerce img` (0,1,1) pour gagner aussi à égalité d'origine —
+ * sans `!important`.
+ * ============================================================ */
+.site-footer .site-footer__app-badge img {
+  display: block;
+  height: 40px;
+  width: auto;
+  max-width: unset;
+}

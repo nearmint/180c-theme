@@ -1,0 +1,173 @@
+/**
+ * Entry header — en-tête éditorial partagé (recette + article).
+ *
+ * Typographie migrée depuis recipe.css (.recipe-hero__eyebrow*,
+ * .recipe-hero__title, .recipe-hero__intro, .recipe-hero__byline,
+ * .recipe-hero__author) — strictement les mêmes tokens et déclarations.
+ *
+ * Visuel « carte » (background + radius + padding + max-width) migré
+ * depuis .recipe-hero (recipe.css) afin que l'article hérite des mêmes
+ * couleur / largeur / radius. Sur la recette, le visuel est neutralisé
+ * via une override descendante (cf. recipe.css : .recipe-hero__content
+ * > .entry-header) parce que `.recipe-hero` lui-même porte déjà la
+ * carte — sinon on aurait des cartes imbriquées.
+ */
+
+@layer components {
+
+  /* ----------------------------------------------------------------
+   * Carte — fond, radius, padding ; texte centré ; largeur responsive.
+   *
+   * Mobile-first : pleine largeur du parent (100 %).
+   * Desktop (≥1024px) : 80 % du parent, centré.
+   *
+   * Le reset `.recipe-hero__content > .entry-header` (recipe.css)
+   * neutralise cette largeur (max-inline-size: none, margin-inline: 0)
+   * → le header recette reste fluide dans sa colonne 3fr du grid hero.
+   * ---------------------------------------------------------------- */
+  .entry-header {
+    display: block;
+    background-color: var(--color-bg-elevated);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-6);
+    text-align: center;
+    max-inline-size: 100%;
+    margin-inline: auto;
+  }
+
+  @media (min-width: 1024px) {
+    .entry-header {
+      padding: var(--spacing-8);
+      max-inline-size: 80%;
+    }
+  }
+
+  /* ----------------------------------------------------------------
+   * Variant « page standard » — singular.php : `.entry-header` portant
+   * un `.entry-title` (panier, checkout, pages génériques, pages légales).
+   *
+   * Pas de carte : fond et rayon retirés, titre aligné à gauche, pleine
+   * largeur du conteneur, padding vertical aligné sur le gabarit
+   * d'archive Recettes (`.archive-header`, recipe.css). Le header
+   * éditorial article/recette (`.entry-header__title`) conserve sa carte
+   * centrée — ce variant ne le cible pas (sélecteur `:has(> .entry-title)`).
+   *
+   * Spécificité (0,2,0) > base `.entry-header` (0,1,0), même layer →
+   * s'applique à toutes les largeurs sans dépendre de l'ordre source.
+   * ---------------------------------------------------------------- */
+  .entry-header:has(> .entry-title) {
+    background-color: transparent;
+    border-radius: 0;
+    padding-inline: 0;
+    padding-block: var(--spacing-12);
+    text-align: left;
+    max-inline-size: 100%;
+    margin-inline: 0;
+  }
+
+  /* ----------------------------------------------------------------
+   * Eyebrow — fil d'ariane éditorial (catégorie · saison / date).
+   * ---------------------------------------------------------------- */
+  .entry-header__eyebrow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    /* Centré horizontalement avec le reste du header. */
+    justify-content: center;
+    /* Gap élargi (v3) : 16px column-gap (~ --spacing-2 de chaque côté
+       du séparateur ·) pour aérer catégorie · saison/date. row-gap
+       reste à 8px pour le wrap éventuel. */
+    column-gap: var(--spacing-4);
+    row-gap: var(--spacing-2);
+    margin: 0 0 var(--spacing-3);
+    font-family: var(--font-display);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .entry-header__eyebrow-link {
+    color: var(--color-accent-text);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .entry-header__eyebrow-link:hover,
+  .entry-header__eyebrow-link:focus-visible {
+    color: var(--color-fg);
+  }
+
+  .entry-header__eyebrow-text {
+    color: var(--color-fg-muted);
+  }
+
+  .entry-header__sep {
+    color: var(--color-fg-muted);
+  }
+
+  /* ----------------------------------------------------------------
+   * Titre — H1 éditorial.
+   * ---------------------------------------------------------------- */
+  .entry-header__title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-fg);
+    line-height: var(--line-height-tight);
+    margin: 0 0 var(--spacing-4);
+  }
+
+  /* ----------------------------------------------------------------
+   * Standfirst — chapô.
+   *
+   * Plus de `max-width: 680px` interne : la largeur du chapô est
+   * définie par la carte (`.entry-header`) et donc par le container
+   * parent. Centré par héritage (`text-align:center`).
+   * ---------------------------------------------------------------- */
+  .entry-header__standfirst {
+    font-family: var(--font-body);
+    font-size: var(--font-size-lg);
+    font-style: normal;
+    color: var(--color-fg-muted);
+    line-height: var(--line-height-relaxed);
+    margin: var(--spacing-4) 0 0;
+  }
+
+  /* ----------------------------------------------------------------
+   * Byline — signature auteur.
+   * ---------------------------------------------------------------- */
+  .entry-header__byline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    /* Centré pour matcher l'alignement du header. */
+    justify-content: center;
+    /* Gap resserré (était `var(--spacing-2) var(--spacing-4)` = 8/16px) —
+       l'ancien column-gap de 16px aérait trop entre « Par » et le nom
+       d'auteur. Token --space-2xs = 8px en horizontal + vertical. */
+    gap: var(--space-2xs);
+    margin-top: var(--spacing-6);
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    /* Promu --color-fg pour AA confortable sur le fond bg-elevated
+       (le « Par » est petit et au ras du seuil WCAG en muted). */
+    color: var(--color-fg);
+  }
+
+  .entry-header__byline a {
+    color: var(--color-fg);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .entry-header__byline a:hover {
+    color: var(--color-accent);
+  }
+
+  .entry-header__byline a:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+}

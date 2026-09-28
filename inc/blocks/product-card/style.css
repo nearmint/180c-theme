@@ -1,0 +1,109 @@
+/* Block: 180c/product-card */
+
+.block-180c-product-card {
+  margin: var(--spacing-6) 0;
+}
+
+.block-180c-product-card--placeholder {
+  padding: var(--spacing-6);
+  border: 2px dashed var(--color-border);
+  color: var(--color-fg-muted);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+}
+
+/* Carte produit inline */
+.block-180c-product-card .card-180c--product {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background-color: var(--color-bg-elevated);
+  max-width: 300px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+}
+
+.block-180c-product-card .card-180c__link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  flex: 1;
+}
+
+.block-180c-product-card .card-180c__media {
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+}
+
+.block-180c-product-card .card-180c__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.25s ease;
+}
+
+.block-180c-product-card .card-180c--product:hover .card-180c__image {
+  transform: scale(1.03);
+}
+
+.block-180c-product-card .card-180c__body {
+  padding: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.block-180c-product-card .card-180c__title {
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-fg);
+  margin: 0;
+}
+
+.block-180c-product-card .card-180c__price {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-fg);
+}
+
+.block-180c-product-card .card-180c__cta {
+  margin: 0 var(--spacing-4) var(--spacing-4);
+  display: block;
+  text-align: center;
+  text-decoration: none;
+}
+
+/* Contexte « Issue de la revue » (single-recipe) : largeur et chrome
+ * identiques a la boutique (wrapper .block-180c-product-card), mais la
+ * couverture est affichee EN ENTIER — regle client « photos jamais
+ * croppees ». On neutralise le ratio fixe 3/4 et la hauteur 100% du media
+ * (object-fit:cover devient sans effet sans contrainte de hauteur).
+ * Selecteur (0,2,0), non-layered, place apres la regle de base -> gagne. */
+.block-180c-product-card--source .card-180c__media {
+  aspect-ratio: auto;
+}
+
+.block-180c-product-card--source .card-180c__image {
+  height: auto;
+}
+
+/* Contexte « publié dans » : la largeur 30% (desktop) est posée dans
+ * src/css/components/recipe.css (scopée .recipe-source), car cette feuille
+ * de bloc n'est pas enqueue sur la fiche recette — seul endroit où le
+ * modificateur --source est rendu (carte produit programmatique). */
+
+/* Float alignment */
+.alignleft.block-180c-product-card {
+  float: left;
+  margin-right: var(--spacing-6);
+  margin-bottom: var(--spacing-4);
+}
+
+.alignright.block-180c-product-card {
+  float: right;
+  margin-left: var(--spacing-6);
+  margin-bottom: var(--spacing-4);
+}

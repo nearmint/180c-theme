@@ -1,0 +1,128 @@
+/*
+ * Home module — category_tiles
+ *
+ * Grid of taxonomy-term tiles (article / recipe / product categories).
+ * Desktop: responsive grid driven by the inline `--category-tiles-columns`
+ * custom property (set per-instance from the ACF `columns` field).
+ * Mobile (<--breakpoint-md): horizontal scroll with mandatory snap, in line
+ * with the rails for cross-module consistency.
+ */
+
+@layer components {
+  /* Rythme inter-sections porté par .home-modules (gap) — pas de
+   * padding-block ici (évite le double espacement gap + padding). */
+  .home-module--category_tiles {
+    position: relative;
+  }
+
+  /* Scroll latéral sur une seule ligne à tous les breakpoints (mêmes
+   * primitives que les rails : flex + overflow-x + scroll-snap + peek). Les
+   * tuiles étant compactes, on en montre davantage : ~2,2 / 3,5 / 5,2. Le
+   * champ ACF `columns` (inline --category-tiles-columns) n'agit plus sur la
+   * mise en page (conservé pour rétro-compat). */
+  .category-tiles__grid {
+    --tiles-gap: var(--space-md);
+    --tiles-visible: 2.2;
+
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: var(--tiles-gap);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline-start: 0;
+    scrollbar-width: none; /* Firefox */
+    -webkit-overflow-scrolling: touch;
+    /* overflow-x:auto force le navigateur à rogner aussi l'axe vertical :
+     * on réserve une marge haute (lift au hover) et basse (ombre) pour que
+     * la tuile soulevée — bordures comprises — reste dans la zone non rognée. */
+    padding-block: var(--space-2xs);
+  }
+
+  .category-tiles__grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .category-tiles__item {
+    flex: 0 0 auto;
+    width: calc(100% / var(--tiles-visible) - var(--tiles-gap));
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+
+  @media (min-width: 768px) {
+    .category-tiles__grid {
+      --tiles-gap: var(--space-lg);
+      --tiles-visible: 3.5;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .category-tiles__grid {
+      --tiles-visible: 5.2;
+    }
+  }
+
+  /* Cartes catégorie en texte seul (pas de visuel) : hauteurs strictement
+   * égalisées — box-sizing border-box (la bordure 1px est comptée dans la
+   * hauteur) + min-height commun. height:100% laisse le flex-stretch aligner
+   * toutes les tuiles d'une même rangée sur la plus haute. */
+  .category-tiles__tile {
+    box-sizing: border-box;
+    min-height: var(--space-3xl);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: transform var(--transition-base),
+                box-shadow var(--transition-base);
+  }
+
+  .category-tiles__tile:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .category-tiles__tile:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* Respect de la préférence système : pas de soulèvement si mouvement réduit
+   * (l'ombre au hover reste comme feedback). */
+  @media (prefers-reduced-motion: reduce) {
+    .category-tiles__tile {
+      transition: box-shadow var(--transition-base);
+    }
+
+    .category-tiles__tile:hover {
+      transform: none;
+    }
+  }
+
+  .category-tiles__name {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    line-height: 1.2;
+    font-weight: var(--font-weight-semibold);
+    color: var(--ink);
+    padding: var(--space-md) var(--space-md) 0;
+    text-wrap: balance;
+  }
+
+  .category-tiles__count {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: var(--space-2xs) var(--space-md) var(--space-md);
+  }
+}

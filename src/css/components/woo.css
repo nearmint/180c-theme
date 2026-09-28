@@ -1,0 +1,2141 @@
+/**
+ * Styles WooCommerce 180°C.
+ *
+ * Couvre : layout Mon Compte, nav sidebar, tuiles dashboard,
+ * page produit, tableau panier, formulaire checkout, Stripe Express,
+ * quantity stepper, emails (reset), états de commandes.
+ */
+
+@layer components {
+
+  /* ============================================================
+   * Layout Mon Compte — sidebar gauche + contenu droite
+   * ============================================================ */
+
+  .woocommerce-account .woocommerce {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-6);
+  }
+
+  @media (min-width: 768px) {
+    .woocommerce-account .woocommerce {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: var(--spacing-8);
+    }
+
+    .woocommerce-account .woocommerce-MyAccount-navigation {
+      flex: 0 0 220px;
+      position: sticky;
+      top: var(--spacing-6);
+    }
+
+    .woocommerce-account .woocommerce-MyAccount-content {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+  }
+
+  /* ============================================================
+   * .wc-account-nav — nav sidebar Mon Compte
+   * ============================================================ */
+
+  .wc-account-nav,
+  .woocommerce-MyAccount-navigation ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .wc-account-nav li a,
+  .woocommerce-MyAccount-navigation li a {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-3) var(--spacing-4);
+    font-family: var(--font-display);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-fg);
+    text-decoration: none;
+    border-bottom: 1px solid var(--color-border);
+    transition: background-color var(--transition-fast),
+                color var(--transition-fast);
+  }
+
+  .wc-account-nav li:last-child a,
+  .woocommerce-MyAccount-navigation li:last-child a {
+    border-bottom: none;
+  }
+
+  .wc-account-nav li a:hover,
+  .woocommerce-MyAccount-navigation li a:hover {
+    background-color: var(--color-bg);
+    color: var(--color-accent);
+  }
+
+  .wc-account-nav li.is-active a,
+  .woocommerce-MyAccount-navigation li.is-active a,
+  .woocommerce-MyAccount-navigation li.woocommerce-MyAccount-navigation-link--active a {
+    color: var(--color-accent);
+    font-weight: var(--font-weight-semibold);
+    background-color: var(--color-bg);
+    border-left: 3px solid var(--color-accent);
+    padding-left: calc(var(--spacing-4) - 3px);
+  }
+
+  /* ============================================================
+   * .account-card — tuile dashboard
+   * ============================================================ */
+
+  .account-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-2);
+    padding: var(--spacing-4);
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: var(--color-fg);
+    transition: border-color var(--transition-fast),
+                box-shadow var(--transition-fast),
+                transform var(--transition-fast);
+  }
+
+  .account-card:hover {
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+
+  .account-card__icon {
+    color: var(--color-accent);
+  }
+
+  .account-card__label {
+    font-family: var(--font-display);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-tight);
+  }
+
+  /* ============================================================
+   * .account-dashboard__tiles — grid 2-3 col responsive
+   * ============================================================ */
+
+  .account-dashboard__tiles {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-3);
+    margin-block: var(--spacing-6);
+  }
+
+  @media (min-width: 640px) {
+    .account-dashboard__tiles {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .account-dashboard__header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+    margin-bottom: var(--spacing-6);
+  }
+
+  .account-dashboard__greeting {
+    font-size: var(--font-size-2xl);
+    margin: 0;
+  }
+
+  .account-dashboard__badge {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--spacing-1) var(--spacing-3);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-display);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.03em;
+  }
+
+  .account-dashboard__badge--subscriber {
+    background-color: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+
+  .account-dashboard__badge--free {
+    background-color: var(--color-bg-elevated);
+    color: var(--color-fg-muted);
+    border: 1px solid var(--color-border);
+  }
+
+  .account-dashboard__section-title {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--spacing-3);
+  }
+
+  .account-dashboard__orders-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+  }
+
+  .account-dashboard__order-link {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap: var(--spacing-3);
+    align-items: center;
+    padding: var(--spacing-3) var(--spacing-4);
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--color-fg);
+    font-size: var(--font-size-sm);
+    transition: border-color var(--transition-fast);
+  }
+
+  .account-dashboard__order-link:hover {
+    border-color: var(--color-accent);
+  }
+
+  .account-dashboard__cta-subscription {
+    margin-top: var(--spacing-6);
+    padding: var(--spacing-6);
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    text-align: center;
+  }
+
+  /* ============================================================
+   * .product-page — layout fiche produit (image + contenu)
+   * ============================================================ */
+
+  /* `.product` empile : haut (galerie + achat), cross-promo, description, rails.
+   * Le gap pilote SEUL le rythme vertical entre sections (mobile + desktop) —
+   * pas de margin-top additionnel sur les sections (cf. .product-rail-section). */
+  .product-page .product {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-8);
+  }
+
+  /* `.product__top` : galerie + colonne d'achat (2 colonnes ≥ md). */
+  .product-page .product__top {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-6);
+  }
+
+  @media (min-width: 768px) {
+    .product-page .product {
+      gap: var(--spacing-12);
+    }
+
+    .product-page .product__top {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: var(--spacing-8);
+    }
+
+    .product-page__gallery {
+      flex: 0 0 45%;
+    }
+
+    /* Colonne d'achat collante : le CTA reste visible pendant le scroll de la
+     * galerie. top dégage le header sticky (~96px = scroll-padding-top). */
+    .product-page .summary {
+      flex: 1 1 0;
+      min-width: 0;
+      position: sticky;
+      top: var(--spacing-24);
+      align-self: flex-start;
+    }
+  }
+
+  /* ============================================================
+   * Description éditoriale longue + FAQ (saisies dans la description WC)
+   * ============================================================ */
+
+  /* La description produit présente des planches magazine, pas du corps
+   * d'article : on élargit le conteneur (la mesure 720px de .entry-content
+   * laissait d'énormes marges). Spécificité .product-page .product__description
+   * pour battre .entry-content. Les images héritent du non-crop de
+   * .entry-content (max-width:100%, height:auto) ; on ne force pas width:100%
+   * pour ne pas étirer les petits visuels (wordmark). */
+  .product-page .product__description {
+    max-width: min(100%, 56rem);
+    margin-inline: auto;
+  }
+
+  /* ≥ lg : les galeries Gutenberg de planches s'étalent sur la largeur élargie. */
+  @media (min-width: 1024px) {
+    .product-page .product__description .wp-block-gallery img {
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  /* FAQ : balises <details>/<summary> stylées en accordéon accessible. */
+  .product__description details {
+    border-top: 1px solid var(--color-border);
+    padding-block: var(--spacing-4);
+  }
+
+  .product__description details:last-of-type {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .product__description summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3);
+    font-family: var(--font-display);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg);
+  }
+
+  .product__description summary::-webkit-details-marker {
+    display: none;
+  }
+
+  /* Chevron rotatif (caractère, pas d'image). */
+  .product__description summary::after {
+    content: "+";
+    flex: none;
+    font-size: var(--font-size-xl);
+    line-height: 1;
+    color: var(--color-accent);
+    transition: transform var(--transition-fast);
+  }
+
+  .product__description details[open] summary::after {
+    content: "−";
+  }
+
+  .product__description summary:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* Mode sombre : back les visuels transparents de la description (ex. wordmark
+   * « PISTACHE » pensé pour le papier) sur une surface claire constante. Le
+   * background-color sur <img> n'apparaît que dans les zones transparentes :
+   * les planches opaques ne sont pas affectées. */
+  [data-theme="dark"] .product__description img {
+    background-color: var(--media-paper);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .product__description img {
+      background-color: var(--media-paper);
+    }
+  }
+
+  .product-price {
+    font-family: var(--font-display);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent);
+  }
+
+  /* ============================================================
+   * .cart-table — tableau panier
+   * ============================================================ */
+
+  .cart-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-size-sm);
+  }
+
+  .cart-table__head th {
+    padding: var(--spacing-2) var(--spacing-3);
+    text-align: left;
+    font-family: var(--font-display);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg-muted);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .cart-table__row td {
+    padding: var(--spacing-3);
+    vertical-align: middle;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .cart-table__name a {
+    font-family: var(--font-display);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-fg);
+    text-decoration: none;
+  }
+
+  .cart-table__name a:hover {
+    color: var(--color-accent);
+  }
+
+  /* .cart-table__remove : styles déplacés HORS @layer (bas de fichier).
+     L'élément est un <a> dans .entry-content → `.entry-content a`
+     (color:accent + underline, @layer, 0,2,0) écraserait une règle
+     layered et rendrait l'icône jaune et soulignée. Voir bloc
+     « Suppression de ligne — composant identique au drawer ». */
+
+  .cart-table__actions {
+    padding: var(--spacing-3);
+    border-bottom: none;
+  }
+
+  .cart-table__coupon {
+    display: flex;
+    /* stretch (et non center) : le bouton « Appliquer » (.btn--sm, 32px)
+       s'étire à la hauteur de l'input (.input, 44px) → hauteurs égalisées
+       sur la même ligne. box-sizing:border-box est global (reset). */
+    align-items: stretch;
+    gap: var(--spacing-2);
+    flex-wrap: wrap;
+  }
+
+  /* Le bouton « Appliquer » épouse la hauteur de la ligne (44px) sans
+     perdre sa typo/casse de .btn--sm ; centrage vertical du label.
+     (Le dimensionnement de l'input est posé hors @layer — cf. bloc
+     « Coupon » en bas de fichier : WC core stylise .coupon .input-text
+     en non-layered, ce qui battrait toute règle @layer ici.) */
+  .cart-table__coupon button[name="apply_coupon"] {
+    align-self: stretch;
+    flex: 0 0 auto;
+  }
+
+  /* Validation inline du code promo (champ vide) — message contextuel rendu
+     par src/js/modules/cart-coupon.js sous le champ. L'habillage DS complet
+     est posé HORS @layer (cf. bloc « Coupon — message d'erreur ») : le message
+     vit dans `td.actions .coupon` que WC core stylise en non-layered (0,5,2),
+     ce qui battrait toute règle @layer ici. */
+
+  .cart-collaterals {
+    margin-top: var(--spacing-6);
+  }
+
+  /* Pleine largeur : le bloc totaux s'empile sous le tableau produits
+     et s'étale sur 100 % (était plafonné à 360px et poussé à droite via
+     margin-left:auto). Le float core de `.cart_totals` est neutralisé
+     hors @layer plus bas (cf. bloc « Bloc Total panier »). */
+  .cart-collaterals__inner {
+    width: 100%;
+  }
+
+  /* ----------------------------------------------------------------
+   * Panier vide (woocommerce/cart/cart-empty.php) — centré, aéré.
+   * ---------------------------------------------------------------- */
+  .cart-empty {
+    max-width: 32rem;
+    margin-inline: auto;
+    padding-block: var(--spacing-12);
+    text-align: center;
+  }
+
+  .cart-empty__icon {
+    display: inline-flex;
+    color: var(--color-fg-muted);
+    margin-bottom: var(--spacing-4);
+  }
+
+  .cart-empty__text {
+    font-family: var(--font-body);
+    font-size: var(--font-size-xl);
+    color: var(--color-fg);
+    margin: 0 0 var(--spacing-6);
+  }
+
+  /* Responsive cart — stack sur mobile */
+  @media (max-width: 767px) {
+    .cart-table__head {
+      display: none;
+    }
+
+    .cart-table__row {
+      display: grid;
+      grid-template-columns: 48px auto 1fr;
+      grid-template-rows: auto auto;
+      gap: var(--spacing-2);
+      padding: var(--spacing-3) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .cart-table__row td {
+      border: none;
+      padding: 0;
+    }
+
+    .cart-table__row td::before {
+      content: attr(data-title) " : ";
+      font-family: var(--font-display);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-fg-muted);
+      display: block;
+      margin-bottom: 2px;
+    }
+  }
+
+  /* ============================================================
+   * .checkout-form — layout 1 page avec sections collapse
+   * ============================================================ */
+
+  .checkout-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .checkout-form__section {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background-color: var(--color-bg-elevated);
+  }
+
+  .checkout-form__section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-4) var(--spacing-4);
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg);
+    list-style: none;
+    user-select: none;
+  }
+
+  .checkout-form__section-title::-webkit-details-marker {
+    display: none;
+  }
+
+  .checkout-form__section-title::after {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236E6E6E' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: contain;
+    transition: transform var(--transition-fast);
+  }
+
+  .checkout-form__section[open] .checkout-form__section-title::after {
+    transform: rotate(180deg);
+  }
+
+  .checkout-form__section-body {
+    padding: var(--spacing-4);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .checkout-form__review {
+    padding: var(--spacing-4);
+  }
+
+  /* ============================================================
+   * .checkout-thankyou — page confirmation commande
+   * ============================================================ */
+
+  .checkout-thankyou {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: var(--spacing-8) var(--spacing-4);
+  }
+
+  .checkout-thankyou__header {
+    text-align: center;
+    margin-bottom: var(--spacing-8);
+  }
+
+  .checkout-thankyou__icon {
+    display: flex;
+    justify-content: center;
+    color: var(--color-accent);
+    margin-bottom: var(--spacing-3);
+  }
+
+  .checkout-thankyou__title {
+    font-size: var(--font-size-2xl);
+    margin: 0 0 var(--spacing-2);
+  }
+
+  .checkout-thankyou__subtitle {
+    color: var(--color-fg-muted);
+    font-size: var(--font-size-base);
+    margin: 0;
+  }
+
+  .checkout-thankyou__recap {
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-4);
+    margin-bottom: var(--spacing-6);
+  }
+
+  .checkout-thankyou__details {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .checkout-thankyou__details li {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--spacing-2) 0;
+    border-bottom: 1px solid var(--color-border);
+    font-size: var(--font-size-sm);
+  }
+
+  .checkout-thankyou__details li:last-child {
+    border-bottom: none;
+  }
+
+  .checkout-thankyou__detail-label {
+    color: var(--color-fg-muted);
+  }
+
+  .checkout-thankyou__total {
+    color: var(--color-accent);
+    font-family: var(--font-display);
+    font-size: var(--font-size-lg);
+  }
+
+  .checkout-thankyou__cta {
+    display: flex;
+    gap: var(--spacing-3);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .checkout-thankyou__error-actions {
+    display: flex;
+    gap: var(--spacing-3);
+    flex-wrap: wrap;
+    margin-top: var(--spacing-4);
+  }
+
+  /* ============================================================
+   * .stripe-express — container Apple Pay / Google Pay
+   * ============================================================ */
+
+  .stripe-express {
+    min-height: 44px;
+    margin-block: var(--spacing-3);
+    position: relative;
+  }
+
+  .stripe-express--checkout {
+    margin-bottom: var(--spacing-6);
+    padding-bottom: var(--spacing-4);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  /* Slot Google Pay (Stripe Express) du panier : pleine largeur, sans
+     carte. Le bouton Stripe remplit le conteneur → même largeur que le
+     bouton « Valider la commande » (cf. bloc CTA panier hors @layer).
+     L'espacement vis-à-vis du bouton vient du gap de la colonne. */
+  .stripe-express--cart {
+    width: 100%;
+  }
+
+  /* Placeholder vide (Stripe Express absent ou non monté côté client) :
+     on masque le conteneur pour éviter la carte grise vide au-dessus du
+     bouton de commande. Le hook de paiement reste intact (pas de
+     remove_action côté PHP) — dès que Stripe injecte son bouton, le
+     conteneur n'est plus :empty et réapparaît automatiquement. */
+  .stripe-express:empty {
+    display: none;
+  }
+
+  /* ============================================================
+   * .qty-input — stepper quantité
+   * ============================================================ */
+
+  .qty-input {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background-color: var(--color-bg-elevated);
+  }
+
+  .qty-input__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    min-height: 44px;
+    padding: 0;
+    background-color: transparent;
+    border: none;
+    color: var(--color-fg);
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+  }
+
+  .qty-input__btn:hover {
+    background-color: var(--color-border);
+  }
+
+  .qty-input__field {
+    width: 56px;
+    min-height: 44px;
+    text-align: center;
+    border: none;
+    border-left: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
+    background-color: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    -moz-appearance: textfield;
+  }
+
+  .qty-input__field::-webkit-outer-spin-button,
+  .qty-input__field::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* ============================================================
+   * .products-grid — grille produits
+   * ============================================================ */
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-4);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  @media (min-width: 768px) {
+    .products-grid.columns-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .products-grid.columns-4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  /* ============================================================
+   * Statuts de commande — couleurs sémantiques
+   * ============================================================ */
+
+  .account-commandes__status,
+  .account-dashboard__order-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px var(--spacing-2);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-display);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .wc-completed { background-color: color-mix(in srgb, var(--color-success) 15%, transparent); color: var(--color-success); }
+  .wc-processing { background-color: color-mix(in srgb, var(--color-accent) 15%, transparent); color: var(--color-accent); }
+  .wc-on-hold { background-color: color-mix(in srgb, var(--color-warning) 15%, transparent); color: var(--color-warning); }
+  .wc-cancelled,
+  .wc-refunded,
+  .wc-failed { background-color: color-mix(in srgb, var(--color-danger) 15%, transparent); color: var(--color-danger); }
+  .wc-pending { background-color: color-mix(in srgb, var(--color-fg-muted) 15%, transparent); color: var(--color-fg-muted); }
+
+  /* ============================================================
+   * Account — tables génériques
+   * ============================================================ */
+
+  .account-commandes__table,
+  .account-factures__table,
+  .account-abonnement__history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-size-sm);
+  }
+
+  .account-commandes__table th,
+  .account-factures__table th,
+  .account-abonnement__history-table th {
+    padding: var(--spacing-2) var(--spacing-3);
+    text-align: left;
+    font-family: var(--font-display);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg-muted);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .account-commandes__table td,
+  .account-factures__table td,
+  .account-abonnement__history-table td {
+    padding: var(--spacing-3);
+    vertical-align: middle;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-fg);
+  }
+
+  /* Responsive tables — stack sur mobile */
+  @media (max-width: 639px) {
+    .account-commandes__table thead,
+    .account-factures__table thead {
+      display: none;
+    }
+
+    .account-commandes__table tr,
+    .account-factures__table tr {
+      display: block;
+      padding: var(--spacing-3) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .account-commandes__table td,
+    .account-factures__table td {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: none;
+      padding: var(--spacing-1) 0;
+    }
+
+    .account-commandes__table td::before,
+    .account-factures__table td::before {
+      content: attr(data-title);
+      font-family: var(--font-display);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-fg-muted);
+      margin-right: var(--spacing-3);
+    }
+  }
+
+  /* ============================================================
+   * Account — favoris grille
+   * ============================================================ */
+
+  .account-favoris__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-4);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  @media (min-width: 640px) {
+    .account-favoris__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .account-favoris__item {
+    position: relative;
+  }
+
+  /* Titre de recette : Playfair Display, comme partout ailleurs (fiche
+     recette, cartes .card-180c--recipe, slider home). Sans cette règle le
+     <h2> retombait sur l'Oswald posé par @layer base. */
+  .card-recipe__title {
+    font-family: var(--font-body);
+  }
+
+  .account-favoris__remove {
+    position: absolute;
+    top: var(--spacing-2);
+    right: var(--spacing-2);
+    font-size: var(--font-size-xs);
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+  }
+
+  .account-favoris__item:hover .account-favoris__remove {
+    opacity: 1;
+  }
+
+  /* ============================================================
+   * Account — newsletter toggles
+   * ============================================================ */
+
+  .account-newsletter__options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    margin-block: var(--spacing-6);
+  }
+
+  .account-newsletter__toggle {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-3);
+    padding: var(--spacing-4);
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: border-color var(--transition-fast);
+  }
+
+  .account-newsletter__toggle:hover {
+    border-color: var(--color-accent);
+  }
+
+  .account-newsletter__checkbox {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    accent-color: var(--color-accent);
+    cursor: pointer;
+  }
+
+  .account-newsletter__toggle-content {
+    flex: 1;
+  }
+
+  .account-newsletter__toggle-label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    font-family: var(--font-display);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg);
+  }
+
+  .account-newsletter__badge {
+    display: inline-flex;
+    padding: 2px var(--spacing-2);
+    border-radius: var(--radius-pill);
+    background-color: var(--color-accent);
+    color: var(--color-on-accent);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .account-newsletter__toggle-desc {
+    display: block;
+    margin-top: var(--spacing-1);
+    font-size: var(--font-size-sm);
+    color: var(--color-fg-muted);
+    line-height: var(--line-height-normal);
+  }
+
+  .account-newsletter__desinscription {
+    margin-top: var(--spacing-4);
+    font-size: var(--font-size-sm);
+    color: var(--color-fg-muted);
+  }
+
+  /* ============================================================
+   * Account — abonnement DL
+   * ============================================================ */
+
+  .account-abonnement__meta {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  .account-abonnement__meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-2) var(--spacing-3);
+    border-bottom: 1px solid var(--color-border);
+    font-size: var(--font-size-sm);
+  }
+
+  .account-abonnement__meta-row:last-child {
+    border-bottom: none;
+  }
+
+  .account-abonnement__meta-row dt {
+    font-family: var(--font-display);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .account-abonnement__meta-row dd {
+    margin: 0;
+    font-weight: var(--font-weight-medium);
+    text-align: right;
+  }
+
+  .account-abonnement__actions {
+    display: flex;
+    gap: var(--spacing-2);
+    flex-wrap: wrap;
+    padding: var(--spacing-3);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .account-abonnement__section-title {
+    font-size: var(--font-size-lg);
+    margin: var(--spacing-6) 0 var(--spacing-3);
+  }
+
+  .account-abonnement__section-title:first-child {
+    margin-top: 0;
+  }
+
+  .account-abonnement__details,
+  .account-abonnement__sub-item {
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: var(--spacing-4);
+  }
+
+  /* Statut abonnement Memberships */
+  .account-abonnement__status--active { color: var(--color-success); }
+  .account-abonnement__status--paused { color: var(--color-warning); }
+  .account-abonnement__status--cancelled,
+  .account-abonnement__status--expired { color: var(--color-danger); }
+
+  /* ============================================================
+   * Section dangers — suppression de compte
+   * ============================================================ */
+
+  .account-profil__section--danger {
+    border-top: 2px solid var(--color-danger);
+    padding-top: var(--spacing-4);
+    margin-top: var(--spacing-8);
+  }
+
+  .account-profil__danger-desc {
+    color: var(--color-fg-muted);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-4);
+  }
+
+  .account-profil__danger-note {
+    margin-top: var(--spacing-3);
+    font-size: var(--font-size-sm);
+    color: var(--color-fg-muted);
+  }
+
+  /* ============================================================
+   * Empty states
+   * ============================================================ */
+
+  .account-commandes__empty,
+  .account-factures__empty,
+  .account-factures__unavailable,
+  .account-favoris__empty,
+  .account-abonnement__empty {
+    padding: var(--spacing-8) var(--spacing-6);
+    text-align: center;
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+  }
+
+  .account-commandes__empty p,
+  .account-factures__empty p,
+  .account-factures__unavailable p,
+  .account-favoris__empty p,
+  .account-abonnement__empty p {
+    color: var(--color-fg-muted);
+    margin-bottom: var(--spacing-4);
+  }
+
+  .account-factures__unavailable-badge {
+    font-size: var(--font-size-xs);
+    color: var(--color-fg-muted);
+  }
+
+  /* ============================================================
+   * Colonne d'achat : prix, ligne quantité + CTA
+   * ============================================================ */
+
+  /* Rythme vertical homogène de la colonne d'achat (titre → prix → descriptif
+   * → CTA/statut → réassurance → catégorie), piloté par token. */
+  .product-page .summary > * {
+    margin-block: 0;
+  }
+
+  .product-page .summary > * + * {
+    margin-top: var(--spacing-5);
+  }
+
+  /* Respiration modérée autour du titre et du descriptif court, en complément
+   * du rythme vertical de .summary (tokens d'espacement existants). */
+  .product-page .summary .product_title {
+    padding-block: var(--spacing-2);
+  }
+
+  .product-page .summary .woocommerce-product-details__short-description {
+    padding-block: var(--spacing-6);
+  }
+
+  /* Prix de la fiche produit : stylé HORS @layer (fin de fichier). WC core
+   * stylise p.price/span.price en règle NON-layered → une règle layered serait
+   * systématiquement battue (CSS Cascade L5). */
+
+  .product__buy-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: var(--spacing-3);
+    margin-block: var(--spacing-4);
+  }
+
+  .product__add-to-cart {
+    flex: 1 1 auto;
+    min-height: 44px;
+  }
+
+  /* Produit externe : CTA d'action (lien ou bouton désactivé), note nommant le
+   * marchand, badge de statut non interactif accolé au prix. */
+  .product__external {
+    margin-block: var(--spacing-4);
+  }
+
+  .product__external-cta {
+    min-height: 44px;
+  }
+
+  /* Icône « lien externe » : l'espacement vient du `gap` de .btn. On la fige à
+   * sa taille intrinsèque pour qu'elle ne soit pas comprimée par le flex. */
+  .product__external-cta svg {
+    flex: none;
+  }
+
+  /* Note sous le CTA : elle nomme le domaine de destination, donc elle doit
+   * rester lisible tout en restant secondaire au regard du bouton. */
+  .product__external-hint {
+    color: var(--color-fg-muted);
+    font-size: var(--font-size-xs);
+    line-height: var(--line-height-normal);
+    text-wrap: pretty;
+  }
+
+  .product__status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    margin-block: var(--spacing-4);
+    padding: var(--spacing-2) var(--spacing-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background-color: var(--color-bg-elevated);
+    color: var(--color-fg-muted);
+    font-family: var(--font-display);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  /* Rythme vertical dans la colonne d'achat. `.product-page .summary > *` plus
+   * haut remet `margin-block` à zéro sur tous les enfants directs : ces deux
+   * règles, de spécificité égale et postérieures, rendent leur marge au badge
+   * (accolé au prix) et à la note (accolée au CTA). */
+  .product-page .summary .product__status {
+    margin-block: var(--spacing-3) 0;
+  }
+
+  .product-page .summary .product__external-hint {
+    margin-block: var(--spacing-2) 0;
+  }
+
+  /* ============================================================
+   * Rails cross-sell / upsell (related + up-sells) — scroll snap mobile
+   * ============================================================ */
+
+  /* Espacement inter-sections géré par le gap de .product (pas de margin-top). */
+  .product-rail__title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: var(--spacing-6);
+  }
+
+  .product-rail {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(70%, 1fr);
+    gap: var(--spacing-4);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: var(--spacing-2);
+  }
+
+  .product-rail > .card-180c {
+    scroll-snap-align: start;
+  }
+
+  @media (min-width: 640px) {
+    .product-rail {
+      grid-auto-columns: minmax(40%, 1fr);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .product-rail {
+      grid-auto-flow: row;
+      grid-template-columns: repeat(4, 1fr);
+      overflow: visible;
+    }
+  }
+
+  /* ============================================================
+   * Réassurance (sous le CTA panier)
+   * ============================================================ */
+
+  .product-reassurance {
+    list-style: none;
+    margin: var(--spacing-5) 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+  }
+
+  .product-reassurance__item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    font-size: var(--font-size-sm);
+    color: var(--color-fg-muted);
+  }
+
+  .product-reassurance__icon {
+    flex: none;
+    color: var(--color-accent);
+  }
+
+  /* ============================================================
+   * Cross-promo abonnement numérique (conversion secondaire)
+   * ============================================================ */
+
+  .product-crosspromo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    padding: var(--spacing-6);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-bg-elevated);
+  }
+
+  @media (min-width: 768px) {
+    .product-crosspromo {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--spacing-8);
+    }
+  }
+
+  .product-crosspromo__kicker {
+    margin: 0 0 var(--spacing-1);
+    font-family: var(--font-display);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .product-crosspromo__title {
+    margin: 0 0 var(--spacing-2);
+    font-size: var(--font-size-xl);
+  }
+
+  .product-crosspromo__text {
+    margin: 0;
+    font-size: var(--font-size-sm);
+    color: var(--color-fg-muted);
+  }
+
+  .product-crosspromo__cta {
+    flex: none;
+    align-self: flex-start;
+    white-space: nowrap;
+  }
+
+  /* ============================================================
+   * Barre d'achat sticky (apparaît au scroll — construite par product.js)
+   *   position:fixed + translateY → aucun CLS ; visibility off-state pour
+   *   sortir du tab order quand masquée.
+   * ============================================================ */
+
+  .product-sticky-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--z-nav, 100);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-4);
+    padding: var(--spacing-3) var(--container-px, var(--spacing-4));
+    background-color: var(--color-bg-elevated);
+    border-top: 1px solid var(--color-border);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(100%);
+    visibility: hidden;
+    transition: transform var(--transition-base), visibility var(--transition-base);
+  }
+
+  .product-sticky-bar.is-visible {
+    transform: translateY(0);
+    visibility: visible;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .product-sticky-bar {
+      transition: visibility var(--transition-base);
+    }
+  }
+
+  .product-sticky-bar__info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    min-width: 0;
+  }
+
+  .product-sticky-bar__thumb {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+  }
+
+  .product-sticky-bar__meta {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .product-sticky-bar__title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .product-sticky-bar__price {
+    font-size: var(--font-size-sm);
+    color: var(--color-accent);
+    font-weight: var(--font-weight-bold);
+  }
+
+  .product-sticky-bar__cta {
+    flex: none;
+    min-height: 44px;
+  }
+
+  /* Desktop : barre centrée sur la largeur de contenu, pas pleine largeur. */
+  @media (min-width: 768px) {
+    .product-sticky-bar {
+      left: 50%;
+      right: auto;
+      bottom: var(--spacing-5);
+      transform: translate(-50%, 200%);
+      width: min(100% - 2rem, var(--container-max, 1280px));
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+    }
+
+    .product-sticky-bar.is-visible {
+      transform: translate(-50%, 0);
+    }
+  }
+}
+
+/* ============================================================
+ * product-sticky-bar — réaffirmation de position:fixed HORS @layer.
+ *
+ * wp-components (wp-includes/css/dist/components/style.css), chargé en front
+ * par WooCommerce Blocks/Subscriptions, pose `[role=region]{position:relative}`
+ * en règle NON-layered. La barre porte role="region" (a11y, cf. product.js) →
+ * cette règle bat `.product-sticky-bar{position:fixed}` de @layer components
+ * (CSS Cascade L5 : le non-layered gagne toujours sur le layered, quelle que
+ * soit la spécificité). Sans contre-mesure, la barre passe en `relative` et
+ * retombe dans le flux, sous le footer.
+ *
+ * On réaffirme donc `fixed` hors layer, avec une spécificité (0,2,0) > celle
+ * de `[role=region]` (0,1,0). `fixed` est identique en mobile et desktop (le
+ * média ≥768px ne change que offsets/transform/width), une seule déclaration
+ * suffit.
+ * ============================================================ */
+.product-sticky-bar[role="region"] {
+  position: fixed;
+}
+
+/* ============================================================
+ * Boutons WooCommerce — alignés sur la charte 180°C (toutes surfaces WC).
+ *
+ * HORS @layer volontairement : WC core style `.button`/`.button.alt` en règle
+ * NON-layered, couleurs codées en dur (`.button.alt` = #7f54b3 violet). Une
+ * règle layered serait battue quelle que soit la spécificité (CSS Cascade L5).
+ * On écrit donc unlayered, avec une spécificité ≥ celle de WC : le préfixe
+ * `body ` porte les sélecteurs `.button.alt` à (0,3,2) > WC (0,3,1).
+ * ============================================================ */
+
+/* --- Primaire : famille .button.alt (inclut single_add_to_cart_button,
+ *     checkout-button, #submit.alt). Fond accent, texte on-accent. --- */
+body .woocommerce a.button.alt,
+body .woocommerce button.button.alt,
+body .woocommerce input.button.alt,
+body .woocommerce #respond input#submit.alt {
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+  border: 1px solid var(--color-accent);
+}
+
+body .woocommerce a.button.alt:hover,
+body .woocommerce button.button.alt:hover,
+body .woocommerce input.button.alt:hover,
+body .woocommerce #respond input#submit.alt:hover {
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+  filter: brightness(0.92);
+}
+
+body .woocommerce a.button.alt:focus-visible,
+body .woocommerce button.button.alt:focus-visible,
+body .woocommerce input.button.alt:focus-visible,
+body .woocommerce #respond input#submit.alt:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* État désactivé : garde l'accent atténué (jamais de violet résiduel). */
+body .woocommerce a.button.alt:disabled,
+body .woocommerce button.button.alt:disabled,
+body .woocommerce input.button.alt:disabled,
+body .woocommerce a.button.alt.disabled,
+body .woocommerce button.button.alt.disabled,
+body .woocommerce input.button.alt.disabled {
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+  opacity: 0.6;
+}
+
+/* --- Bouton « Valider la commande » (panier) : aligné sur le token CTA
+ *     du design system (.btn--primary). Le fond accent + hover/focus sont
+ *     déjà posés par la famille .button.alt ci-dessus ; on ajoute ici la
+ *     typo display, le rayon, le tap target (44px) et la casse du .btn,
+ *     puis on centre le bouton dans son conteneur .wc-proceed-to-checkout.
+ *     CSS (pas d'ajout de classe) : cart-totals.php n'est pas surchargé et
+ *     c'est la convention WC du thème. Spécificité élevée pour battre le
+ *     core WC unlayered. --- */
+/* Bloc CTA panier : Google Pay (Stripe Express, hook prio 5) empilé
+ * AU-DESSUS du bouton « Valider la commande » (prio 20). Colonne flex
+ * centrée, largeur plafonnée à 22rem → les deux partagent la même
+ * largeur (align-items:stretch par défaut en colonne étire les enfants ;
+ * le bouton Stripe remplit son slot). Le gap gère l'espacement entre eux.
+ * Remplace le centrage largeur-contenu d'iter1. */
+body .woocommerce .wc-proceed-to-checkout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  max-width: 22rem;
+  margin-inline: auto;
+}
+
+/* Neutralise la marge propre du slot express : l'espacement vient du gap. */
+body .woocommerce .wc-proceed-to-checkout .stripe-express {
+  margin: 0;
+}
+
+body .woocommerce .wc-proceed-to-checkout a.checkout-button.button.alt {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding-inline: var(--spacing-6);
+  padding-block: var(--spacing-2);
+  border-radius: var(--radius-md);
+  font-family: var(--font-display);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.02em;
+  line-height: 1;
+  text-align: center;
+}
+
+/* --- Secondaire : .button:not(.alt) (boutique/compte ; le panier utilise déjà
+ *     .btn--secondary). Neutre : surface élevée + bordure. --- */
+body .woocommerce a.button:not(.alt),
+body .woocommerce button.button:not(.alt),
+body .woocommerce input.button:not(.alt),
+body .woocommerce #respond input#submit:not(.alt) {
+  background-color: var(--color-bg-elevated);
+  color: var(--color-fg);
+  border: 1px solid var(--color-border);
+}
+
+body .woocommerce a.button:not(.alt):hover,
+body .woocommerce button.button:not(.alt):hover,
+body .woocommerce input.button:not(.alt):hover,
+body .woocommerce #respond input#submit:not(.alt):hover {
+  background-color: var(--color-bg-elevated);
+  border-color: var(--color-fg-muted);
+  filter: brightness(0.97);
+}
+
+body .woocommerce a.button:not(.alt):focus-visible,
+body .woocommerce button.button:not(.alt):focus-visible,
+body .woocommerce input.button:not(.alt):focus-visible,
+body .woocommerce #respond input#submit:not(.alt):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+ * Largeur de la page Panier.
+ *
+ * Le panier est rendu dans `.entry-content` (max-width 65ch ≈ 720px,
+ * non-layered, singular.php) → trop étroit (totaux à l'étroit). On élargit
+ * UNIQUEMENT les pages panier (body.woocommerce-cart), sans toucher au
+ * `.entry-content` éditorial global. Hors @layer + sélecteur `body.…`
+ * (0,2,0) pour battre `.entry-content` (0,1,0) non-layered. Empilement
+ * table/totaux conservé (pas de regroupement form+collaterals → AJAX intact).
+ * ============================================================ */
+body.woocommerce-cart .entry-content {
+  max-width: 75rem; /* ~1200px */
+  margin-inline: auto;
+}
+
+/* Mobile — gouttières latérales réduites (~8px). Le panier est imbriqué
+ * `.site-main.site-container` (var(--container-pad)) › `.entry-content`
+ * (var(--container-gutter)) : les paddings s'additionnent (~32px de chaque
+ * côté). On ne garde qu'une gouttière de --space-2xs portée par le `<main>`
+ * et on annule le padding interne de `.entry-content`. Hors @layer +
+ * préfixe `body.…` pour battre `.entry-content` (single.css, non-layered). */
+@media (max-width: 767px) {
+  body.woocommerce-cart main.site-container {
+    padding-inline: var(--space-2xs);
+  }
+
+  body.woocommerce-cart .entry-content {
+    padding-inline: 0;
+  }
+}
+
+/* ============================================================
+ * Bloc « Total panier » — pleine largeur, empilé sous le tableau.
+ *
+ * WC core (woocommerce-layout.css, unlayered) flotte `.cart_totals`
+ * à droite sur 48 %. On neutralise float + width pour étaler les totaux
+ * sur toute la largeur, alignés avec le tableau produits du haut. Hors
+ * @layer + préfixe `body` (0,4,0) pour battre la règle core (0,3,0).
+ * Le wrapper `.cart-collaterals__inner` (overrides.php) passe lui aussi
+ * à 100 % (cf. @layer components plus haut).
+ * ============================================================ */
+body .woocommerce .cart-collaterals .cart_totals {
+  float: none;
+  width: 100%;
+}
+
+/* Cellules du tableau des totaux : padding aéré (tokens DS). WC core
+ * applique un padding serré ; on l'élargit pour la lisibilité du récap
+ * (sous-total, expédition, total). Unlayered + préfixe `body` pour
+ * battre woocommerce-base.css. Largeur/layout inchangés (P2). */
+body .woocommerce .cart_totals table.shop_table th,
+body .woocommerce .cart_totals table.shop_table td {
+  padding: var(--spacing-3) var(--spacing-4);
+}
+
+/* Bordures uniformes : WC core colore les bordures du tableau des totaux
+ * en color-mix(currentColor 20%) → translucide et variable selon le texte
+ * de chaque ligne (th bold vs td). On harmonise toutes les bordures
+ * (table + cellules) sur le gris du token DS --color-border. Unlayered +
+ * `body .cart_totals` (0,3,3) pour battre le core (≤ 0,2,3). */
+body .woocommerce .cart_totals table.shop_table,
+body .woocommerce .cart_totals table.shop_table th,
+body .woocommerce .cart_totals table.shop_table td {
+  border-color: var(--color-border);
+}
+
+/* Lisibilité du récap : WC core rend les libellés/montants en taille réduite
+ * et contraste mou. On impose les tokens UI fixes (--text-base) + le texte
+ * plein --color-fg sur toutes les lignes. Unlayered + `body .cart_totals`
+ * pour battre woocommerce-base.css. */
+body .woocommerce .cart_totals table.shop_table th,
+body .woocommerce .cart_totals table.shop_table td,
+body.woocommerce-cart .woocommerce-shipping-destination,
+body.woocommerce-cart .cart_totals .woocommerce-shipping-methods {
+  font-size: var(--text-md);
+  color: var(--color-fg);
+}
+
+/* Mentions secondaires (« dont X € TVA », détails de colis) : <small> sans
+ * classe est ramené à 0.8em par le reset Tailwind. On le cale sur --text-sm
+ * (lisible, échelle DS) en gris atténué et poids normal pour la hiérarchie. */
+body .woocommerce .cart_totals small {
+  font-size: var(--text-sm);
+  color: var(--color-fg-muted);
+  font-weight: 400;
+}
+
+/* ============================================================
+ * Calculateur de livraison « Modifier l'adresse » (panier).
+ *
+ * Template WC non surchargé (woocommerce_shipping_calculator()).
+ * On habille les champs + le lien déclencheur aux tokens DS. Pas de
+ * `display` posé sur `.shipping-calculator-form` → le toggle JS WC
+ * reste intact. Le bouton « Mettre à jour » (button.button[name=
+ * calc_shipping]) hérite déjà du style secondaire `.button:not(.alt)`.
+ * Unlayered + préfixe `body.woocommerce-cart` pour battre WC core.
+ *
+ * NB : si le sélecteur Pays est rehaussé par select2, son widget
+ * `.select2-selection` aurait besoin d'un habillage dédié (à confirmer
+ * en live) — ici on stylise le <select> natif + les inputs texte.
+ * ============================================================ */
+body.woocommerce-cart .shipping-calculator-form {
+  --wc-form-color-background: var(--color-bg-elevated);
+  --wc-form-color-text: var(--color-fg);
+  --wc-form-border-color: var(--color-border);
+  margin-top: var(--spacing-3);
+}
+
+body.woocommerce-cart .shipping-calculator-form .form-row {
+  margin-bottom: var(--spacing-3);
+}
+
+body.woocommerce-cart .shipping-calculator-form .input-text,
+body.woocommerce-cart .shipping-calculator-form select {
+  width: 100%;
+  min-height: 44px;
+  padding-inline: var(--spacing-3);
+  padding-block: var(--spacing-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-elevated);
+  color: var(--color-fg);
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+}
+
+body.woocommerce-cart .shipping-calculator-form .input-text::placeholder {
+  color: var(--color-fg-muted);
+  opacity: 1;
+}
+
+body.woocommerce-cart .shipping-calculator-form .input-text:focus,
+body.woocommerce-cart .shipping-calculator-form select:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+/* Lien déclencheur « Modifier l'adresse » — accent DS. */
+body.woocommerce-cart .shipping-calculator-button {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+body.woocommerce-cart .shipping-calculator-button:hover,
+body.woocommerce-cart .shipping-calculator-button:focus-visible {
+  text-decoration: underline;
+}
+
+/* ============================================================
+ * Coupon (panier) — habillage DS de l'input.
+ *
+ * WC core stylise `td.actions .coupon .input-text` en NON-layered :
+ *  - woocommerce.css : float/border/padding ;
+ *  - woocommerce-layout.css : `width:80px` via une chaîne incluant la
+ *    variante `.woocommerce #content …` → un ID (1,4,2).
+ *
+ * Un ID bat n'importe quel nombre de classes : on doit donc entrer dans
+ * le palier ID. L'input porte `id="coupon_code"` → on l'utilise, ce qui
+ * porte le sélecteur à (1,5,3) > (1,4,2), quelle que soit la présence de
+ * `#content`. L'input reprend bordure/radius/padding DS et une largeur
+ * fixe 200px. Le bouton « Appliquer » est `.btn` (pas `.button`) → OK.
+ * ============================================================ */
+/* stylelint-disable-next-line selector-id-pattern -- #coupon_code est l'ID imposé par WooCommerce. */
+body.woocommerce-cart table.cart td.actions .coupon #coupon_code.input-text {
+  float: none;
+  /* Largeur fixe 200px (rétrécissable sous contrainte mobile via flex-shrink
+     + max-width:100%) ; bat le width:80px de woocommerce-layout.css. */
+  flex: 0 1 200px;
+  width: 200px;
+  max-width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding-inline: var(--spacing-3);
+  padding-block: var(--spacing-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-elevated);
+  color: var(--color-fg);
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  box-sizing: border-box;
+}
+
+/* stylelint-disable-next-line selector-id-pattern -- #coupon_code est l'ID imposé par WooCommerce. */
+body.woocommerce-cart table.cart td.actions .coupon #coupon_code.input-text:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+/* ============================================================
+ * Coupon — message d'erreur (validation inline)
+ *
+ * Le message `.coupon-error-notice` (injecté par cart-coupon.js, ou émis par
+ * WC pour un coupon invalide) vit dans `td.actions .coupon`. WC core le style
+ * en NON-layered (`.woocommerce-cart table.cart td.actions .coupon
+ * .coupon-error-notice`, 0,5,2 : float, color rouge brut, font-size .75em) →
+ * une règle @layer ne peut pas gagner. On écrit donc hors @layer avec un
+ * préfixe `body` (0,5,3 > 0,5,2) pour reprendre la main et appliquer
+ * l'habillage DS : pastille danger discrète sous le champ, liseré gauche,
+ * typo + tokens du système. flex:0 0 100% le pousse sur sa propre ligne sous
+ * l'input et le bouton (le conteneur `.cart-table__coupon` est en flex-wrap).
+ * ============================================================ */
+body.woocommerce-cart table.cart td.actions .coupon .coupon-error-notice,
+body.woocommerce-checkout table.cart td.actions .coupon .coupon-error-notice {
+  clear: left;
+  float: none;
+  flex: 0 0 100%;
+  width: auto;
+  margin: var(--spacing-2) 0 0;
+  padding: var(--spacing-2) var(--spacing-3);
+  background-color: color-mix(in srgb, var(--color-danger) 12%, var(--color-bg-elevated));
+  border-inline-start: 3px solid var(--color-danger);
+  border-radius: var(--radius-sm);
+  color: var(--color-danger);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  line-height: var(--line-height-snug);
+  text-align: left;
+}
+
+/* ============================================================
+ * CTA panier vide — lisibilité.
+ *
+ * `.entry-content a { color: var(--color-accent) }` (single.css,
+ * @layer components, 0,2,0) battrait la couleur de `.btn--primary`
+ * (même layer, 0,1,0) → libellé jaune sur fond jaune, illisible. Le
+ * bouton vit dans `.entry-content` (page panier → shortcode). On force
+ * la couleur on-accent + suppression du soulignement hors @layer (gagne
+ * la cascade quelle que soit la spécificité layered). Le lien pointe
+ * déjà vers /boutique/ (cart-empty.php).
+ * ============================================================ */
+body .woocommerce .cart-empty__cta {
+  color: var(--color-on-accent);
+  text-decoration: none;
+}
+
+/* ============================================================
+ * Suppression de ligne (page panier) — composant identique au drawer.
+ *
+ * Reprend À L'IDENTIQUE le bouton de suppression du mini-panier latéral
+ * (.cart-line__remove, cart.css) : 36×36, fond transparent, icône muted,
+ * danger au survol + surface élevée, focus accent. Comme l'élément est un
+ * <a> dans .entry-content, on écrit HORS @layer (et `text-decoration:none`)
+ * pour battre `.entry-content a` (color:accent + underline, @layer 0,2,0)
+ * qui rendrait l'icône jaune et soulignée — contrairement au drawer.
+ * ============================================================ */
+body.woocommerce-cart .cart-table__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  /* !important pour battre la feuille WooCommerce (.woocommerce a.remove { color: var(--wc-red) !important }). */
+  color: var(--color-fg) !important;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+body.woocommerce-cart .cart-table__remove:hover {
+  /* Idem : Woo force color:#fff !important au hover, on impose le rouge. */
+  color: var(--color-danger) !important;
+  background-color: var(--color-bg-elevated);
+}
+
+body.woocommerce-cart .cart-table__remove:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+ * Fiche produit — masquages demandés (itération 2026-06)
+ *
+ * HORS @layer volontairement : ces règles neutralisent des styles
+ * WooCommerce core (non-layered) ; le non-layered l'emporte sur @layer.
+ * Spécificité ≥ celle des sélecteurs core ciblés.
+ * ============================================================ */
+
+/* Mention catégories (« Catégories : … ») masquée. SKU/tags préservés. */
+body.single-product .product_meta .posted_in {
+  display: none;
+}
+
+/* Neutralise l'effet hover des vignettes de la galerie produit : les
+ * vignettes restent en pleine opacité, sans variation au survol/focus. */
+body.single-product div.product div.images .flex-control-thumbs li img {
+  opacity: 1;
+  transition: none;
+}
+
+/* ------------------------------------------------------------
+ * Rails produits de la fiche produit (Related + Up-sells)
+ *
+ * Rendus via le composant rail Home Builder (_180c_render_rail) avec les
+ * modifiers product_related / product_upsells. Règle photo client : les
+ * packshots ne sont JAMAIS recadrés → on neutralise tout ratio imposé
+ * (aspect-ratio: auto) et on garde object-fit: contain (aucun overlay).
+ * Scopé à ces deux rails : le rail produits du home (.home-module--products_rail)
+ * conserve son cadre 1/1. HORS @layer : bat les ratios définis en @layer.
+ * ------------------------------------------------------------ */
+.home-module--product_related .card-180c__media,
+.home-module--product_upsells .card-180c__media {
+  aspect-ratio: auto;
+}
+
+.home-module--product_related .card-180c__image,
+.home-module--product_upsells .card-180c__image {
+  object-fit: contain;
+}
+
+/* ------------------------------------------------------------
+ * Titres legacy « .sc-title » dans la description produit
+ *
+ * Le contenu éditorial legacy de certaines fiches produit contient un bloc
+ * `<div class="sc-title"><h2 class="title"><span>…</span></h2></div>` issu du
+ * plugin shortcodes-indep, dont la feuille de style impose `background:#fff`
+ * sur le span — pavé blanc disgracieux en dark mode comme en light. Le plugin
+ * étant hors du thème (et non versionné ici), on neutralise ce fond côté thème.
+ * HORS @layer + spécificité (0,3,1) > la règle plugin (0,2,1) NON-layered :
+ * indispensable pour battre une règle unlayered (CSS Cascade L5).
+ * ------------------------------------------------------------ */
+.product__description .sc-title .title span {
+  background: transparent;
+}
+
+/* ------------------------------------------------------------
+ * Prix de la fiche produit — accent thème vs WooCommerce core
+ *
+ * WC core stylise `div.product p.price` / `span.price` en règle NON-layered
+ * (`color:#958e09; font-size:1.25em`), spécificité (0,3,2). Notre rendu
+ * (Oswald, 2xl, accent) vivait en @layer components → systématiquement battu
+ * (CSS Cascade L5 : unlayered > layered, spécificité confondue). On le réécrit
+ * HORS @layer, avec une spécificité supérieure : `body.woocommerce div.product
+ * .summary .price` = (0,4,2) > WC (0,3,2). Le sélecteur cible les mêmes éléments
+ * que WC (donc body.woocommerce + div.product existent bien sur la fiche).
+ * ------------------------------------------------------------ */
+body.woocommerce div.product .summary .price,
+body.woocommerce div.product .summary .product__price {
+  font-family: var(--font-display);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-accent);
+}
+
+/* Mention de stock (« En stock ») : WC core la stylise aussi en #958e09 olive,
+ * règle NON-layered (0,3,1). Même traitement que le prix → accent, unlayered,
+ * spécificité (0,4,2) > WC. Conservé pour les éventuels états restants
+ * (ex. réassort), les états « en stock » / « rupture » étant masqués ci-dessous. */
+body.woocommerce div.product .summary .stock {
+  color: var(--color-accent);
+}
+
+/* La disponibilité est désormais portée par le bouton d'achat (« Rupture de
+ * stock ») et, pour les produits externes, par le badge `.product__status`
+ * accolé au prix. On masque donc les mentions de stock redondantes.
+ *
+ * La règle qui masquait `.product__external-note` a été retirée en même temps
+ * que la parenthèse elle-même (woocommerce/single-product/price.php) : elle
+ * cachait un markup émis sur chaque fiche externe et jamais affiché. */
+body.woocommerce div.product .summary .stock.in-stock,
+body.woocommerce div.product .summary .stock.out-of-stock {
+  display: none;
+}
+
+/* ------------------------------------------------------------
+ * Galerie produit — visuel principal + carrousel de vignettes (natif WC)
+ *
+ * Galerie WooCommerce classique (flexslider, support `wc-product-gallery-slider`
+ * réactivé) : grand visuel principal + bande de vignettes carrées. Clic vignette
+ * → swap du visuel principal (flexslider, controlNav: thumbnails). Clic visuel
+ * principal → lightbox PhotoSwipe (`wc-product-gallery-lightbox`). Zoom OFF.
+ *
+ * Les dimensions 80px / 10px / 30px reprennent la capture de référence (« les
+ * others ») : ce sont des cotes de composant, pas des tokens d'espacement.
+ *
+ * HORS @layer + spécificité : le CSS WC core / flexslider (NON-layered) impose
+ * `.flex-control-thumbs li{width:25%;float:left}`. Une règle layered serait
+ * battue (CSS Cascade L5) ; on neutralise donc en unlayered, spécificité
+ * relevée via le préfixe `.product-page__gallery`.
+ * ------------------------------------------------------------ */
+
+/* Visuel principal : pleine largeur de la colonne, image entière (pas de crop). */
+.product-page__gallery .flex-viewport {
+  margin-bottom: 30px;
+}
+
+.product-page__gallery .woocommerce-product-gallery__image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Bande de vignettes : carrousel horizontal (4 visibles), flèches prev/next
+ * ajoutées par src/js/modules/product-gallery.js quand il y a plus de 4 images. */
+.product-page__gallery .product-gallery-thumbs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.product-page__gallery .flex-control-nav.flex-control-thumbs {
+  display: flex;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+
+.product-page__gallery .flex-control-thumbs::-webkit-scrollbar {
+  display: none;
+}
+
+.product-page__gallery .flex-control-thumbs li {
+  flex: 0 0 80px;
+  width: 80px;
+  height: 80px;
+  margin: 0;
+  padding: 0;
+  float: none;
+  list-style: none;
+}
+
+.product-page__gallery .flex-control-thumbs li img {
+  width: 80px;
+  height: 80px;
+  margin: 0;
+  display: block;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+
+/* Flèches latérales du carrousel de vignettes (injectées en JS). */
+.product-gallery-thumbs__nav {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 80px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-bg-elevated);
+  color: var(--color-fg);
+  font-size: var(--font-size-xl);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.product-gallery-thumbs__nav:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ============================================================
+ * Messages natifs WooCommerce — design system (HORS @layer)
+ *
+ * S'applique à TOUS les contextes WC (panier, checkout, compte, boutique,
+ * fiche produit…) : fond surélevé, bordure, liseré accent à gauche, rayon,
+ * typo DS. WC core stylise .woocommerce-info / .woocommerce-message /
+ * .woocommerce-error en NON-layered (0,1,0) → on écrit hors @layer avec un
+ * préfixe `body` (0,1,1) pour gagner partout, y compris .woocommerce-info
+ * isolé (ex. « aucun moyen de paiement disponible »).
+ * ============================================================ */
+body .woocommerce-info,
+body .woocommerce-message,
+body .woocommerce-error {
+  margin: 0 0 var(--spacing-4);
+  padding: var(--spacing-4) var(--spacing-6);
+  list-style: none;
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-inline-start: 3px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  color: var(--color-fg);
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+
+/* Succès (« … ajouté au panier ») : liseré vert. */
+body .woocommerce-message {
+  border-inline-start-color: var(--color-success);
+}
+
+/* Erreur : liseré rouge. */
+body .woocommerce-error {
+  border-inline-start-color: var(--color-danger);
+}
+
+/* Neutralise l'icône pseudo native (::before) de WC core. */
+body .woocommerce-info::before,
+body .woocommerce-message::before,
+body .woocommerce-error::before {
+  content: none;
+}
+
+/* Liens dans les notices (accent + soulignement DS). */
+body .woocommerce-info a,
+body .woocommerce-message a,
+body .woocommerce-error a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+body .woocommerce-info a:hover,
+body .woocommerce-info a:focus-visible,
+body .woocommerce-message a:hover,
+body .woocommerce-message a:focus-visible,
+body .woocommerce-error a:hover,
+body .woocommerce-error a:focus-visible {
+  filter: brightness(0.92);
+}
+
+/* ============================================================
+ * Page de confirmation de commande (order-received).
+ *
+ * HORS @layer : les masquages doivent battre d'éventuelles règles WC core
+ * non-layered. Le header 180°C (.checkout-thankyou__header) porte déjà le
+ * titre et le message de confirmation.
+ * ============================================================ */
+
+/* Masque le titre de page « Commande reçue » (entry-title de singular.php). */
+body.woocommerce-order-received .entry-header {
+  display: none;
+}
+
+/* Masque tout ce qui suit le récap (.checkout-thankyou__next + sorties des
+ * hooks woocommerce_thankyou). Les hooks continuent de s'exécuter (tracking /
+ * passerelles) — seul leur rendu visuel est masqué.
+ *
+ * EXCEPTION : le bloc d'onboarding abonné (._180c-onboarding) et son bouton de
+ * lancement (._180c-onboarding-launch) sont rendus sous le récap et doivent
+ * rester visibles. Cette règle est non-layered et en (0,2,0) — sans l'exclure
+ * ici, retirer l'attribut [hidden] en JS ne suffirait pas à la révéler. */
+body.woocommerce-order-received .checkout-thankyou__recap ~ *:not(._180c-onboarding-launch, ._180c-onboarding) {
+  display: none;
+}
+
+/* ============================================================
+ * Rangées de formulaire WC en pleine largeur.
+ *
+ * WC core stylise .form-row-first / .form-row-last en non-layered
+ * (width: 47% + flottants, deux colonnes). HORS @layer ici pour battre cette
+ * règle (les couches perdent face au non-layered) et forcer la pleine largeur
+ * sur toutes les formes WooCommerce (inscription, adresses, édition de compte).
+ * ============================================================ */
+body .woocommerce form .form-row-first,
+body .woocommerce form .form-row-last,
+body .woocommerce-page form .form-row-first,
+body .woocommerce-page form .form-row-last {
+  width: 100%;
+  overflow: visible;
+}
+
+/* ============================================================
+ * Indicateur de robustesse du mot de passe (WooCommerce natif).
+ *
+ * WC core stylise .woocommerce-password-strength.{short,bad,good,strong} en
+ * couleurs vives codées en dur, hors @layer (0,2,0). On réécrit l'encart aux
+ * tokens du design system (danger / warning / success) HORS @layer avec le
+ * préfixe `body` (0,2,1 > 0,2,0) pour gagner, sur TOUS les statuts (édition de
+ * compte, inscription, réinitialisation…). Tints via color-mix → adaptées
+ * light/dark sans couleur en dur.
+ * ============================================================ */
+body .woocommerce-password-strength {
+  margin-top: var(--space-2xs);
+  padding: var(--space-2xs) var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-bg-elevated);
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.4;
+  text-align: left;
+  color: var(--color-fg);
+}
+
+body .woocommerce-password-strength.short,
+body .woocommerce-password-strength.bad {
+  background-color: color-mix(in srgb, var(--color-danger) 14%, var(--color-bg-elevated));
+  border-color: var(--color-danger);
+}
+
+body .woocommerce-password-strength.good {
+  background-color: color-mix(in srgb, var(--color-warning) 16%, var(--color-bg-elevated));
+  border-color: var(--color-warning);
+}
+
+body .woocommerce-password-strength.strong {
+  background-color: color-mix(in srgb, var(--color-success) 16%, var(--color-bg-elevated));
+  border-color: var(--color-success);
+}
+
+/* Astuce de saisie (« Indice : … ») affichée sous le champ : note discrète. */
+body .woocommerce-password-hint {
+  display: block;
+  margin-top: var(--space-2xs);
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  color: var(--color-fg-muted);
+}

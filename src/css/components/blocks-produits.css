@@ -1,0 +1,75 @@
+/* Blocs produits en article — acf/produit-unique & acf/rail-produit
+ *
+ * Styles minimaux : ces blocs réutilisent les composants existants (carte
+ * produit .card-180c--product variante sm, et le shell de rail mutualisé
+ * .home-module / .rail-180c stylé par home/_rails.css). On ne gère ici que le
+ * rythme vertical du bloc, le centrage / la contrainte de largeur de la carte
+ * unique, et les placeholders éditeur.
+ */
+
+/* -------------------------------------------------------------------------
+ * acf/produit-unique — carte unique centrée, largeur bornée.
+ * La carte (.card-180c) prend par défaut 100 % de son parent : on la centre
+ * et on borne sa largeur pour qu'elle ne s'étire jamais sur toute la colonne
+ * d'article (sinon le visuel et la typo se déforment).
+ * ------------------------------------------------------------------------- */
+.block-180c-produit-unique {
+  display: flex;
+  justify-content: center;
+  margin-block: var(--space-xl);
+}
+
+.block-180c-produit-unique .card-180c {
+  width: 100%;
+  max-width: clamp(260px, 60%, 340px);
+}
+
+/* Mobile : la carte peut occuper toute la colonne, sans étirement au-delà. */
+@media (max-width: 540px) {
+  .block-180c-produit-unique .card-180c {
+    max-width: 320px;
+  }
+}
+
+/* -------------------------------------------------------------------------
+ * acf/rail-produit — wrapper de rythme vertical. Le rail lui-même est rendu
+ * par _180c_render_rail() (.home-module.rail-180c) et stylé globalement.
+ * ------------------------------------------------------------------------- */
+.block-180c-rail-produit {
+  margin-block: var(--space-xl);
+}
+
+/* Le shell de rail ajoute déjà ses propres marges de module : on neutralise
+ * la double marge interne pour ne garder que celle du wrapper de bloc. */
+.block-180c-rail-produit .home-module {
+  margin-block: 0;
+}
+
+/* Break-out en contexte article : le corps d'article vit dans une colonne
+ * étroite (.article__body, ~42rem). Le rail s'en extrait pour occuper la
+ * pleine largeur du viewport ; le .container-180c interne rendu par
+ * _180c_render_rail re-contraint alors le rail à --container-max (1280px)
+ * centré. Résultat : alternance article étroit / rail large / suite étroite.
+ *
+ * Convention full-bleed du thème (cf. .article-hero__media, hero_editorial).
+ * Sélecteur scopé sous .article__body pour passer devant .article__body > *
+ * (max-width: 100%, même spécificité) grâce à l'ordre des imports. */
+.article__body > .block-180c-rail-produit {
+  width: 100vw;
+  max-width: none;
+  margin-inline: calc(50% - 50vw);
+}
+
+/* -------------------------------------------------------------------------
+ * Placeholders éditeur (rendus uniquement en aperçu / pour les contributeurs).
+ * ------------------------------------------------------------------------- */
+.block-180c-produit-unique--placeholder,
+.block-180c-rail-produit--placeholder {
+  display: block;
+  padding: var(--space-lg);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-fg-muted);
+  font-family: var(--font-body);
+  text-align: center;
+}

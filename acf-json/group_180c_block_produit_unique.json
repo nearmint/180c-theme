@@ -1,0 +1,43 @@
+{
+  "key": "group_180c_block_produit_unique",
+  "title": "Bloc — Produit unique",
+  "fields": [
+    {
+      "key": "field_180c_pu_produit",
+      "label": "Produit",
+      "name": "produit",
+      "type": "post_object",
+      "instructions": "Sélectionnez le produit WooCommerce à afficher sous forme de carte.",
+      "required": 1,
+      "conditional_logic": 0,
+      "post_type": [
+        "product"
+      ],
+      "taxonomy": [],
+      "allow_null": 0,
+      "multiple": 0,
+      "return_format": "id",
+      "filters": [
+        "search"
+      ]
+    }
+  ],
+  "location": [
+    [
+      {
+        "param": "block",
+        "operator": "==",
+        "value": "acf/produit-unique"
+      }
+    ]
+  ],
+  "menu_order": 0,
+  "position": "normal",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "hide_on_screen": "",
+  "active": true,
+  "description": "Champs du bloc Gutenberg acf/produit-unique (carte produit unique en article).",
+  "modified": 1780000000
+}

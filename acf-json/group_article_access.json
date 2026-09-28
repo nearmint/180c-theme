@@ -1,0 +1,43 @@
+{
+  "key": "group_article_access",
+  "title": "Article - Accès",
+  "fields": [
+    {
+      "key": "field_article_premium",
+      "label": "Article premium",
+      "name": "article_premium",
+      "type": "true_false",
+      "instructions": "Réserve l'article aux abonnés (plan abonne-recettes). Les non-abonnés voient un aperçu (chapô + 1er paragraphe) puis le paywall. Défaut : article en accès libre.",
+      "required": 0,
+      "conditional_logic": 0,
+      "wrapper": {
+        "width": "",
+        "class": "",
+        "id": ""
+      },
+      "message": "Réservé aux abonnés",
+      "default_value": 0,
+      "ui": 1,
+      "ui_on_text": "Premium",
+      "ui_off_text": "Libre"
+    }
+  ],
+  "location": [
+    [
+      {
+        "param": "post_type",
+        "operator": "==",
+        "value": "post"
+      }
+    ]
+  ],
+  "menu_order": 5,
+  "position": "side",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "hide_on_screen": [],
+  "active": true,
+  "description": "Contrôle d'accès (paywall) des articles.",
+  "modified": 1780358400
+}

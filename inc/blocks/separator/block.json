@@ -1,0 +1,28 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "180c/separator",
+  "title": "Séparateur éditorial",
+  "category": "180c",
+  "icon": "minus",
+  "description": "Séparateur visuel entre les sections. Variantes : ligne ou image.",
+  "keywords": ["séparateur", "separator", "divider", "hr"],
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "align": ["wide", "full"]
+  },
+  "attributes": {
+    "style": {
+      "type": "string",
+      "default": "line",
+      "enum": ["line", "image"]
+    },
+    "image_url": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "render": "file:./render.php",
+  "style": "file:./style.css"
+}

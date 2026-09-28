@@ -1,0 +1,129 @@
+/* Block: acf/coordonnees-lieu */
+
+.block-180c-coordonnees-lieu {
+  margin: var(--spacing-8) 0;
+  padding: var(--spacing-6) var(--spacing-8);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-accent);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background-color: var(--color-bg-elevated);
+  font-family: var(--font-body);
+  color: var(--color-fg);
+}
+
+.block-180c-coordonnees-lieu--placeholder {
+  border-left-color: var(--color-border);
+  color: var(--color-fg-muted);
+  font-style: italic;
+}
+
+/* Kicker « type de lieu » */
+.block-180c-coordonnees-lieu__type {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin: 0 0 var(--spacing-2);
+  font-family: var(--font-heading, var(--font-body));
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-fg-muted);
+}
+
+.block-180c-coordonnees-lieu__type-icon {
+  display: inline-flex;
+  color: var(--color-accent);
+}
+
+.block-180c-coordonnees-lieu__type-icon svg {
+  width: 1.1em;
+  height: 1.1em;
+  fill: currentColor;
+}
+
+/* Nom + complément */
+.block-180c-coordonnees-lieu__nom {
+  margin: 0 0 var(--spacing-3);
+  font-size: 1.25rem;
+  line-height: 1.25;
+}
+
+.block-180c-coordonnees-lieu__complement {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--color-fg-muted);
+}
+
+/* Adresse */
+.block-180c-coordonnees-lieu__adresse {
+  margin: 0 0 var(--spacing-4);
+  font-style: normal;
+  line-height: 1.5;
+  color: var(--color-fg);
+}
+
+/* Contacts */
+.block-180c-coordonnees-lieu__contacts,
+.block-180c-coordonnees-lieu__reseaux {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.block-180c-coordonnees-lieu__contact {
+  margin-bottom: var(--spacing-2);
+  line-height: 1.4;
+}
+
+.block-180c-coordonnees-lieu__tel-label {
+  font-weight: 600;
+}
+
+.block-180c-coordonnees-lieu__tel-label::after {
+  content: " : ";
+}
+
+.block-180c-coordonnees-lieu__contacts a {
+  color: var(--color-fg);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-accent);
+}
+
+.block-180c-coordonnees-lieu__contacts a:hover,
+.block-180c-coordonnees-lieu__contacts a:focus-visible {
+  color: var(--color-accent);
+}
+
+/* Réseaux sociaux */
+.block-180c-coordonnees-lieu__reseaux {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-4);
+}
+
+.block-180c-coordonnees-lieu__reseau a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  color: var(--color-fg-muted);
+  border: 1px solid var(--color-border);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.block-180c-coordonnees-lieu__reseau a:hover,
+.block-180c-coordonnees-lieu__reseau a:focus-visible {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.block-180c-coordonnees-lieu__reseau svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: currentColor;
+}

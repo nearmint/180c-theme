@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "180c/hero",
+  "title": "Hero éditorial",
+  "category": "180c",
+  "icon": "format-image",
+  "description": "Bloc hero éditorial avec image, titre, surtitre et CTA. Variantes full ou split.",
+  "keywords": ["hero", "editorial", "une", "article"],
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "align": ["wide", "full"]
+  },
+  "attributes": {
+    "selected_post_id": {
+      "type": "number"
+    },
+    "display_style": {
+      "type": "string",
+      "default": "full",
+      "enum": ["full", "split"]
+    },
+    "cta_label": {
+      "type": "string",
+      "default": ""
+    },
+    "cta_url": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "render": "file:./render.php",
+  "style": "file:./style.css"
+}

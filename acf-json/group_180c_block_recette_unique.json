@@ -1,0 +1,44 @@
+{
+  "key": "group_180c_block_recette_unique",
+  "title": "Bloc — Recette unique",
+  "fields": [
+    {
+      "key": "field_180c_ru_recette",
+      "label": "Recette",
+      "name": "recette",
+      "type": "post_object",
+      "instructions": "Sélectionnez la recette à afficher sous forme de carte.",
+      "required": 1,
+      "conditional_logic": 0,
+      "post_type": [
+        "recipe"
+      ],
+      "taxonomy": [],
+      "allow_null": 0,
+      "multiple": 0,
+      "return_format": "id",
+      "filters": [
+        "search",
+        "taxonomy"
+      ]
+    }
+  ],
+  "location": [
+    [
+      {
+        "param": "block",
+        "operator": "==",
+        "value": "acf/recette-unique"
+      }
+    ]
+  ],
+  "menu_order": 0,
+  "position": "normal",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "hide_on_screen": "",
+  "active": true,
+  "description": "Champs du bloc Gutenberg acf/recette-unique (carte recette unique en article).",
+  "modified": 1780000000
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "180c/product-card",
+  "title": "Carte produit",
+  "category": "180c",
+  "icon": "cart",
+  "description": "Carte d'un produit WooCommerce individuel. Insertable dans les articles et pages.",
+  "keywords": ["produit", "product", "card", "woo", "boutique"],
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "align": ["left", "right", "wide"]
+  },
+  "attributes": {
+    "product_id": {
+      "type": "number"
+    }
+  },
+  "render": "file:./render.php",
+  "style": "file:./style.css"
+}

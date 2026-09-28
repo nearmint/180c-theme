@@ -1,0 +1,182 @@
+{
+    "key": "group_180c_page_abonnement",
+    "title": "Page Abonnement",
+    "fields": [
+        {
+            "key": "field_180c_abo_titre",
+            "label": "Titre de la page",
+            "name": "_180c_abo_titre",
+            "type": "text",
+            "instructions": "Affiché en H1 de la page. Si vide, fallback « Nos offres d'abonnement ».",
+            "required": 0,
+            "default_value": "Nos offres d'abonnement",
+            "placeholder": "Nos offres d'abonnement"
+        },
+        {
+            "key": "field_180c_abo_offres",
+            "label": "Offres d'abonnement",
+            "name": "_180c_abo_offres",
+            "type": "repeater",
+            "instructions": "Chaque offre pointe un produit WooCommerce. Le prix est lu en direct depuis WooCommerce (jamais saisi ici).",
+            "required": 1,
+            "min": 1,
+            "max": 6,
+            "layout": "block",
+            "button_label": "Ajouter une offre",
+            "sub_fields": [
+                {
+                    "key": "field_180c_abo_offre_produit",
+                    "label": "Produit WooCommerce",
+                    "name": "offre_produit",
+                    "type": "post_object",
+                    "instructions": "Produit d'abonnement à pré-ajouter au panier. Sert à dériver le prix (live) et l'URL d'ajout.",
+                    "required": 1,
+                    "post_type": ["product"],
+                    "taxonomy": "",
+                    "allow_null": 0,
+                    "multiple": 0,
+                    "return_format": "object",
+                    "ui": 1,
+                    "wrapper": {"width": "50"}
+                },
+                {
+                    "key": "field_180c_abo_offre_titre",
+                    "label": "Titre de l'offre",
+                    "name": "offre_titre",
+                    "type": "text",
+                    "instructions": "Ex. « Annuel », « Mensuel ».",
+                    "required": 1,
+                    "wrapper": {"width": "25"}
+                },
+                {
+                    "key": "field_180c_abo_offre_sous_titre",
+                    "label": "Sous-titre",
+                    "name": "offre_sous_titre",
+                    "type": "text",
+                    "instructions": "Ex. « 1 compte », « Sans engagement ».",
+                    "required": 0,
+                    "wrapper": {"width": "25"}
+                },
+                {
+                    "key": "field_180c_abo_offre_description",
+                    "label": "Description / bénéfices",
+                    "name": "offre_description",
+                    "type": "wysiwyg",
+                    "instructions": "Description courte ou liste de bénéfices.",
+                    "required": 0,
+                    "tabs": "visual",
+                    "toolbar": "basic",
+                    "media_upload": 0,
+                    "delay": 0
+                },
+                {
+                    "key": "field_180c_abo_offre_cta_label",
+                    "label": "Libellé du bouton",
+                    "name": "offre_cta_label",
+                    "type": "text",
+                    "instructions": "Si vide, fallback « S'abonner ». Le prix est ajouté automatiquement.",
+                    "required": 0,
+                    "default_value": "S'abonner",
+                    "placeholder": "S'abonner",
+                    "wrapper": {"width": "50"}
+                },
+                {
+                    "key": "field_180c_abo_offre_mise_en_avant",
+                    "label": "Mettre en avant",
+                    "name": "offre_mise_en_avant",
+                    "type": "true_false",
+                    "instructions": "Accordéon ouvert par défaut + badge « Recommandé ».",
+                    "required": 0,
+                    "default_value": 0,
+                    "ui": 1,
+                    "ui_on_text": "Oui",
+                    "ui_off_text": "Non",
+                    "wrapper": {"width": "50"}
+                }
+            ]
+        },
+        {
+            "key": "field_180c_abo_carousel",
+            "label": "Carousel de bénéfices",
+            "name": "_180c_abo_carousel",
+            "type": "repeater",
+            "instructions": "Images uniquement (pas de titre/texte). Le 1er visuel est candidat LCP. Renseigner le texte alternatif côté médiathèque. Images non croppées.",
+            "required": 0,
+            "min": 1,
+            "max": 0,
+            "layout": "table",
+            "button_label": "Ajouter une image",
+            "sub_fields": [
+                {
+                    "key": "field_180c_abo_slide_image",
+                    "label": "Image",
+                    "name": "slide_image",
+                    "type": "image",
+                    "instructions": "Le texte alternatif est lu depuis la médiathèque.",
+                    "required": 1,
+                    "return_format": "array",
+                    "preview_size": "medium",
+                    "library": "all"
+                },
+                {
+                    "key": "field_180c_abo_slide_texte",
+                    "label": "Légende",
+                    "name": "slide_texte",
+                    "type": "text",
+                    "instructions": "Légende affichée en overlay sur l'image (alignée à gauche). Optionnelle : si vide, aucune légende n'est rendue.",
+                    "required": 0
+                }
+            ]
+        },
+        {
+            "key": "field_180c_abo_faq",
+            "label": "FAQ",
+            "name": "_180c_abo_faq",
+            "type": "repeater",
+            "instructions": "Questions / réponses. Bloc masqué si vide. Le bouton « Accéder au centre d'aide » est ajouté automatiquement.",
+            "required": 0,
+            "min": 0,
+            "max": 0,
+            "layout": "block",
+            "button_label": "Ajouter une question",
+            "sub_fields": [
+                {
+                    "key": "field_180c_abo_faq_question",
+                    "label": "Question",
+                    "name": "faq_question",
+                    "type": "text",
+                    "required": 1
+                },
+                {
+                    "key": "field_180c_abo_faq_reponse",
+                    "label": "Réponse",
+                    "name": "faq_reponse",
+                    "type": "wysiwyg",
+                    "required": 1,
+                    "tabs": "visual",
+                    "toolbar": "basic",
+                    "media_upload": 0,
+                    "delay": 0
+                }
+            ]
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "page_template",
+                "operator": "==",
+                "value": "page-abonnement.php"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "Contenu de la page d'abonnement numérique.",
+    "modified": 1748736000
+}

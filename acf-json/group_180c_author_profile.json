@@ -1,0 +1,160 @@
+{
+  "key": "group_180c_author_profile",
+  "title": "Profil auteur",
+  "fields": [
+    {
+      "key": "field_180c_author_public",
+      "label": "Page auteur publique",
+      "name": "author_public",
+      "type": "true_false",
+      "instructions": "Décocher pour masquer la page de cet auteur (éditeurs, comptes techniques) : désactive l'accès à /author/{slug}/, l'indexation dans le sitemap et l'affichage dans les recommandations « autres signatures ». Coché par défaut (opt-out).",
+      "required": 0,
+      "conditional_logic": 0,
+      "wrapper": {
+        "width": "",
+        "class": "",
+        "id": ""
+      },
+      "message": "",
+      "default_value": 1,
+      "ui": 1,
+      "ui_on_text": "Publique",
+      "ui_off_text": "Masquée"
+    },
+    {
+      "key": "field_180c_author_photo",
+      "label": "Photo de l'auteur",
+      "name": "author_photo",
+      "type": "image",
+      "instructions": "Optionnel. Si renseignée, cette image remplace l'avatar Gravatar sur la page auteur publique. Format recommandé : carré, 400×400 px minimum.",
+      "required": 0,
+      "conditional_logic": 0,
+      "wrapper": {
+        "width": "",
+        "class": "",
+        "id": ""
+      },
+      "return_format": "id",
+      "library": "all",
+      "min_width": 200,
+      "min_height": 200,
+      "min_size": "",
+      "max_width": "",
+      "max_height": "",
+      "max_size": "",
+      "mime_types": "jpg,jpeg,png,webp,avif",
+      "preview_size": "thumbnail"
+    },
+    {
+      "key": "field_180c_author_role",
+      "label": "Fonction / rôle",
+      "name": "author_role",
+      "type": "text",
+      "instructions": "Optionnel. Ex. : « Rédactrice », « Chef invité », « Photographe ». Affiché sous le nom sur la page auteur.",
+      "required": 0,
+      "conditional_logic": 0,
+      "wrapper": {
+        "width": "",
+        "class": "",
+        "id": ""
+      },
+      "default_value": "",
+      "maxlength": 80,
+      "placeholder": "Rédactrice",
+      "prepend": "",
+      "append": ""
+    },
+    {
+      "key": "field_180c_author_socials",
+      "label": "Réseaux sociaux",
+      "name": "author_socials",
+      "type": "repeater",
+      "instructions": "Optionnel. Liste des comptes publics de l'auteur. URLs complètes (https://…).",
+      "required": 0,
+      "conditional_logic": 0,
+      "wrapper": {
+        "width": "",
+        "class": "",
+        "id": ""
+      },
+      "layout": "table",
+      "pagination": 0,
+      "min": 0,
+      "max": 0,
+      "collapsed": "",
+      "button_label": "Ajouter un réseau",
+      "rows_per_page": 20,
+      "sub_fields": [
+        {
+          "key": "field_180c_author_social_network",
+          "label": "Réseau",
+          "name": "network",
+          "type": "select",
+          "instructions": "",
+          "required": 1,
+          "conditional_logic": 0,
+          "wrapper": {
+            "width": "35",
+            "class": "",
+            "id": ""
+          },
+          "choices": {
+            "instagram": "Instagram",
+            "x": "X",
+            "facebook": "Facebook",
+            "linkedin": "LinkedIn",
+            "youtube": "YouTube",
+            "tiktok": "TikTok",
+            "threads": "Threads",
+            "website": "Site web",
+            "other": "Autre"
+          },
+          "default_value": "instagram",
+          "return_format": "value",
+          "multiple": 0,
+          "allow_null": 0,
+          "ui": 1,
+          "ajax": 0,
+          "placeholder": "",
+          "parent_repeater": "field_180c_author_socials"
+        },
+        {
+          "key": "field_180c_author_social_url",
+          "label": "URL",
+          "name": "url",
+          "type": "url",
+          "instructions": "",
+          "required": 1,
+          "conditional_logic": 0,
+          "wrapper": {
+            "width": "65",
+            "class": "",
+            "id": ""
+          },
+          "default_value": "",
+          "placeholder": "https://www.instagram.com/...",
+          "parent_repeater": "field_180c_author_socials"
+        }
+      ]
+    }
+  ],
+  "location": [
+    [
+      {
+        "param": "user_form",
+        "operator": "==",
+        "value": "all"
+      }
+    ]
+  ],
+  "menu_order": 0,
+  "position": "normal",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "hide_on_screen": "",
+  "active": true,
+  "description": "Profil public auteur (page /author/{slug}/) : photo prioritaire sur le Gravatar, fonction éditoriale, comptes sociaux. Tous les champs sont optionnels.",
+  "show_in_rest": 0,
+  "modified": 1779926400
+}

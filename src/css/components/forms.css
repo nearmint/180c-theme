@@ -1,0 +1,224 @@
+/**
+ * Formulaires 180°C.
+ *
+ * Composants : label, input, field (wrapper), helper text, error text,
+ * checkbox, et modificateur de validation .field--error.
+ *
+ * Tap target : les inputs ont min-height 44px (WCAG 2.5.5).
+ */
+
+@layer components {
+  /* -------------------------
+   * Label
+   * ------------------------- */
+  .label {
+    display: block;
+    margin-bottom: var(--spacing-1);
+    font-family: var(--font-display);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-fg-muted);
+    /* Ne pas utiliser placeholder comme substitut au label (a11y) */
+  }
+
+  /* Label requis */
+  .label[data-required]::after,
+  .label.is-required::after {
+    content: " *";
+    color: var(--color-danger);
+  }
+
+  /* -------------------------
+   * Input
+   * ------------------------- */
+  .input {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    padding-inline: var(--spacing-3);
+    padding-block: var(--spacing-2);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg-elevated);
+    color: var(--color-fg);
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
+    transition: border-color var(--transition-fast),
+                outline var(--transition-fast);
+    appearance: none;
+  }
+
+  .input::placeholder {
+    color: var(--color-fg-muted);
+    opacity: 0.7;
+  }
+
+  .input:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* -------------------------
+   * Croix « effacer » des champs de recherche (global)
+   * Remplace la croix bleue native WebKit/Blink par l'icône close.svg de la
+   * lib, teintée en accent via mask (le SVG sert de masque alpha, la couleur
+   * vient de background-color). S'applique à TOUS les input[type="search"]
+   * du site (recherche header/side-menu, carnet, archives, modules…).
+   * Firefox n'affiche pas de croix native : sans effet, sans dommage.
+   * ------------------------- */
+  input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    margin-left: var(--spacing-1);
+    background-color: var(--color-accent);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E%3C/svg%3E") center / contain no-repeat;
+    cursor: pointer;
+  }
+
+  /* -------------------------
+   * Textarea
+   * ------------------------- */
+  textarea.input {
+    min-height: 100px;
+    resize: vertical;
+  }
+
+  /* -------------------------
+   * Select
+   * ------------------------- */
+  select.input {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236E6E6E' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right var(--spacing-3) center;
+    background-size: 16px;
+    padding-right: var(--spacing-8);
+    cursor: pointer;
+  }
+
+  /* -------------------------
+   * Field — wrapper avec espacement
+   * ------------------------- */
+  .field {
+    margin-bottom: var(--spacing-4);
+  }
+
+  /* -------------------------
+   * Helper text
+   * ------------------------- */
+  .field__helper {
+    display: block;
+    margin-top: var(--spacing-1);
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    color: var(--color-fg-muted);
+    line-height: var(--line-height-normal);
+  }
+
+  /* -------------------------
+   * Error text
+   * ------------------------- */
+  .field__error {
+    display: block;
+    margin-top: var(--spacing-1);
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    color: var(--color-danger);
+    line-height: var(--line-height-normal);
+  }
+
+  /* -------------------------
+   * Validation — état erreur sur le field
+   * Surcharge la border de l'input enfant
+   * ------------------------- */
+  .field--error .input {
+    border-color: var(--color-danger);
+  }
+
+  .field--error .input:focus-visible {
+    outline-color: var(--color-danger);
+    border-color: var(--color-danger);
+  }
+
+  /* -------------------------
+   * Checkbox
+   * Label cliquable + input aligné verticalement
+   * ------------------------- */
+  .checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-2);
+    cursor: pointer;
+    /* Tap target via padding-block sur le label */
+    padding-block: var(--spacing-1);
+  }
+
+  /* Case custom (appearance: none) : carré DS, coche en clip-path. Même rendu
+   * que les checkboxes du tunnel de commande (checkout.css) → cohérence DS sur
+   * toutes les surfaces (login « Se souvenir de moi », inscription CGU…). */
+  .checkbox__input {
+    appearance: none;
+    -webkit-appearance: none;
+    flex: 0 0 auto;
+    display: inline-grid;
+    place-content: center;
+    box-sizing: border-box;
+    width: 1.15rem;
+    height: 1.15rem;
+    margin-top: 0.15em; /* Alignement optique avec la première ligne du label */
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg-elevated);
+    cursor: pointer;
+    transition:
+      border-color var(--transition-fast),
+      background-color var(--transition-fast);
+  }
+
+  /* Coche tracée en clip-path, mise à l'échelle au cochage. */
+  .checkbox__input::before {
+    content: "";
+    width: 0.7rem;
+    height: 0.7rem;
+    transform: scale(0);
+    transition: transform var(--transition-fast);
+    background-color: var(--color-on-accent);
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  }
+
+  .checkbox__input:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .checkbox__input:checked {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent);
+  }
+
+  .checkbox__input:checked::before {
+    transform: scale(1);
+  }
+
+  .checkbox__label {
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    color: var(--color-fg);
+    line-height: var(--line-height-normal);
+  }
+
+  /* Lien dans le label checkbox (ex: CGU) */
+  .checkbox__label a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+}

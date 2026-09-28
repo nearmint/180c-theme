@@ -1,0 +1,372 @@
+/**
+ * Page newsletter — hero immersif, formulaire opt-in, bloc auteur,
+ * rail recettes, bloc promo abonnement.
+ *
+ * Mobile-first, BEM + tokens uniquement. Le formulaire réutilise le contrat
+ * partagé `.newsletter-form` (newsletter-form.css) pour l'input et le bouton ;
+ * ce fichier n'ajoute que la structure propre à la page (hero, row, messages).
+ */
+
+@layer components {
+  /* ============================================================
+   * Main — rythme vertical entre sections (hero plein écran + sections sous
+   * la ligne de flottaison).
+   * ============================================================ */
+  .newsletter > * + * {
+    margin-block-start: var(--section-y);
+  }
+
+  /* Aération entre la dernière section et le footer (le footer reste hors
+   * scope : aucune marge ajoutée dessus). 4rem mobile → 6rem ≥ md. */
+  .newsletter {
+    padding-block-end: var(--space-2xl);
+  }
+
+  @media (min-width: 768px) {
+    .newsletter {
+      padding-block-end: var(--space-3xl);
+    }
+  }
+
+  /* ============================================================
+   * Hero immersif — image plein écran + overlay (noir 75 % + gradient bas)
+   * ============================================================ */
+  .newsletter-hero {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    min-height: 100svh;
+    padding-block: var(--space-2xl);
+    overflow: hidden;
+    isolation: isolate;
+    /* Fond de repli si aucune image hero n'est définie. */
+    background-color: #111;
+  }
+
+  .newsletter-hero__media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .newsletter-hero__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  /* Overlay : filtre noir 0.75 + assombrissement progressif vers le bas. */
+  .newsletter-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+      linear-gradient(to bottom, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0.55) 100%),
+      rgba(0, 0, 0, 0.75);
+    pointer-events: none;
+  }
+
+  /* Dégradé de fondu en bas du hero vers le fond de page : raccorde le hero
+   * immersif à la section suivante (transparent → --color-bg), sans CLS.
+   * Au-dessus de l'overlay sombre (::after, z-index 1), sous le contenu de
+   * flux (z-index 2, peint après ::before). pointer-events:none. */
+  .newsletter-hero::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 2;
+    height: clamp(72px, 12vh, 160px);
+    background: linear-gradient(to bottom, transparent, var(--color-bg));
+    pointer-events: none;
+  }
+
+  /* Colonne de contenu centrée. NB : on n'utilise pas .site-container ici car
+   * sa max-width (1280px, non layered) écraserait cette contrainte plus étroite
+   * (les règles non-layered battent @layer components). On reprend le gutter du
+   * container via --container-px. */
+  .newsletter-hero__content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    width: 100%;
+    max-width: calc(44rem + (2 * var(--container-px)));
+    margin-inline: auto;
+    padding-inline: var(--container-px);
+    color: #fff;
+  }
+
+  .newsletter-hero__title {
+    font-size: var(--text-4xl);
+    line-height: var(--line-height-tight);
+    color: #fff;
+    margin-block: 0;
+  }
+
+  .newsletter-hero__subtitle {
+    font-size: var(--text-lg);
+    line-height: var(--line-height-normal);
+    color: rgba(255, 255, 255, 0.9);
+    margin-block: 0;
+    max-width: 36rem;
+  }
+
+  @media (min-width: 1024px) {
+    .newsletter-hero {
+      align-items: center;
+    }
+  }
+
+  /* ============================================================
+   * Formulaire opt-in (étend le contrat .newsletter-form)
+   * ============================================================ */
+  .newsletter-hero__form {
+    gap: var(--space-xs);
+  }
+
+  .newsletter-form__label {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.02em;
+    color: #fff;
+  }
+
+  /* Row input + bouton : empilé mobile, en ligne ≥ 420px — aligné sur le
+   * breakpoint du contrat .newsletter-form (qui fusionne déjà les radius
+   * mitoyens input/bouton à 420px). */
+  .newsletter-form__row {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  @media (min-width: 420px) {
+    .newsletter-form__row {
+      flex-direction: row;
+      align-items: stretch;
+    }
+  }
+
+  /* Dimensionnement des contrôles — scopé à la page (.newsletter-hero__form)
+   * pour ne pas affecter le contrat partagé .newsletter-form (footer, home).
+   * Hauteur unifiée 3.25rem (≈52px, > cible tactile 44px), texte centré
+   * verticalement, bouton avec padding-inline généreux et non tronqué. */
+  .newsletter-hero__form .newsletter-form__input,
+  .newsletter-hero__form .newsletter-form__submit {
+    min-height: 3.25rem;
+  }
+
+  .newsletter-hero__form .newsletter-form__submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding-inline: var(--space-md);
+    white-space: nowrap;
+  }
+
+  /* Honeypot : hors flux, jamais visible ni focalisable. */
+  .newsletter-form__gotcha {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  /* Feedback post-soumission : composant DS partagé `.newsletter-form__feedback`
+   * (cf. components/newsletter-form.css). Sur le hero sombre, on garde un texte
+   * clair par défaut (les modificateurs --success/--error posent leur couleur
+   * sémantique) et on réserve la hauteur pour éviter le CLS. */
+  .newsletter-hero__form .newsletter-form__feedback {
+    min-height: 1.5em;
+  }
+
+  .newsletter-hero__form .newsletter-form__feedback:not(.newsletter-form__feedback--success, .newsletter-form__feedback--error) {
+    color: #fff;
+  }
+
+  /* ============================================================
+   * Bloc auteur — colonne mobile, 2 colonnes ≥ md
+   * ============================================================ */
+  .newsletter-author {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-md);
+    text-align: center;
+  }
+
+  .newsletter-author__media {
+    margin: 0;
+    flex-shrink: 0;
+  }
+
+  .newsletter-author__photo {
+    width: 160px;
+    height: 160px;
+    border-radius: var(--radius-pill);
+    object-fit: cover;
+  }
+
+  .newsletter-author__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    max-width: 48ch;
+  }
+
+  .newsletter-author__name {
+    font-size: var(--text-2xl);
+    line-height: var(--line-height-snug);
+    margin-block: 0;
+  }
+
+  .newsletter-author__bio {
+    font-family: var(--font-body);
+    line-height: var(--line-height-relaxed);
+    color: var(--color-fg-muted);
+    margin-block: 0;
+  }
+
+  .newsletter-author__link {
+    align-self: center;
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.02em;
+    color: var(--color-fg);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    transition: color var(--transition-fast);
+  }
+
+  .newsletter-author__link::after {
+    content: " \2192";
+  }
+
+  .newsletter-author__link:hover {
+    color: var(--color-accent);
+  }
+
+  @media (min-width: 768px) {
+    .newsletter-author {
+      flex-direction: row;
+      align-items: center;
+      gap: var(--space-xl);
+      text-align: left;
+    }
+
+    .newsletter-author__text {
+      align-items: flex-start;
+    }
+
+    .newsletter-author__link {
+      align-self: flex-start;
+    }
+  }
+
+  /* ============================================================
+   * Rail recettes — scroll latéral mobile, grille 2→3 cols ≥ breakpoints
+   * ============================================================ */
+  .newsletter-recipes__title {
+    font-size: var(--text-2xl);
+    line-height: var(--line-height-snug);
+    margin-block: 0 var(--space-md);
+  }
+
+  .newsletter-recipes__rail {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: var(--space-md);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    /* Évite que les cartes soient rognées par le scroll. */
+    padding-block-end: var(--space-2xs);
+  }
+
+  .newsletter-recipes__item {
+    flex: 0 0 auto;
+    width: min(80%, 18rem);
+    scroll-snap-align: start;
+  }
+
+  @media (min-width: 768px) {
+    .newsletter-recipes__rail {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      overflow: visible;
+    }
+
+    .newsletter-recipes__item {
+      width: auto;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .newsletter-recipes__rail {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .newsletter-recipes__all {
+    display: inline-block;
+    margin-block-start: var(--space-md);
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.02em;
+    color: var(--color-fg);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    transition: color var(--transition-fast);
+  }
+
+  .newsletter-recipes__all::after {
+    content: " \2192";
+  }
+
+  .newsletter-recipes__all:hover {
+    color: var(--color-accent);
+  }
+
+  /* ============================================================
+   * Bloc promo abonnement — carte centrée
+   * ============================================================ */
+  .newsletter-promo__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-xl) var(--space-md);
+    text-align: center;
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+  }
+
+  .newsletter-promo__title {
+    font-size: var(--text-2xl);
+    line-height: var(--line-height-snug);
+    margin-block: 0;
+  }
+
+  .newsletter-promo__subtitle {
+    font-family: var(--font-body);
+    line-height: var(--line-height-relaxed);
+    color: var(--color-fg-muted);
+    margin-block: 0;
+    max-width: 52ch;
+  }
+
+  .newsletter-promo__cta {
+    margin-block-start: var(--space-2xs);
+  }
+}

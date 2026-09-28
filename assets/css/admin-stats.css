@@ -1,0 +1,92 @@
+/**
+ * Widget « 180°C — Abonnés » — style minimal du tableau de bord.
+ *
+ * Enqueue uniquement sur l'écran index.php (cf. inc/stats/subscriber-widget.php).
+ * Grille sobre, typographie native de l'admin WP, accent 180°C sur les valeurs.
+ * Couleurs de variation sémantiques : vert = sens favorable, rouge = défavorable.
+ */
+
+._180c-stats__grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 1px;
+	background: #dcdcde;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+._180c-stats__cell {
+	display: flex;
+	flex-direction: column;
+	gap: 0.2em;
+	padding: 0.9em 1em;
+	background: #fff;
+}
+
+._180c-stats__label {
+	font-size: 0.8em;
+	color: #646970;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+._180c-stats__value {
+	font-size: 1.6em;
+	font-weight: 700;
+	line-height: 1.1;
+	color: #1d2327;
+	border-bottom: 3px solid #ffae3a;
+	display: inline-block;
+	align-self: flex-start;
+	padding-bottom: 2px;
+}
+
+._180c-stats__meta {
+	display: flex;
+	align-items: baseline;
+	gap: 0.5em;
+	flex-wrap: wrap;
+	font-size: 0.82em;
+	margin-top: 0.1em;
+}
+
+._180c-stats__delta {
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+._180c-stats__delta--good {
+	color: #1a7d2c;
+}
+
+._180c-stats__delta--bad {
+	color: #b32d2e;
+}
+
+._180c-stats__delta--flat,
+._180c-stats__delta--na {
+	color: #8c8f94;
+	font-weight: 400;
+}
+
+._180c-stats__note {
+	color: #646970;
+}
+
+._180c-stats__foot {
+	margin: 0.9em 0 0;
+	color: #8c8f94;
+	font-size: 0.8em;
+}
+
+._180c-stats__empty {
+	margin: 0;
+	color: #646970;
+}
+
+@media screen and (max-width: 782px) {
+	._180c-stats__grid {
+		grid-template-columns: 1fr;
+	}
+}

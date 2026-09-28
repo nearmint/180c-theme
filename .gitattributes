@@ -1,0 +1,33 @@
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.avif binary
+*.ico binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.pdf binary
+*.zip binary
+
+# Exclure du export Git (utilisé par GitHub releases, etc.)
+#
+# Pas de `src/ export-ignore` : src/css et src/images sont du runtime (icônes
+# inline, badges du footer, images d'e-mails, page design-system). L'attribut
+# produisait une archive au thème cassé, et laissait croire que src/ était
+# entièrement de l'outillage. Le déploiement part du checkout, jamais d'un
+# git archive — mais l'attribut restait un piège pour qui en fabriquerait un.
+.github/        export-ignore
+.claude/        export-ignore
+node_modules/   export-ignore
+vendor/         export-ignore
+*.md            export-ignore
+phpcs.xml.dist  export-ignore
+composer.json   export-ignore
+composer.lock   export-ignore
+package.json    export-ignore
+package-lock.json export-ignore

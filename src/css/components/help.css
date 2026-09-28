@@ -1,0 +1,442 @@
+/**
+ * Centre d'aide — composant FAQ avec accordéons et TOC sticky.
+ *
+ * Markup associé : page-aide.php
+ * JS associé : src/js/modules/help.js
+ *
+ * @package 180c-theme
+ */
+
+.centre-aide {
+    /* Tokens locaux — à remplacer par les vars globales du @theme si dispo */
+    --help-accent: var(--color-accent, #FFAE3A);
+    --help-text: var(--color-fg, currentColor);
+    --help-text-muted: var(--color-fg-muted, color-mix(in srgb, currentColor 65%, transparent));
+    --help-border: var(--color-border, color-mix(in srgb, currentColor 12%, transparent));
+    --help-surface: var(--color-bg-elevated, color-mix(in srgb, currentColor 4%, transparent));
+    --help-font-display: var(--font-display, "Oswald", sans-serif);
+    --help-font-body: var(--font-body, "Playfair Display", serif);
+    --help-radius: 8px;
+    --help-transition: 280ms cubic-bezier(0.4, 0, 0.2, 1);
+    --help-header-offset: var(--header-height, 80px);
+
+    color: var(--help-text);
+    padding-block: clamp(2rem, 4vw, 4rem);
+}
+
+/* ---------- Hero ---------- */
+
+.centre-aide__hero {
+    text-align: center;
+    margin-bottom: clamp(2rem, 5vw, 4rem);
+    /* Gouttière alignée sur le conteneur du header (.site-container). */
+    padding-inline: var(--container-pad);
+}
+
+.centre-aide__hero-wrap {
+    max-width: 720px;
+    margin-inline: auto;
+}
+
+.centre-aide__title {
+    font-family: var(--help-font-display);
+    font-weight: 600;
+    font-size: clamp(2.25rem, 5vw, 3.5rem);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    margin: 0 0 0.75rem;
+}
+
+.centre-aide__intro {
+    font-family: var(--help-font-body);
+    font-size: clamp(1rem, 1.5vw, 1.125rem);
+    line-height: 1.6;
+    color: var(--help-text-muted);
+    margin: 0;
+}
+
+/* ---------- Layout ---------- */
+
+.centre-aide__layout {
+    display: grid;
+    gap: clamp(2rem, 4vw, 3rem);
+    /* Cadre externe identique au conteneur du header (.site-container). */
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: var(--container-pad);
+}
+
+@media (min-width: 1024px) {
+    .centre-aide__layout {
+        grid-template-columns: 240px 1fr;
+        align-items: start;
+    }
+}
+
+/* ---------- TOC ---------- */
+
+.centre-aide__toc {
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .centre-aide__toc {
+        display: block;
+        position: sticky;
+        top: calc(var(--help-header-offset) + 1.5rem);
+        max-height: calc(100vh - var(--help-header-offset) - 3rem);
+        overflow-y: auto;
+        padding-right: 0.5rem;
+    }
+}
+
+.centre-aide__toc-title {
+    font-family: var(--help-font-display);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--help-text-muted);
+    margin: 0 0 0.75rem;
+}
+
+.centre-aide__toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+/*
+ * Bouton sondage — pleine largeur de la sidebar, sous le sommaire.
+ *
+ * `.btn.btn--primary` porte déjà le fond accent et le texte sur accent ; seuls
+ * la largeur et l'espacement de séparation sont ajoutés ici. Le sommaire étant
+ * `position: sticky` sur desktop, le bouton le suit au défilement — c'est
+ * voulu, il reste atteignable pendant toute la lecture.
+ */
+.centre-aide__toc-survey {
+    display: flex;
+    width: 100%;
+    margin-top: var(--space-md);
+    text-align: center;
+}
+
+.centre-aide__toc-link {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    font-family: var(--help-font-body);
+    font-size: 0.95rem;
+    line-height: 1.4;
+    color: var(--help-text-muted);
+    text-decoration: none;
+    border-radius: var(--help-radius);
+    border-left: 2px solid transparent;
+    transition: color var(--help-transition), border-color var(--help-transition), background-color var(--help-transition);
+}
+
+.centre-aide__toc-link:hover,
+.centre-aide__toc-link:focus-visible {
+    color: var(--help-text);
+    background-color: var(--help-surface);
+}
+
+.centre-aide__toc-link.is-active {
+    color: var(--help-accent);
+    border-left-color: var(--help-accent);
+}
+
+/* ---------- Sections ---------- */
+
+.centre-aide__content {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2rem, 4vw, 3rem);
+    min-width: 0;
+}
+
+.centre-aide__section {
+    scroll-margin-top: calc(var(--help-header-offset) + 1.5rem);
+}
+
+.centre-aide__section-title {
+    font-family: var(--help-font-display);
+    font-weight: 600;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: -0.005em;
+    margin: 0 0 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--help-border);
+}
+
+/* ---------- Accordéons ---------- */
+
+.centre-aide__questions {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.centre-aide__item {
+    border-bottom: 1px solid var(--help-border);
+    scroll-margin-top: calc(var(--help-header-offset) + 1rem);
+}
+
+.centre-aide__item-heading {
+    margin: 0;
+    font: inherit;
+    font-weight: inherit;
+}
+
+.centre-aide__trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+    padding: 1.125rem 0;
+    background: transparent;
+    border: 0;
+    text-align: left;
+    cursor: pointer;
+    color: inherit;
+    font: inherit;
+    font-family: var(--help-font-body);
+    font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+    line-height: 1.35;
+    transition: color var(--help-transition);
+}
+
+.centre-aide__trigger:hover,
+.centre-aide__trigger:focus-visible {
+    color: var(--help-accent);
+}
+
+.centre-aide__trigger:focus-visible {
+    outline: 2px solid var(--help-accent);
+    outline-offset: 4px;
+    border-radius: 4px;
+}
+
+.centre-aide__question-text {
+    flex: 1 1 auto;
+}
+
+.centre-aide__icon {
+    flex: 0 0 24px;
+    width: 24px;
+    height: 24px;
+    position: relative;
+    transition: transform var(--help-transition);
+}
+
+.centre-aide__icon::before,
+.centre-aide__icon::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 14px;
+    height: 2px;
+    background-color: currentColor;
+    transform: translate(-50%, -50%);
+    transition: opacity var(--help-transition), transform var(--help-transition);
+}
+
+.centre-aide__icon::after {
+    transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.centre-aide__trigger[aria-expanded="true"] .centre-aide__icon::after {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(0deg);
+}
+
+/* ---------- Réponse (panneau) ---------- */
+
+.centre-aide__answer {
+    overflow: hidden;
+    height: 0;
+    transition: height var(--help-transition);
+}
+
+.centre-aide__answer[hidden] {
+    display: block !important; /* on contrôle l'ouverture via height + JS, pas via [hidden] */
+    height: 0;
+}
+
+.centre-aide__answer-inner {
+    padding: 0.25rem 0 1.5rem;
+    font-family: var(--help-font-body);
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--help-text);
+    max-width: 65ch;
+}
+
+.centre-aide__answer-inner > * + * {
+    margin-top: 0.75em;
+}
+
+.centre-aide__answer-inner p {
+    margin: 0;
+}
+
+.centre-aide__answer-inner a {
+    color: var(--help-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* Listes des reponses FAQ.
+ *
+ * Le preflight Tailwind (@layer base) pose `ul, ol { list-style: none }` : les
+ * reponses ACF, qui sont du HTML WYSIWYG nu (pas de classe), perdaient donc
+ * TOUT marqueur. Ce fichier est hors @layer, il gagne sans !important.
+ * Marqueur en accent DS (#FFAE3A), meme parti pris que le corps d'article
+ * (cf. src/css/components/content-blocks.css). */
+.centre-aide__answer-inner ol,
+.centre-aide__answer-inner ul {
+    padding-left: 1.5rem;
+    margin: 0;
+    list-style-position: outside;
+}
+
+.centre-aide__answer-inner ul {
+    list-style-type: disc;
+}
+
+.centre-aide__answer-inner ol {
+    list-style-type: decimal;
+}
+
+/* Imbrication : alternance classique disc → circle → square. */
+.centre-aide__answer-inner ul ul {
+    list-style-type: circle;
+}
+
+.centre-aide__answer-inner ul ul ul {
+    list-style-type: square;
+}
+
+.centre-aide__answer-inner ol li,
+.centre-aide__answer-inner ul li {
+    margin-top: 0.25em;
+}
+
+/* `::marker` couvre disc/circle/square ET les numeros de <ol>. */
+.centre-aide__answer-inner li::marker {
+    color: var(--help-accent);
+}
+
+.centre-aide__answer-inner table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    margin-top: 1rem;
+}
+
+.centre-aide__answer-inner th,
+.centre-aide__answer-inner td {
+    padding: 0.75rem 0.875rem;
+    border-bottom: 1px solid var(--help-border);
+    text-align: left;
+    vertical-align: top;
+}
+
+.centre-aide__answer-inner th {
+    font-family: var(--help-font-display);
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--help-text-muted);
+}
+
+/* ---------- Bloc vide ---------- */
+
+.centre-aide__empty {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 2rem;
+    text-align: center;
+    border: 1px dashed var(--help-border);
+    border-radius: var(--help-radius);
+    color: var(--help-text-muted);
+}
+
+/* ---------- CTA bottom ---------- */
+
+.centre-aide__cta {
+    max-width: var(--container-max);
+    margin: clamp(3rem, 6vw, 5rem) auto 0;
+    padding-inline: var(--container-pad);
+}
+
+.centre-aide__cta-wrap {
+    background-color: var(--help-surface);
+    border: 1px solid var(--help-border);
+    border-radius: calc(var(--help-radius) * 2);
+    padding: clamp(2rem, 4vw, 3rem);
+    text-align: center;
+}
+
+.centre-aide__cta-title {
+    font-family: var(--help-font-display);
+    font-weight: 600;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    line-height: 1.2;
+    margin: 0 0 0.5rem;
+}
+
+.centre-aide__cta-text {
+    font-family: var(--help-font-body);
+    font-size: 1.05rem;
+    color: var(--help-text-muted);
+    margin: 0 0 1.75rem;
+}
+
+.centre-aide__cta-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.875rem 1.75rem;
+    background-color: var(--help-accent);
+    color: #1a1a1a;
+    font-family: var(--help-font-display);
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    border-radius: var(--help-radius);
+    transition: transform var(--help-transition), filter var(--help-transition);
+}
+
+.centre-aide__cta-button:hover,
+.centre-aide__cta-button:focus-visible {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+}
+
+.centre-aide__cta-button:focus-visible {
+    outline: 2px solid var(--help-accent);
+    outline-offset: 4px;
+}
+
+/* ---------- Réduction des animations ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+    .centre-aide *,
+    .centre-aide *::before,
+    .centre-aide *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+}

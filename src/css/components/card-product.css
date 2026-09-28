@@ -1,0 +1,107 @@
+/**
+ * Carte produit partagée — .card-180c--product.
+ *
+ * Extraite de components/woo.css : contrairement au reste de cette feuille
+ * (fiche produit, panier, checkout, Mon Compte), la carte produit est rendue
+ * sur des pages SANS contexte commerce — rails « publications » de la home,
+ * cross-sells, modules produits du builder. Elle doit donc rester dans le
+ * bundle CSS global, alors que woo.css part dans le bundle conditionnel
+ * `commerce` (voir src/css/commerce.css).
+ *
+ * Base .card-180c : components/home/articles-rail.css
+ * Variantes : --sm (rail / cross-sell) · --md (grille, défaut)
+ *
+ * Déplacement à l'identique : aucune règle modifiée.
+ */
+
+@layer components {
+  /* La carte produit empile le lien (média + titre + prix) PUIS le CTA d'achat.
+   * Le CTA est un frère de .card-180c__link ; comme .card-180c__link porte
+   * height:100% (gabarit article/recette où toute la carte est un lien), il
+   * remplissait toute la hauteur et repoussait le CTA hors du cadre
+   * (.card-180c overflow:hidden) → CTA invisible. On passe la carte produit en
+   * flex column : le lien grandit (flex:1), le CTA reste visible en bas et
+   * s'aligne sur toutes les cartes du rail. */
+  .card-180c--product {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-180c--product .card-180c__link {
+    height: auto;
+    flex: 1 1 auto;
+  }
+
+  .card-180c--product .card-180c__media {
+    position: relative;
+  }
+
+  /* Règle photo client : les packshots produits ne sont JAMAIS recadrés.
+   * La photo entière reste visible (object-fit: contain) ; le cadre conserve
+   * son ratio et son fond neutre token (--cream, hérité de .card-180c__media)
+   * sert de letterbox. Les visuels éditoriaux (recette/article) gardent cover.
+   * Scopé au produit uniquement. */
+  .card-180c--product .card-180c__image {
+    object-fit: contain;
+  }
+
+  /* Badge « Épuisé » posé sur le visuel (rupture de stock). */
+  .card-180c__badge {
+    position: absolute;
+    top: var(--space-2xs);
+    left: var(--space-2xs);
+    z-index: 1;
+    padding: var(--space-3xs) var(--space-xs);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-fg);
+    color: var(--color-bg);
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .card-180c--product .card-180c__price {
+    font-family: var(--font-display);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent-text);
+  }
+
+  /* Le CTA panier hérite de .btn .btn--primary ; collé au bas de la carte. */
+  .card-180c--product .card-180c__cta {
+    margin: 0 var(--space-md) var(--space-md);
+    text-align: center;
+  }
+
+  /* ------------------------------------------------------------
+   * Rail publications (home) — visuels produits carrés + spacing prix
+   *
+   * Ratio carré réservé aux visuels PRODUITS du rail publications : les
+   * photos éditoriales (recettes/articles) conservent leur ratio non recadré.
+   * On réduit aussi l'espace sous le prix (padding-bas du corps) pour resserrer
+   * le bloc prix → CTA.
+   * ------------------------------------------------------------ */
+  .home-module--products_rail .card-180c__media {
+    aspect-ratio: 1 / 1;
+  }
+
+  .home-module--products_rail .card-180c__body {
+    padding-block-end: var(--space-2xs);
+  }
+
+  /* ------------------------------------------------------------
+   * Archive boutique / catégories produit (woocommerce/archive-product.php)
+   *
+   * Les packshots produits (revues, livres, cahiers) sont quasi tous des
+   * couvertures PORTRAIT (~3/4). Le cadre adopte donc ce même ratio 3/4 :
+   * combiné au object-fit: contain de .card-180c--product, la couverture
+   * remplit le cadre quasi bord à bord, SANS rognage et sans barres crème
+   * latérales (que produisait l'ancien cadre carré 1/1). Scopé à .woo-archive
+   * pour ne pas toucher les cartes article/recette des autres archives, ni
+   * les variantes --sm (cross-sell) de la fiche produit.
+   * ------------------------------------------------------------ */
+  .woo-archive .card-180c--product .card-180c__media {
+    aspect-ratio: 3 / 4;
+  }
+}
