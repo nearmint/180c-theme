@@ -254,6 +254,9 @@ require_once _180C_THEME_DIR . '/inc/auth/activation.php';
 require_once _180C_THEME_DIR . '/inc/auth/login.php';
 require_once _180C_THEME_DIR . '/inc/auth/register.php';
 require_once _180C_THEME_DIR . '/inc/auth/password-reset.php';
+// Après les modules d'authentification et le 2FA : normalise leurs messages
+// d'échec (priorité 100 sur `authenticate`) sans toucher au REST ni au JWT.
+require_once _180C_THEME_DIR . '/inc/auth/anti-enumeration.php';
 require_once _180C_THEME_DIR . '/inc/auth/account-delete.php';
 
 // Suppression de compte (web) : eligibility.php avant endpoint.php, qui

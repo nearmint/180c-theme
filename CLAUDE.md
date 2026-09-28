@@ -44,6 +44,7 @@ Toute valeur non publique lue au runtime vit dans une constante `_180C_*` de
 | `_180C_EXTRA_REDIRECTS` | redirections `source => cible` non versionnables | ignorées |
 | `_180C_MAIL_FROM_ADDRESS` | expéditeur des e-mails WP (facultatif) | option WooCommerce `woocommerce_email_from_address` |
 | `_180C_ONESIGNAL_SEGMENT_IDS` | tableau `clé => UUID` des segments OneSignal | envoi par nom de segment, sans contrôle |
+| `_180C_TRUSTED_PROXIES` | IP ou plages CIDR (virgules) des proxys dont `X-Forwarded-For` / `CF-Connecting-IP` sont crus | seul `REMOTE_ADDR` fait foi (production vérifiée : il porte l'IP réelle) |
 
 ## Conventions
 
