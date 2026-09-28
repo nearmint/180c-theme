@@ -80,6 +80,7 @@ require_once _180C_THEME_DIR . '/inc/media-alt.php';
 require_once _180C_THEME_DIR . '/inc/security.php';
 require_once _180C_THEME_DIR . '/inc/security-headers.php';
 require_once _180C_THEME_DIR . '/inc/enqueue.php';
+require_once _180C_THEME_DIR . '/inc/email-typo.php';
 require_once _180C_THEME_DIR . '/inc/perf-assets.php';
 require_once _180C_THEME_DIR . '/inc/contact.php';
 require_once _180C_THEME_DIR . '/inc/design-system.php';
