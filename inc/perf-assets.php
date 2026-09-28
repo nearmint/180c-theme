@@ -337,7 +337,7 @@ add_action( 'wp_enqueue_scripts', '_180c_dequeue_block_styles', 100 );
  * `wp_footer` priorité 1 avant de la remonter dans le <head>
  * (`wp_enqueue_global_styles()`, wp-includes/script-loader.php). Tout dequeue
  * posé sur `wp_enqueue_scripts` passe donc AVANT l'enqueue et ne capte rien —
- * constaté en local sous WP 7.0.2.
+ * constaté en local.
  *
  * On désenregistre donc les deux actions du cœur plutôt que de courir après le
  * handle. `template_redirect` est le premier hook où la requête principale est

@@ -7,7 +7,7 @@
  * contenu mince indexable au rendu incohérent. On redirige plutôt vers le post
  * parent, ou à défaut vers le fichier média lui-même.
  *
- * (wp_attachment_pages_enabled = 1 sur cette instance, confirmé en Site Shell.)
+ * (wp_attachment_pages_enabled = 1 sur cette instance.)
  *
  * @package 180c
  */

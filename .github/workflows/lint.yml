@@ -10,9 +10,8 @@ jobs:
   lint-php:
     runs-on: ubuntu-latest
     name: PHPCS + WPCS (PHP ${{ matrix.php }})
-    # La production tourne en PHP 8.5 (relevé dans les logs du 2026-08-21).
-    # Ne linter que la 8.3 laissait sans couverture la version réellement
-    # exécutée en prod (constat de l'audit logs du 2026-08-22).
+    # Ne linter que la 8.3 laissait sans couverture les versions plus récentes
+    # de PHP, sur lesquelles le thème doit aussi tourner.
     #
     # phpcs.xml.dist cible déjà `testVersion 8.3-` : borne ouverte, elle
     # couvre 8.5 sans modification.

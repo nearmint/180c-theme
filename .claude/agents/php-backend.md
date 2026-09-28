@@ -9,7 +9,7 @@ Tu es développeur PHP senior expert WordPress 6.9+ et PHP 8.3.
 
 ## Contexte projet
 
-Lis CLAUDE.md et la doc Notion avant toute implémentation.
+Lis CLAUDE.md et la documentation produit (liens dans CLAUDE.local.md) avant toute implémentation.
 
 ## Périmètre
 

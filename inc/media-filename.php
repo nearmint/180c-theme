@@ -16,7 +16,7 @@
  * Ce module ramène tout nom de fichier média à `[a-z0-9-]` — silencieusement,
  * sans notice ni message d'admin.
  *
- * CE QUE FAIT DÉJÀ LE CORE (vérifié sur WordPress 7.0.2)
+ * CE QUE FAIT DÉJÀ LE CORE (vérifié sur le cœur WordPress)
  * -----------------------------------------------------
  * `sanitize_file_name()` (wp-includes/formatting.php:2035) appelle bien
  * `remove_accents()` en première ligne — contrairement à une idée reçue, les

@@ -11,7 +11,7 @@ Tu es le coordinateur principal pour la construction du thème 180c-theme v1.
 Avant toute chose, lis :
 
 1. `CLAUDE.md` à la racine du repo
-2. Les pages Notion référencées dans CLAUDE.md (Brief produit, Architecture technique, Modèle de contenu, Design System)
+2. Les pages de documentation produit référencées dans CLAUDE.local.md (Brief produit, Architecture technique, Modèle de contenu, Design System)
 
 ## Plan d'exécution
 
@@ -20,8 +20,8 @@ Exécute ce plan dans l'ordre. Entre chaque étape : commit atomique conventionn
 ### Phase 1 — Foundations
 
 1. `wp-architect` — Valider la structure du repo, créer/compléter les fichiers PHP structurels manquants
-2. `wp-architect` — Implémenter les groupes ACF (versionner dans `acf-json/`) selon Notion `📊 Modèle de contenu`
-3. `frontend-blocks` — Compléter `src/css/main.css` et `src/css/tokens.css` selon le Design System Notion
+2. `wp-architect` — Implémenter les groupes ACF (versionner dans `acf-json/`) selon la page `📊 Modèle de contenu`
+3. `frontend-blocks` — Compléter `src/css/main.css` et `src/css/tokens.css` selon le Design System (documentation produit)
 4. `frontend-blocks` — Compiler le build Vite (`npm run build`) et vérifier que le manifest est lu correctement
 
 ### Phase 2 — Modules de la home

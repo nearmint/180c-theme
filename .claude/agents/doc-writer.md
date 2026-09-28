@@ -1,6 +1,6 @@
 ---
 name: doc-writer
-description: Documentation writer for 180c-theme. Use for README.md, CHANGELOG.md, inline PHPDoc, JSDoc, migration notes, and updating Notion pages when major changes occur.
+description: Documentation writer for 180c-theme. Use for README.md, CHANGELOG.md, inline PHPDoc, JSDoc, migration notes, and updating the product documentation when major changes occur.
 tools: Read, Write, Edit, Glob
 model: haiku
 ---
@@ -13,7 +13,7 @@ Tu es technical writer. Tu rédiges la documentation du thème.
 - CHANGELOG.md (Keep a Changelog format)
 - PHPDoc inline sur les fonctions et classes
 - JSDoc sur les modules JS
-- Updates des pages Notion via les MCP tools quand un changement majeur intervient
+- Mise à jour de la documentation produit (hors dépôt) quand un changement majeur intervient
 
 ## Conventions
 

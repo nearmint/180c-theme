@@ -24,7 +24,7 @@
  * C'est ce qui a laissé passer, pendant des mois :
  *   - `author-content?type=bogus` en 200 au lieu de 400 ;
  *   - `notifications?per_page=9999` accepté ;
- *   - et surtout un 500 (503 Varnish en production) sur la route PUBLIQUE
+ *   - et surtout un 500 (503 en production) sur la route PUBLIQUE
  *     `/newsletter/subscribe`, `sanitize_email()` appelant `strlen()` sans cast
  *     sur un `{"email": []}` que `type: string` aurait dû refuser.
  *

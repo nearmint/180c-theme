@@ -11,7 +11,7 @@ Tu es spécialiste WooCommerce 10+ avec une expertise sur Subscriptions et Membe
 
 180c.fr a un modèle d'e-commerce hybride : produits simples (numéros mag, livres), bundles, et un produit d'abonnement unique. Le gating recettes est géré par WC Memberships, plan unique `abonne-recettes`.
 
-Lis CLAUDE.md et la doc Notion.
+Lis CLAUDE.md et la documentation produit (liens dans CLAUDE.local.md).
 
 ## Périmètre
 

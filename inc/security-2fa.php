@@ -28,25 +28,8 @@
  * mais n'ouvrent jamais de session cookie dans l'administration.
  *
  * ---------------------------------------------------------------------------
- * PERTE D'ACCÈS (téléphone perdu, trousseau effacé) — il n'y a PAS de codes de
- * secours. Pour débloquer le compte :
- *
- * 1. ouvrir la base de production, table `{prefix}usermeta` ;
- * 2. repérer l'ID du compte dans `{prefix}users` (colonne `user_login` =
- *    valeur de `_180C_2FA_LOGIN`) ;
- * 3. supprimer, pour ce `user_id`, les lignes dont `meta_key` vaut
- *    `_180c_totp_secret` et `_180c_totp_enrolled` (et `_180c_totp_last_step`,
- *    inoffensive mais inutile).
- *
- * Requête équivalente (remplacer `{prefix}` et `{login}`) :
- *
- *   DELETE FROM {prefix}usermeta
- *   WHERE user_id = ( SELECT ID FROM {prefix}users WHERE user_login = '{login}' )
- *     AND meta_key IN ( '_180c_totp_secret', '_180c_totp_enrolled', '_180c_totp_last_step' ); -- gitleaks:allow (noms de meta, pas un secret)
- *
- * Effet : le 2FA est désactivé, la connexion par mot de passe redevient
- * normale, et l'écran d'enrôlement réapparaît à la visite suivante de
- * l'administration avec un NOUVEAU secret.
+ * PERTE D'ACCÈS : il n'y a pas de codes de secours. La procédure de
+ * déblocage (intervention en base) est documentée hors dépôt.
  * ---------------------------------------------------------------------------
  *
  * @package 180c

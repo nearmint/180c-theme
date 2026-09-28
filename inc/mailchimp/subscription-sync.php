@@ -53,7 +53,7 @@ function _180c_mc_subscription_sync_tag( $subscription, bool $active ): void {
 	// C'est celui que lisent /newsletter/premium, /newsletter/status et
 	// /newsletter/account-optin ($user->user_email) et celui que vise
 	// membership-sync.php. Viser l'adresse de facturation faisait diverger les
-	// deux : sur les 757 abonnements actifs du clone local, 22 (2,9 %) ont une
+	// deux : une petite part des abonnements actifs du clone local a une
 	// facturation différente du compte — leur tag partait sur un contact que le
 	// toggle « Mon compte » et les apps ne consultent jamais.
 	// L'e-mail de facturation reste le repli, pour les abonnements sans compte.

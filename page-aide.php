@@ -40,7 +40,7 @@ $has_sections  = ! empty( $help_sections ) && is_array( $help_sections );
  * `_<nom>` posée sur le post à l'enregistrement ; tant que la page n'a pas été
  * sauvegardée depuis l'ajout du champ, `_help_cta_text` est absente,
  * `acf_maybe_get_field()` renvoie null et `get_field()` sort AVANT d'appliquer
- * `default_value` — vérifié sur ACF 6.8.6 : `acf_get_value()` rend bien la
+ * `default_value` — vérifié sur ACF Pro : `acf_get_value()` rend bien la
  * valeur par défaut, `get_field()` rend `null`. Sans ce repli, la phrase
  * disparaîtrait donc du site à la seconde du déploiement, jusqu'au premier
  * enregistrement de la page en admin.

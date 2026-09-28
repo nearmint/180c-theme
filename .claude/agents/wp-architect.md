@@ -9,7 +9,7 @@ Tu es architecte WordPress 6.9+ pour le thème 180c-theme.
 
 ## Contexte projet
 
-Lis CLAUDE.md à la racine du repo et la doc Notion (liens dans CLAUDE.md) avant toute décision.
+Lis CLAUDE.md à la racine du repo et la documentation produit (liens dans CLAUDE.local.md) avant toute décision.
 
 ## Périmètre
 
@@ -40,4 +40,4 @@ Lis CLAUDE.md à la racine du repo et la doc Notion (liens dans CLAUDE.md) avant
 - Ne pas modifier la BDD directement depuis le thème (utiliser register_activation_hook ou des scripts de migration hors dépôt)
 - Ne pas hardcoder de strings non traduisibles (toujours `__()` ou `_e()`)
 - Ne pas créer de capabilities custom en v1
-- Ne pas dévier de la structure repo documentée dans `🏗 Architecture technique` sur Notion
+- Ne pas dévier de la structure repo documentée dans `🏗 Architecture technique` (documentation produit)

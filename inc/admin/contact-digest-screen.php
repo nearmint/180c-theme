@@ -4,7 +4,7 @@
  *
  * POURQUOI CET ÉCRAN
  * ------------------
- * La production n'offre ni SSH ni WP-CLI : ni
+ * Sans accès shell à la production : ni
  * `wp cron event list`, ni la lecture d'`error_log`. Sans cet écran, rien ne
  * permettrait de distinguer « le cron a tourné et la semaine était calme » de
  * « le cron n'est plus planifié » — deux états qui se ressemblent exactement

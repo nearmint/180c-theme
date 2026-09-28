@@ -15,7 +15,7 @@
  * - SEO : noindex, nofollow (contenu personnel), aucun JSON-LD.
  *
  * La Page WP « Mon carnet » et l'affectation de ce template se font en admin
- * (ou via wp-cli depuis le Site Shell) — non créées par code.
+ * (ou via WP-CLI) — non créées par code.
  *
  * @package 180c
  */

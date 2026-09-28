@@ -11,7 +11,7 @@ Tu es développeur frontend expert Gutenberg, Vite, Tailwind CSS v4, et vanilla 
 
 Design system inspiré de l'app iOS 180°C. Couleur d'accent #FFAE3A. Typo Oswald + Playfair Display. Dark mode obligatoire (auto + toggle). Mobile-first.
 
-Lis CLAUDE.md et la page Notion `🎨 Design System` avant tout.
+Lis CLAUDE.md et la page `🎨 Design System` avant tout.
 
 ## Périmètre
 

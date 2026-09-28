@@ -17,7 +17,7 @@
  *     Autrement dit : les pages anonymes en cache — l'essentiel du trafic —
  *     ne sont couvertes ici que si WPSC veut bien rejouer ces en-têtes.
  *     Le vecteur qui les couvre à coup sûr est `mod_headers` dans le
- *     `.htaccess` racine (runbook dans Notion — Architecture technique), appliqué
+ *     `.htaccess` racine (procédure documentée hors dépôt), appliqué
  *     manuellement en SFTP puisqu'il est hors du périmètre de la CI.
  *
  *  2. Les fichiers statiques (CSS, JS, images, PDF) sont servis directement par
@@ -68,7 +68,7 @@ if ( ! defined( '_180C_HSTS_MAX_AGE' ) ) {
  * `www.180c.fr`, elle ne concerne que `*.www.180c.fr`, c'est-à-dire rien, et
  * elle ne protège pas l'apex. La redirection `180c.fr` → `www` est servie par
  * Apache sans passer par PHP : couvrir l'apex impose le `.htaccess`, hors de
- * portée de ce module (runbook dans Notion — Architecture technique).
+ * portée de ce module (procédure documentée hors dépôt).
  */
 if ( ! defined( '_180C_HSTS_INCLUDE_SUBDOMAINS' ) ) {
 	define( '_180C_HSTS_INCLUDE_SUBDOMAINS', false );
@@ -124,7 +124,7 @@ if ( ! defined( '_180C_CSP_REPORT_ONLY' ) ) {
  * tout le reste. Les inclure évite de noyer le rapport sous des centaines de
  * violations déjà connues, pour laisser apparaître le seul inconnu utile : les
  * hôtes tiers manquants. La sortie par nonce est documentée comme dette dans
- * le runbook Notion (Architecture technique).
+ * la documentation d'exploitation (hors dépôt).
  *
  * `report-uri` est volontairement absent : collecter les rapports supposerait
  * un endpoint public sur un hébergement mutualisé, exposé à un flood trivial.

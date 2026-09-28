@@ -121,7 +121,7 @@ jobs:
         # `rest_parse_request_arg` que le cœur assigne par défaut
         # (wp-includes/rest-api/class-wp-rest-request.php:858-861) : `enum`,
         # `minimum` et `type` deviennent alors décoratifs, sans avertissement.
-        # A laissé passer un 500 (503 Varnish) sur /newsletter/subscribe, route
+        # A laissé passer un 500 (503 en production) sur /newsletter/subscribe, route
         # publique. Analyse statique : le job ne charge jamais WordPress.
         run: php tools/check-rest-args-validation.php
 

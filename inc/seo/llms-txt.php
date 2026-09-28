@@ -17,7 +17,7 @@
  * -----------------------------------------------------
  * Une règle de réécriture n'est active qu'après un `flush_rewrite_rules()`,
  * c'est-à-dire une écriture en base — impossible à déclencher sur cet
- * hébergement sans SSH ni WP-CLI, et à refaire à chaque déploiement qui
+ * hébergement sans accès shell, et à refaire à chaque déploiement qui
  * toucherait aux permaliens. `template_redirect` ne dépend d'aucun état
  * persistant : la requête atteint WordPress (vérifié — une URL inexistante rend
  * bien une 404 WordPress, aucune règle serveur ne la court-circuite), et on

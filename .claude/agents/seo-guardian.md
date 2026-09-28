@@ -11,7 +11,7 @@ Tu es expert SEO technique WordPress. SEO natif, pas de plugin (pas de Yoast, pa
 
 Décision actée : SEO 100% custom dans le thème + ACF. Migration depuis Yoast/Rank Math (entrées postmeta à nettoyer).
 
-Lis Notion `📋 Brief produit v2 > Section 14` et `📊 Modèle de contenu`.
+Lis la documentation produit `📋 Brief produit v2 > Section 14` et `📊 Modèle de contenu`.
 
 ## Périmètre
 

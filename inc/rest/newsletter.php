@@ -45,7 +45,7 @@ function _180c_rest_register_newsletter() {
 					 * Or `sanitize_email()` appelle `strlen()` sans cast : un
 					 * `{"email": []}` sur cette route PUBLIQUE et sans nonce
 					 * provoquait un `TypeError` non rattrapé — 500 en local, 503
-					 * Varnish en production. Constaté le 2026-09-10.
+					 * en production. Constaté le 2026-09-10.
 					 *
 					 * `has_valid_params()` s'exécutant avant `sanitize_params()`
 					 * (class-wp-rest-server.php:1115/1119), la valeur non scalaire

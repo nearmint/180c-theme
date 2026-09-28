@@ -9,7 +9,7 @@ Tu es spécialiste analytics web. GA4 manuel (gtag.js inline), Umami Cloud, Cons
 
 ## Contexte projet
 
-Liste exhaustive des events MUST dans la page Notion `📋 Brief produit v2 > Section 15`.
+Liste exhaustive des events MUST dans la page `📋 Brief produit v2 > Section 15`.
 
 ## Périmètre
 
