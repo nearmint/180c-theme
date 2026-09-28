@@ -19,6 +19,7 @@
 @import "./tokens.css";
 @import "./components/buttons.css";
 @import "./components/forms.css";
+@import "./components/email-suggest.css";
 @import "./components/cards.css";
 @import "./components/header.css";
 @import "./components/cart.css";

@@ -38,8 +38,12 @@ import './modules/help.js';
 // dynamique : un chunk lazy important toast.js (déjà dans le bundle principal)
 // ferait double-évaluer l'entrée → side-menu/panier liés deux fois.
 import './modules/share-bar.js';
+// Suggestion « Vouliez-vous dire …@wanadoo.fr ? » sous tout champ e-mail :
+// écouteurs délégués, quelques centaines d'octets, inerte sans champ e-mail.
+import { init as initEmailSuggest } from './modules/email-suggest.js';
 
 initIntentPrefetch();
+initEmailSuggest();
 
 // Mosaïque « Complétez votre collection » : suspension de l'animation hors
 // viewport et en onglet masqué. Markup rendu par PHP uniquement si le module
