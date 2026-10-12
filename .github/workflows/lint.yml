@@ -8,7 +8,7 @@ on:
 
 jobs:
   lint-php:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: PHPCS + WPCS (PHP ${{ matrix.php }})
     # Ne linter que la 8.3 laissait sans couverture les versions plus récentes
     # de PHP, sur lesquelles le thème doit aussi tourner.
@@ -23,7 +23,7 @@ jobs:
       matrix:
         php: ['8.3', '8.5']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -32,7 +32,7 @@ jobs:
           tools: composer
 
       - name: Cache Composer
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.composer/cache
           key: ${{ runner.os }}-php${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}
@@ -44,12 +44,12 @@ jobs:
         run: composer lint
 
   lint-front:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: ESLint + Stylelint
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: '24'
           cache: npm

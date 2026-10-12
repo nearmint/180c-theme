@@ -40,12 +40,15 @@ concurrency:
 jobs:
   deploy:
     name: Build & deploy
-    runs-on: ubuntu-latest
+    # Image figée : ubuntu-latest bascule sur Ubuntu 26 à partir du 19/10/2026.
+    # Les étapes « Lint PHP » et la garde REST appellent le `php` préinstallé
+    # de l'image : un changement d'image silencieux pourrait le faire disparaître.
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           # Historique complet : l'étape suivante compare le range poussé
           # (github.event.before..github.sha), impossible avec le depth 1 par défaut.
@@ -90,7 +93,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '24'   # package.json → engines >= 24
           cache: 'npm'
