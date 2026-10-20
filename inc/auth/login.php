@@ -131,6 +131,7 @@ function _180c_handle_login_form(): void {
 	}
 
 	// Tentative de connexion.
+	_180c_login_detach_jetpack_preauth();
 	$user = wp_signon(
 		array(
 			'user_login'    => $log,
@@ -167,6 +168,54 @@ function _180c_handle_login_form(): void {
 // la connexion n'était jamais traitée. `template_redirect` reste avant tout
 // output : wp_signon() peut donc poser ses cookies et rediriger.
 add_action( 'template_redirect', '_180c_handle_login_form' );
+
+/**
+ * Retire le pré-contrôle anti-force-brute de Jetpack avant le wp_signon() de /connexion/.
+ *
+ * Quand l'API Protect de Jetpack est injoignable ou refuse la clé, Jetpack
+ * bascule en « math fallback » (transient `brute_use_math`, 10 min, renouvelé
+ * à chaque appel). Son filtre `authenticate` (`check_preauth`, priorité 10)
+ * coupe alors tout POST portant un champ `log` sans réponse à l'équation :
+ * wp_die() en 401, avant même la vérification du mot de passe. La page
+ * d'équation renvoie vers wp-login.php SANS les identifiants : le lecteur
+ * tombe sur « identifiant vide / mot de passe vide » et ne se connecte jamais.
+ *
+ * Le formulaire du thème ne peut pas afficher l'équation (elle passe par
+ * l'action `login_form` de wp-login.php). On retire donc ce seul filtre, pour
+ * cette seule requête. /connexion/ reste protégée par le thème : nonce, blocage
+ * 1 h après 5 échecs en 15 min (inc/auth/rate-limit.php), Turnstile si configuré.
+ * wp-login.php, l'inscription et le reste de Jetpack ne sont pas touchés.
+ *
+ * Le callback est cherché dans `$wp_filter` plutôt que via `instance()` :
+ * appeler `instance()` alors que le module est désactivé l'instancierait et
+ * accrocherait ses hooks.
+ *
+ * @return void
+ */
+function _180c_login_detach_jetpack_preauth(): void {
+	global $wp_filter;
+
+	if ( empty( $wp_filter['authenticate'] ) || empty( $wp_filter['authenticate']->callbacks[10] ) ) {
+		return;
+	}
+
+	$classes = array(
+		'Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection',
+		'Jetpack_Protect_Module', // Ancienne implémentation, embarquée dans Jetpack.
+	);
+
+	foreach ( $wp_filter['authenticate']->callbacks[10] as $callback ) {
+		$function = $callback['function'];
+		if ( ! is_array( $function ) || ! is_object( $function[0] ) || 'check_preauth' !== $function[1] ) {
+			continue;
+		}
+		foreach ( $classes as $class ) {
+			if ( is_a( $function[0], $class ) ) {
+				remove_filter( 'authenticate', $function, 10 );
+			}
+		}
+	}
+}
 
 // ============================================================
 // Helpers d'état session (notices)
